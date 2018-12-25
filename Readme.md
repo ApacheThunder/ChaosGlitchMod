@@ -1,4 +1,4 @@
-Chaos Glitch Mod - v 1.5 by Apache Thunder.
+Chaos Glitch Mod - v 1.6 by Apache Thunder.
 Credits to KyleTheScientist, Zatherz, Abe Clancy, and PlaguedPixel for their help/code for improving/making certain features possible.
 
 
@@ -41,6 +41,16 @@ This new mode causes random enemies to be smaller or larger then normal. Even so
 5. All enemy spawn pools use GUIDs and are spawned via GetOrLoadByGUID now. Updating MTG should no longer be necessary to see all the newer AG&D enemies spawn. Note however this mod still requires post AG&D version of ETG though.
 6. Some immune enemies like lead cubes, flesh cubes, removed from bonus enemy spawn pool to avoid potential soft locks with certain room designs.
 
+New in 1.6:
+
+1. Added a couple new commands. Now bonus enemies can be toggled individually.
+2. Bonus enemies will no longer spawn in wall monger boss room.
+3. Mine Flayers Claymors added to enemy resize black list. Their trigger distance doesn't reflect their new size (the red circle thing that surrounds them). This could confuse players. So they will not have their size altered.
+4. Big enimes are now 1.5x larger instead of 1.25 times larger.
+5. Grip Masters removed from bonus enemy spawn list. They appear to have improper collision when they aren't in gun form when spawned in this way, which could make it impossible for players to avoid contact damage. 
+5. Additional enemies added to the Bonus Enemy spawn list.
+6. Destructibles on tables no longer spawn enemies.
+7. Drums can now have a chane to spawn enemies. Blue drums spawn skusket heads, Poison drums now spawn poisbuloids, and and flammable liquid drums now spawn funguns.
 
 Compiling and versions of Enter the Gungeon required:
 
