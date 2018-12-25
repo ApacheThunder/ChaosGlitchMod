@@ -17,16 +17,16 @@ namespace ChaosGlitchMod
 
     public class TrollModule : MonoBehaviour {
 
-        private static Hook aihookResize;
         private static Hook potenemyhook;
         private static Hook wallmimichook;
 
         public static int MaxWallMimicsPerRoom = 1;
         public static int MaxWallMimicsForFloor = 100;
 
+        public static bool potDebug = false;
         public static bool NormalWallMimicMode = false;
         public static bool NoWallMimics = false;
-        public static bool addRandomEnemy = true;
+        public static bool addRandomEnemy = false;
         public static bool debugMimicFlag = false;
         public static bool autoUltra = false;
         public static bool randomEnemySizeEnabled = false;
@@ -38,10 +38,9 @@ namespace ChaosGlitchMod
 
             if (autoUltra)
             {
-                NormalWallMimicMode = false;
-                NoWallMimics = false;
                 addRandomEnemy = true;
                 randomEnemySizeEnabled = true;
+                HooksAndLists.InstallPrimaryHooks(true);
                 potenemyhook = new Hook(
                         typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
                         typeof(HooksAndLists).GetMethod("SpawnAnnoyingEnemy")
@@ -50,16 +49,26 @@ namespace ChaosGlitchMod
                         typeof(Dungeon).GetMethod("PlaceWallMimics", BindingFlags.Public | BindingFlags.Instance),
                         typeof(HooksAndLists).GetMethod("PlaceWallMimicsHook", BindingFlags.Public | BindingFlags.Static)
                 );
-                aihookResize = new Hook(
-                        typeof(AIActor).GetMethod("Awake"),
-                        typeof(HooksAndLists).GetMethod("AwakeHookResize")
-                );
                 autoUltra = false;
             }
 
             ETGModConsole.Commands.AddGroup("chaos", delegate (string[] e)
             {
-                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\npots\nwalls\nwalls_extreme\nwalls_ultra\nwalls_disabled\ntinybigmode\nnormal\nextreme\nultra\ndebug\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
+                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nbonus\npots\nwalls\nwalls_extreme\nwalls_ultra\nwalls_disabled\ntinybigmode\nnormal\nextreme\nultra\ndebug\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
+            });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e)
+            {
+                if (addRandomEnemy) {
+                    addRandomEnemy = false;
+                    ETGModConsole.Log("Bonus Enemy Spawns disabled...", false);
+                } else {
+                    if (!addRandomEnemy) {
+                        addRandomEnemy = true;
+                        ETGModConsole.Log("Bonus Enemy Spawns enabled...", false);
+                    }
+                }
+                if (!GlitchModule.IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("pots", delegate (string[] e)
@@ -144,6 +153,8 @@ namespace ChaosGlitchMod
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tinybigmode", delegate (string[] e)
             {
+                if (!GlitchModule.IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
+
                 if (randomEnemySizeEnabled) {
                     randomEnemySizeEnabled = false;
                     ETGModConsole.Log("TinyBig mode enabled disabled...", false);
@@ -163,6 +174,8 @@ namespace ChaosGlitchMod
                 NoWallMimics = false;
                 addRandomEnemy = false;
                 randomEnemySizeEnabled = true;
+
+                if (!GlitchModule.IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
 
                 if (potFlag) {
                     ETGModConsole.Log("The Pots have already been filled...", false);
@@ -192,7 +205,9 @@ namespace ChaosGlitchMod
                 NoWallMimics = false;
                 addRandomEnemy = false;
                 randomEnemySizeEnabled = true;
- 
+
+                if (!GlitchModule.IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
+
                 if (potFlag) {
                     ETGModConsole.Log("The Pots have already been filled...", false);
                 } else {
@@ -220,6 +235,8 @@ namespace ChaosGlitchMod
                 NoWallMimics = false;
                 addRandomEnemy = true;
                 randomEnemySizeEnabled = true;
+                if (!GlitchModule.IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
+
                 if (potFlag)
                 {
                     ETGModConsole.Log("The Pots have already been filled...", false);
@@ -256,6 +273,11 @@ namespace ChaosGlitchMod
                         ETGModConsole.Log("Debug Mode Off...", false);
                     }
                 }
+                if (!potDebug) {
+                    potDebug = true;
+                } else {
+                    if (potDebug) potDebug = false;
+                }
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("reset", delegate (string[] e)
@@ -264,6 +286,7 @@ namespace ChaosGlitchMod
                 bool WallHookFlag = wallmimichook != null;
                 randomEnemySizeEnabled = false;
                 HooksAndLists.RandomResizedEnemies = 0.3f;
+                HooksAndLists.BonusEnemyChances = 0.5f;
 
                 if (potFlag) {
                     potenemyhook.Dispose();
@@ -282,6 +305,13 @@ namespace ChaosGlitchMod
                 ETGModConsole.Log("Everything has returned to normal...", false);
             });
 
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("togglehooks", delegate (string[] e) {
+                if (GlitchModule.IsHooksInstalled) {
+                    HooksAndLists.InstallPrimaryHooks(false);
+                } else {
+                    HooksAndLists.InstallPrimaryHooks(true);
+                }
+            });
         }
 
         private void Update() { }

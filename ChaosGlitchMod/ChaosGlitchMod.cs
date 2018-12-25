@@ -1,27 +1,20 @@
 ﻿using System;
 using UnityEngine;
 using MonoMod.RuntimeDetour;
-using Dungeonator;
-using System.Reflection;
-using System.Linq;
 
 // Main Glitch Mod Module
 namespace ChaosGlitchMod {
 
     public class GlitchModule : ETGModule {
         
-        // Hook statics
-        private static Hook aihook;
         private static Hook hammerhookGlitch;
-        private static Hook enterRoomHookGlitch;
 
-        public static float GlitchRandomActors = 0.4f;
-        public static float GlitchRandomAll = 0.6f;
+        public static float GlitchRandomActors = 0.3f;
+        public static float GlitchRandomAll = 0.5f;
+        public static bool GlitchEverything = false;
         public static bool GlitchRandomized = true;
         public static bool GlitchEnemies = false;
-
-        // Material static for GlitchShader materials used in GlitchMod
-        private static Material Material;
+        public static bool IsHooksInstalled = false;
 
         public override void Init() { }
 
@@ -31,23 +24,17 @@ namespace ChaosGlitchMod {
             ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
             // Code for filling pots with enemies and upping Wall Mimic Spawns/other trolly things.
             ETGModMainBehaviour.Instance.gameObject.AddComponent<TrollModule>();
-            
-            aihook = new Hook(
-                typeof(AIActor).GetMethod("Awake"),
-                typeof(HooksAndLists).GetMethod("AwakeHookCustom")
-            );
 
             ETGModConsole.Commands.AddGroup("glitch", delegate (string[] e)
             {
                 ETGModConsole.Log("[Glitch Mode]  Valid sub-commands for glitchmode:\nenemies\nall\nrandomizer\ntest\nreset\n\nRun reset command to turn off all glitch modes.", false);
             });
 
-
             ETGModConsole.Commands.GetGroup("glitch").AddUnit("enemies", delegate (string[] e)
             {
                 bool hammerFlag = hammerhookGlitch != null;
 
-                if (GlitchEnemies) {
+                if (GlitchEnemies) { 
                     ETGModConsole.Log("Glitched Enemy mode already active! Use 'glitch reset' if you want to disable it!", false);
                 }
 
@@ -61,16 +48,20 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log("Glitched Enemies Mode Activated...", false);
                 }
                 GlitchEnemies = true;
+                if (!IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
             });
 
             ETGModConsole.Commands.GetGroup("glitch").AddUnit("all", delegate (string[] e)
             {
                 bool hammerFlag = hammerhookGlitch != null;
-                bool roomFlag = enterRoomHookGlitch != null;
 
-                if (GlitchEnemies) {
-                    ETGModConsole.Log("Glitched Enemy mode already active!", false);
-                }
+                if (GlitchEnemies) ETGModConsole.Log("Glitched Enemy mode already active!", false);
+                if (GlitchEverything) ETGModConsole.Log("Glitched All mode is already active!", false);
+
+                GlitchEnemies = true;
+                GlitchEverything = true;
+
+                if (!IsHooksInstalled) { HooksAndLists.InstallPrimaryHooks(true); }
 
                 if (hammerFlag) {
                     ETGModConsole.Log("Hammers already glitched!", false);
@@ -80,16 +71,7 @@ namespace ChaosGlitchMod {
                         typeof(HooksAndLists).GetMethod("HammerHookGlitch")
                     );
                 }
-                if (roomFlag) {
-                    ETGModConsole.Log("Glitched Everything Mode already active!", false);
-                } else {
-                    enterRoomHookGlitch = new Hook(
-                        typeof(RoomHandler).GetMethod("OnEntered", BindingFlags.NonPublic | BindingFlags.Instance),
-                        typeof(HooksAndLists).GetMethod("EnteredNewRoomHookForGlitch")
-                    );
-                    ETGModConsole.Log("Glitched Everything Mode Active...", false);
-                }
-                GlitchEnemies = true;
+
             });
 
             ETGModConsole.Commands.GetGroup("glitch").AddUnit("randomizer", delegate (string[] e) {
@@ -115,14 +97,21 @@ namespace ChaosGlitchMod {
 
             ETGModConsole.Commands.GetGroup("glitch").AddUnit("reset", delegate (string[] e) {
                 bool hammerFlag = hammerhookGlitch != null;
-                bool roomFlag = enterRoomHookGlitch != null;
                 GlitchRandomized = true;
                 GlitchRandomActors = 0.4f;
                 GlitchRandomAll = 0.6f;
+                GlitchEverything = false;
 
                 if (hammerFlag) { hammerhookGlitch.Dispose(); hammerhookGlitch = null; }
-                if (roomFlag) { enterRoomHookGlitch.Dispose(); enterRoomHookGlitch = null; }
                 ETGModConsole.Log("Everything has returned to normal...", false);
+            });
+
+            ETGModConsole.Commands.GetGroup("glitch").AddUnit("togglehooks", delegate (string[] e) {
+                if (IsHooksInstalled) {
+                    HooksAndLists.InstallPrimaryHooks(false);
+                } else {
+                    HooksAndLists.InstallPrimaryHooks(true);
+                }
             });
 
         }
@@ -131,6 +120,8 @@ namespace ChaosGlitchMod {
 
         public static void BecomeGlitchedTest(BraveBehaviour s)
         {
+
+            Material material;
 
             tk2dBaseSprite sprite = null;
             try
@@ -143,20 +134,20 @@ namespace ChaosGlitchMod {
             if (s == null) return;
 
             sprite.usesOverrideMaterial = true;
-            Material = sprite.renderer.material;
-            Material = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
-            Material.SetFloat("_GlitchInterval", 0.04f);
-            Material.SetFloat("_DispProbability", 0.07f);
-            Material.SetFloat("_DispIntensity", 0.05f);
-            Material.SetFloat("_ColorProbability", 0.07f);
-            Material.SetFloat("_ColorIntensity", 0.05f);
+            // material = sprite.renderer.material;
+            material = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
+            material.SetFloat("_GlitchInterval", 0.04f);
+            material.SetFloat("_DispProbability", 0.07f);
+            material.SetFloat("_DispIntensity", 0.05f);
+            material.SetFloat("_ColorProbability", 0.07f);
+            material.SetFloat("_ColorIntensity", 0.05f);
 
             MeshRenderer component = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = component.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            Material material = UnityEngine.Object.Instantiate(Material);
+            Material CustomMaterial = UnityEngine.Object.Instantiate(material);
             material.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
-            sharedMaterials[sharedMaterials.Length - 1] = material;
+            sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
             component.sharedMaterials = sharedMaterials;
         }
     }
