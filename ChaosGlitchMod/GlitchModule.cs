@@ -1,30 +1,25 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using MonoMod.RuntimeDetour;
+using System;
 
-// Main Glitch Mod Module
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod
+{
+    public class GlitchModule : MonoBehaviour {
 
-    public class GlitchModule : ETGModule {
-        
         private static Hook hammerhookGlitch;
 
         public static float GlitchRandomActors = 0.3f;
         public static float GlitchRandomAll = 0.5f;
+
         public static bool GlitchEverything = false;
         public static bool GlitchRandomized = true;
         public static bool GlitchEnemies = false;
         public static bool IsHooksInstalled = false;
 
-        public override void Init() { }
+        private void Init()	{ }
 
-        public override void Start() {
-
-            // Modified version of Anywhere mod
-            ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
-            // Code for filling pots with enemies and upping Wall Mimic Spawns/other trolly things.
-            ETGModMainBehaviour.Instance.gameObject.AddComponent<TrollModule>();
-
+        private void Start()
+        {
             ETGModConsole.Commands.AddGroup("glitch", delegate (string[] e)
             {
                 ETGModConsole.Log("[Glitch Mode]  Valid sub-commands for glitchmode:\nenemies\nall\nrandomizer\ntest\nreset\n\nRun reset command to turn off all glitch modes.", false);
@@ -34,7 +29,7 @@ namespace ChaosGlitchMod {
             {
                 bool hammerFlag = hammerhookGlitch != null;
 
-                if (GlitchEnemies) { 
+                if (GlitchEnemies) {
                     ETGModConsole.Log("Glitched Enemy mode already active! Use 'glitch reset' if you want to disable it!", false);
                 }
 
@@ -74,7 +69,8 @@ namespace ChaosGlitchMod {
 
             });
 
-            ETGModConsole.Commands.GetGroup("glitch").AddUnit("randomizer", delegate (string[] e) {
+            ETGModConsole.Commands.GetGroup("glitch").AddUnit("randomizer", delegate (string[] e)
+            {
                 if (!GlitchRandomized) {
                     GlitchRandomized = true;
                     GlitchRandomActors = 0.4f;
@@ -90,12 +86,14 @@ namespace ChaosGlitchMod {
                 }
             });
 
-            ETGModConsole.Commands.GetGroup("glitch").AddUnit("test", delegate (string[] e) {
+            ETGModConsole.Commands.GetGroup("glitch").AddUnit("test", delegate (string[] e)
+            {
                 foreach (BraveBehaviour s in UnityEngine.Object.FindObjectsOfType<BraveBehaviour>()) { BecomeGlitchedTest(s); }
                 ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
             });
 
-            ETGModConsole.Commands.GetGroup("glitch").AddUnit("reset", delegate (string[] e) {
+            ETGModConsole.Commands.GetGroup("glitch").AddUnit("reset", delegate (string[] e)
+            {
                 bool hammerFlag = hammerhookGlitch != null;
                 GlitchRandomized = true;
                 GlitchRandomActors = 0.4f;
@@ -106,7 +104,8 @@ namespace ChaosGlitchMod {
                 ETGModConsole.Log("Everything has returned to normal...", false);
             });
 
-            ETGModConsole.Commands.GetGroup("glitch").AddUnit("togglehooks", delegate (string[] e) {
+            ETGModConsole.Commands.GetGroup("glitch").AddUnit("togglehooks", delegate (string[] e)
+            {
                 if (IsHooksInstalled) {
                     HooksAndLists.InstallPrimaryHooks(false);
                 } else {
@@ -115,8 +114,6 @@ namespace ChaosGlitchMod {
             });
 
         }
-
-        public override void Exit() { }
 
         public static void BecomeGlitchedTest(BraveBehaviour s)
         {
@@ -145,11 +142,16 @@ namespace ChaosGlitchMod {
             MeshRenderer component = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = component.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            Material CustomMaterial = UnityEngine.Object.Instantiate(material);
+            Material CustomMaterial = Instantiate(material);
             material.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
             sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
             component.sharedMaterials = sharedMaterials;
-        }
+    }
+
+        private void Update() { }
+
+        private void Exit() { }
+        
     }
 }
 

@@ -33,14 +33,14 @@ namespace ChaosGlitchMod
 				string[] result;
 				if (flag)
 				{
-					result = this.ReturnMatchesFrom(input, knownFlows);
+					result = ReturnMatchesFrom(input, knownFlows);
 				}
 				else
 				{
 					bool flag2 = index == 1;
 					if (flag2)
 					{
-						result = this.ReturnMatchesFrom(input, knownTilesets);
+						result = ReturnMatchesFrom(input, knownTilesets);
 					}
 					else
 					{
@@ -126,7 +126,7 @@ namespace ChaosGlitchMod
 			"mines",
 			"catacombs",
 			"forge",
-			"bulletHell",
+			"bullethell",
 			"tutorial",
 			"cathedral",
 			"sewer",
@@ -147,8 +147,8 @@ namespace ChaosGlitchMod
 			// "phobos",
 			// "west"
 		};
-	
-		/*
+
+        /*
 		private static string[] knownScenes = new string[]
 		{
 			"tt_foyer",
@@ -178,8 +178,7 @@ namespace ChaosGlitchMod
 		};
 		public static bool unwarned = false;
 		*/
-	
-	}
+    }
 	
 }
 

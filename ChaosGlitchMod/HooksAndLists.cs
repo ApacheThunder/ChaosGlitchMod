@@ -9,22 +9,45 @@ using System.Reflection;
 
 namespace ChaosGlitchMod
 {
+    
     class HooksAndLists : MonoBehaviour
     {
+        public static Hook potenemyhook;
+        public static Hook wallmimichook;
 
         private static Hook aihook;
         private static Hook enterRoomHook;
 
-        // Used by enterRoomHookGlitch hook
-        private static RoomHandler room;
+        public static SupplyDropItem supplydrop = Instantiate(ETGMod.Databases.Items[77]).GetComponent<SupplyDropItem>();
+
+        public static GenericLootTable lootTable = supplydrop.synergyItemTableToUse01;
+        public static GenericLootTable lootTable2 = supplydrop.synergyItemTableToUse02;
+        public static GenericLootTable lootTableAmmo = supplydrop.itemTableToUse;
+        public static GenericLootTable lootTableRandom;
 
         private static Vector2 actorSize;
-        public static float RandomResizedEnemies = 0.3f;
-        private static float RandomSizeChooser = 0.5f;
-        public static float BonusEnemyChances = 0.5f;
-        
-        // private static bool BonusEnemyFlag = false;
 
+        public static float RandomResizedEnemies = 0.3f;
+        public static float RandomSizeChooser = 0.5f;
+        public static float BonusEnemyChances = 0.5f;
+        public static float MainPotSpawnChance = 0.3f;
+        public static float SecondaryPotSpawnChance = 0.4f;
+        public static float BonusLootChances = 0.2f;
+
+        public static bool potDebug = false;
+        public static bool autoUltra = false;
+        public static bool NormalWallMimicMode = false;
+        public static bool WallMimicsUseRewardManager = true;
+        public static bool NoWallMimics = false;
+        public static bool addRandomEnemy = false;
+        public static bool debugMimicFlag = false;
+        public static bool randomEnemySizeEnabled = false;
+        public static bool isHardMode = false;
+
+
+        public static int MaxWallMimicsPerRoom = 1;
+        public static int MaxWallMimicsForFloor = 2;
+        
         public static string[] SafeEnemyGUIDList = {
             "eeb33c3a5a8e4eaaaaf39a743e8767bc", // candle_guy
             "4538456236f64ea79f483784370bc62f", // fusebot
@@ -80,7 +103,6 @@ namespace ChaosGlitchMod
             // Normal Enemies
             // "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton
             // "eed5addcc15148179f300cc0d9ee7f94", // spogre
-            // "22fc2c2c45fb47cf9fb5f7b043a70122", // grip_master
             // "062b9b64371e46e195de17b6f10e47c8", // bloodbulon
             // "249db525a9464e5282d02162c88e0357", // spent
             // "9d50684ce2c044e880878e86dbada919", // coaler
@@ -95,6 +117,8 @@ namespace ChaosGlitchMod
             // "1bc2a07ef87741be90c37096910843ab", // chancebulon
             // "0239c0680f9f467dbe5c4aab7dd1eca6", // blobulon
             // "e61cab252cfb435db9172adc96ded75f", // poisbulon
+            "a446c626b56d4166915a4e29869737fd", // chance_bullet_kin // His drops sometimes don't appear correctly when resized.
+            "22fc2c2c45fb47cf9fb5f7b043a70122", // grip_master // Being tossed from a room from tiny Grip Master can soft lock the game.
             "42be66373a3d4d89b91a35c9ff8adfec", // blobulin
             "b8103805af174924b578c98e95313074", // poisbulin
             "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
@@ -251,7 +275,7 @@ namespace ChaosGlitchMod
             "d1c9781fdac54d9e8498ed89210a0238", // tiny_blobulord
         };
 
-        private static string[] RoomEnemyGUIDList = {
+        public static string[] RoomEnemyGUIDList = {
             "f155fd2759764f4a9217db29dd21b7eb", // mountain_cube
             "9b2cf2949a894599917d4d391a0b7394", // high_gunjurer
             "2ebf8ef6728648089babb507dec4edb7", // brown_chest_mimic
@@ -322,7 +346,8 @@ namespace ChaosGlitchMod
         // lol this is a smaller list then if checking the opposite condition. So I'll do it this way instead. :P
         private static string[] DontDieOnCollisionWhenTinyGUIDList = {
             // "f38686671d524feda75261e469f30e0b", // ammoconda_ball
-            "76bc43539fc24648bff4568c75c686d1m", // chicken - This already dies on contact, plus I don't want to override it's death sound. :P
+            "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton"
+            "76bc43539fc24648bff4568c75c686d1", // chicken - This already dies on contact, plus I don't want to override it's death sound. :P
             "ec8ea75b557d4e7b8ceeaacdf6f8238c", // gun_nut
             "383175a55879441d90933b5c4e60cf6f", // spectre_gun_nut
             "463d16121f884984abe759de38418e48", // chain_gunner
@@ -340,10 +365,20 @@ namespace ChaosGlitchMod
             "c5b11bfc065d417b9c4d03a5e385fe2c" // professional
         };
 
+        private static string[] OverrideFallIntoPitsList = {
+            "b70cbd875fea498aa7fd14b970248920", // great_bullet_shark
+            "72d2f44431da43b8a3bae7d8a114a46d", // bullet_shark
+        };
+        private static string[] TriggerTwinsGUIDList = {
+            "ea40fcc863d34b0088f490f4e57f8913", // smiley
+            "c00390483f394a849c36143eb878998f" // shades
+        };
+
         private static string tombstonerEnmeyGUID = "cf27dd464a504a428d87a8b2560ad40a";
         private static string poisbuloidEnemyGUID = "fe3fe59d867347839824d5d9ae87f244";
         private static string skusketHeadEnemyGUID = "c2f902b7cbe745efb3db4399927eab34";
         private static string fungunEnemyGUID = "f905765488874846b7ff257ff81d6d0c";
+        // private static string chancekinEnemyGUID = "a446c626b56d4166915a4e29869737fd";
         // private static string snakeGUID = "1386da0f42fb4bcabc5be8feb16a7c38";
         // private static string wallmongerGUID = "f3b04a067a65492f8b279130323b41f0";
 
@@ -351,7 +386,7 @@ namespace ChaosGlitchMod
         private static AIActor PoisbuloidGUID = EnemyDatabase.GetOrLoadByGuid(poisbuloidEnemyGUID);
         private static AIActor skusketHeadGUID = EnemyDatabase.GetOrLoadByGuid(skusketHeadEnemyGUID);
         private static AIActor fungunGUID = EnemyDatabase.GetOrLoadByGuid(fungunEnemyGUID);
-
+        // private static AIActor chancekinGUID = EnemyDatabase.GetOrLoadByGuid(chancekinEnemyGUID);
 
 
         public static void InstallPrimaryHooks(bool InstallHooks)
@@ -370,7 +405,7 @@ namespace ChaosGlitchMod
                     );
                 }
                 GlitchModule.IsHooksInstalled = true;
-                if (!TrollModule.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
+                if (!autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
                 return;
             } else {
                 if (aiHookFlag) { aihook.Dispose(); aihook = null; }
@@ -379,6 +414,14 @@ namespace ChaosGlitchMod
                 ETGModConsole.Log("Primary hooks removed...", false);
                 return;
             }
+        }
+
+        public static void InstallPlaceWallMimicsHook() {
+            wallmimichook = new Hook(
+                typeof(Dungeon).GetMethod("PlaceWallMimics", BindingFlags.Public | BindingFlags.Instance),
+                typeof(HooksAndLists).GetMethod("PlaceWallMimicsHook", BindingFlags.Public | BindingFlags.Static)
+            );
+            return;
         }
 
         // Hook method for AIActor (enemies). Made with help from KyleTheScientist
@@ -394,7 +437,11 @@ namespace ChaosGlitchMod
             if (SafeEnemyGUIDList.Contains(self.EnemyGuid)) { self.IgnoreForRoomClear = true; }
 
             // Fix Susket Head to die from contact like the blobuliods/poisbuloids.
-            if (skusketHeadEnemyGUID.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
+            if (skusketHeadEnemyGUID.Contains(self.EnemyGuid)) {
+                self.DiesOnCollison = true;
+                self.EnemyScale = new Vector2(1.25f, 1.25f);
+                self.procedurallyOutlined = false;
+            }
 
             if (GlitchModule.GlitchEnemies)
             {
@@ -422,7 +469,7 @@ namespace ChaosGlitchMod
                     sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
                     component.sharedMaterials = sharedMaterials;
                     
-                    if (!TrollModule.randomEnemySizeEnabled)
+                    if (!randomEnemySizeEnabled)
                     {
                         self.BaseMovementSpeed *= 1.1f;
                         self.MovementSpeed *= 1.1f;
@@ -430,7 +477,7 @@ namespace ChaosGlitchMod
                     }
             }
 
-            if (TrollModule.randomEnemySizeEnabled)
+            if (randomEnemySizeEnabled)
             {
                 int currentFloor = GameManager.Instance.CurrentFloor;
 
@@ -486,10 +533,12 @@ namespace ChaosGlitchMod
                             self.CollisionKnockbackStrength = self.CollisionKnockbackStrength + 1f;
                             self.placeableWidth = self.placeableWidth + 3;
                             self.placeableHeight = self.placeableHeight + 3;
-                            self.PreventFallingInPitsEver = true;
+                            if (!self.IsFlying && !healthHaver.IsBoss && !OverrideFallIntoPitsList.Contains(self.EnemyGuid)) {
+                                self.PreventFallingInPitsEver = true;
+                            }
                             if (healthHaver.IsBoss)
                             {
-                                healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() * 1.25f, null, false);
+                                healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() * 1.2f, null, false);
                                 self.BaseMovementSpeed *= 0.8f;
                                 self.MovementSpeed *= 0.8f;
                             }
@@ -534,53 +583,66 @@ namespace ChaosGlitchMod
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController p)
         {
             orig(self, p);
-            room = self;
 
-            // if (!primaryPlayer.IsInCombat) BonusEnemyFlag = false;
             if (GlitchModule.GlitchEverything) {
-                if (room.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
+                if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
                     foreach (BraveBehaviour s in FindObjectsOfType<BraveBehaviour>()) { if (UnityEngine.Random.value < GlitchModule.GlitchRandomAll) BecomeGlitched(s); }
                 }
             }
-
-            if (TrollModule.addRandomEnemy && room.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.GetRoomName().StartsWith("DraGunRoom"))
+            if (addRandomEnemy && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.GetRoomName().StartsWith("DraGunRoom"))
             {
                 int currentFloor = GameManager.Instance.CurrentFloor;
+                string SelectedEnemy = RoomEnemyGUIDList.RandomEnemy();
+                AIActor SelectedActor = EnemyDatabase.GetOrLoadByGuid(SelectedEnemy);
+                IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
 
-                if (currentFloor == -1) { BonusEnemyChances = 0.5f; goto IL_START; }
-                if (currentFloor == 1) { BonusEnemyChances = 0.3f; goto IL_START; }
-                if (currentFloor == 2) { BonusEnemyChances = 0.4f; goto IL_START; }
-                if (currentFloor == 3) { BonusEnemyChances = 0.5f; goto IL_START; }
-                if (currentFloor == 4) { BonusEnemyChances = 0.6f; goto IL_START; }
-                if (currentFloor == 5) { BonusEnemyChances = 0.7f; goto IL_START; }
-                if (currentFloor > 5) { BonusEnemyChances = 0.8f; }
+                if (UnityEngine.Random.value <= 0.55) {
+                    lootTableRandom = lootTableAmmo;
+                } else {
+                    if (UnityEngine.Random.value <= 0.5) { lootTableRandom = lootTable; } else { lootTableRandom = lootTable2; }
+                }
 
-                IL_START:;
-                if (UnityEngine.Random.value < BonusEnemyChances && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom && !self.IsDarkAndTerrifying)
-                {
-                    AIActor RoomEnemyList = EnemyDatabase.GetOrLoadByGuid(RoomEnemyGUIDList.RandomEnemy());
-                    AIActor SelectedEnemy = RoomEnemyList;
 
-                    IntVector2? targetCenter = new IntVector2?(GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                    CellValidator cellValidator = delegate (IntVector2 c) {
-                        for (int j = 0; j < SelectedEnemy.Clearance.x; j++) {
-                            for (int k = 0; k < SelectedEnemy.Clearance.y; k++) {
-                                if (GameManager.Instance.Dungeon.data.isTopWall(c.x + j, c.y + k)) { return false; }
-                                if (targetCenter.HasValue) {
-                                    if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) < 4) { return false; }
-                                    if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) > 20) { return false; }
-                                }
+                IntVector2? targetCenter = new IntVector2?(GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
+                CellValidator cellValidator = delegate (IntVector2 c) {
+                    for (int j = 0; j < SelectedActor.Clearance.x; j++)
+                    {
+                        for (int k = 0; k < SelectedActor.Clearance.y; k++)
+                        {
+                            if (GameManager.Instance.Dungeon.data.isTopWall(c.x + j, c.y + k)) { return false; }
+                            if (targetCenter.HasValue)
+                            {
+                                if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) < 4) { return false; }
+                                if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) > 20) { return false; }
                             }
                         }
-                        return true;
-                    };
-                    IntVector2? randomAvailableCell = GameManager.Instance.PrimaryPlayer.CurrentRoom.GetRandomAvailableCell(new IntVector2?(SelectedEnemy.Clearance), new CellTypes?(SelectedEnemy.PathableTiles), false, cellValidator);
-                    if (randomAvailableCell.HasValue) {
-                        AIActor aIActor = AIActor.Spawn(SelectedEnemy, randomAvailableCell.Value, GameManager.Instance.PrimaryPlayer.CurrentRoom, true, AIActor.AwakenAnimationType.Spawn, true);
-                        aIActor.HandleReinforcementFallIntoRoom(0);
-                        if (TrollModule.debugMimicFlag) { ETGModConsole.Log("An enemy with the name  [" + SelectedEnemy + "]  has been spawned.", false); }
                     }
+                    return true;
+                };
+                IntVector2? randomAvailableCell = GameManager.Instance.PrimaryPlayer.CurrentRoom.GetRandomAvailableCell(new IntVector2?(SelectedActor.Clearance), new CellTypes?(SelectedActor.PathableTiles), false, cellValidator);
+                if (randomAvailableCell.HasValue) { RoomVector = randomAvailableCell.Value; }
 
+                if (currentFloor == -1) { BonusEnemyChances = 0.5f; BonusLootChances = 0.2f; goto IL_START; }
+                if (currentFloor == 1) { BonusEnemyChances = 0.3f; BonusLootChances = 0.1f; goto IL_START; }
+                if (currentFloor == 2) { BonusEnemyChances = 0.4f; BonusLootChances= 0.2f; goto IL_START; }
+                if (currentFloor == 3) { BonusEnemyChances = 0.5f; BonusLootChances = 0.25f; goto IL_START; }
+                if (currentFloor == 4) { BonusEnemyChances = 0.6f; BonusLootChances = 0.35f; goto IL_START; }
+                if (currentFloor == 5) { BonusEnemyChances = 0.7f; BonusLootChances = 0.4f; goto IL_START; }
+                if (currentFloor > 5) { BonusEnemyChances = 0.8f; BonusLootChances = 0.5f; }
+
+                IL_START:;
+                if (UnityEngine.Random.value <= BonusLootChances && isHardMode) {
+                    patch_PlayerController.SpawnAirDrop(RoomVector, lootTableRandom, EnemyOdds: 0f, ExplodeOdds: 0.12f, usePlayerPosition: true, EnemyGUID: RoomEnemyGUIDList.RandomEnemy());
+                }
+
+                if (UnityEngine.Random.value <= BonusEnemyChances && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom && !self.IsDarkAndTerrifying)
+                {
+
+                    if (self.GetRoomName().StartsWith("BulletBrosRoom") && UnityEngine.Random.value <= 0.2) {
+                        patch_PlayerController.SpawnAirDrop(RoomVector, EnemyOdds: 1f, ExplodeOdds: 0f, usePlayerPosition: false, playSoundFX: false, EnemyGUID: TriggerTwinsGUIDList.RandomEnemy());
+                    } else {
+                        patch_PlayerController.SpawnAirDrop(RoomVector, EnemyOdds: 1f, ExplodeOdds: 0.1f, usePlayerPosition: false, playSoundFX: false, EnemyGUID: RoomEnemyGUIDList.RandomEnemy());
+                    }
                 }
             }
         }
@@ -590,14 +652,11 @@ namespace ChaosGlitchMod
         public static void SpawnAnnoyingEnemy(Action<MinorBreakable> orig, MinorBreakable self)
         {
             orig(self);
+
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
-            // Dungeon dungeon = GameManager.Instance.Dungeon;
-            // AIActor aiActor = GameManager.Instance.aiActor;
+            int currentFloor = GameManager.Instance.CurrentFloor;
 
-            // List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
-            // RoomHandler roomHandler = dungeon.data.rooms[roomList[0]];
-
-            if (TrollModule.potDebug) ETGModConsole.Log("A " + self.name + " has been broken", false);
+            if (potDebug) ETGModConsole.Log("A " + self.name + " has been broken", false);
 
             AIActor PotEnemyListNoFairies = EnemyDatabase.GetOrLoadByGuid(PotEnemyGUIDListNoFairies.RandomEnemy());
             AIActor PotEnemyList = EnemyDatabase.GetOrLoadByGuid(PotEnemyGUIDList.RandomEnemy());
@@ -623,41 +682,50 @@ namespace ChaosGlitchMod
             bool flagBlueDrum = !self.name.ToLower().Contains("blue drum");
             bool flagOverturnedCart = !self.name.ToLower().Contains("mines_stamp_overturned_cart");
 
+            // bool flagTableTops = self.name.ToLower().Contains("tabletop");
+            bool flagTableTops = self.name.ToLower().StartsWith("stamp_tabletop"); 
+
             // Full Enemy Pool
             bool flagPot = !self.name.ToLower().Contains("pot");
 
-            // AIActor FullAIActorList = Game.Enemies[PotEnemyList.RandomEnemy()];
-
+            if (currentFloor == -1) { MainPotSpawnChance = 0.4f; SecondaryPotSpawnChance = 0.5f; goto IL_START; }
+            if (currentFloor == 1) { MainPotSpawnChance = 0.3f; SecondaryPotSpawnChance = 0.4f; goto IL_START; }
+            if (currentFloor == 2) { MainPotSpawnChance = 0.35f; SecondaryPotSpawnChance = 0.45f; goto IL_START; }
+            if (currentFloor == 3) { MainPotSpawnChance = 0.4f; SecondaryPotSpawnChance = 0.5f; goto IL_START; }
+            if (currentFloor == 4) { MainPotSpawnChance = 0.5f; SecondaryPotSpawnChance = 0.6f; goto IL_START; }
+            if (currentFloor == 5) { MainPotSpawnChance = 0.65f; SecondaryPotSpawnChance = 0.7f; goto IL_START; }
+            if (currentFloor > 5) { MainPotSpawnChance = 0.75f; SecondaryPotSpawnChance = 0.8f; }
 
             // Checks if in combat and in room player is in before spawning something.
             // Now checks if object is on table. Their names have "Stamp_tabletop" appended so should be easy to check for.
-            if (primaryPlayer.IsInCombat && primaryPlayer.CurrentRoom == self.sprite.WorldCenter.GetAbsoluteRoom() && !self.name.ToLower().StartsWith("stamp_tabletop"))
+            IL_START:;
+            if (primaryPlayer.IsInCombat && primaryPlayer.CurrentRoom == self.sprite.WorldCenter.GetAbsoluteRoom() && !flagTableTops)
             {
                 PotFairyEngageDoer.InstantSpawn = true;
 
                 if (!flagSkull | !flagUrn | !flagWine | !flagArmor | !flagOverturnedCart) {
-                    if (UnityEngine.Random.value < 0.6) AIActor.Spawn(PotEnemyListNoFairies, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value < MainPotSpawnChance) AIActor.Spawn(PotEnemyListNoFairies, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagPot) {
-                    if (UnityEngine.Random.value < 0.6) AIActor.Spawn(PotEnemyList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value < MainPotSpawnChance) AIActor.Spawn(PotEnemyList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagTombstone) {
-                    if (UnityEngine.Random.value < 0.3) AIActor.Spawn(TombstonerGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= 0.3) AIActor.Spawn(TombstonerGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagBush | !flagBottle) {
-                    if (UnityEngine.Random.value < 0.5) AIActor.Spawn(CritterList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= 0.5) AIActor.Spawn(CritterList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagCrate | !flagBarrel | !flagIce) {
-                    if (UnityEngine.Random.value < 0.6) AIActor.Spawn(PestList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= SecondaryPotSpawnChance) AIActor.Spawn(PestList, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagYellowDrum) {
-                    if (UnityEngine.Random.value < 0.7) AIActor.Spawn(PoisbuloidGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= MainPotSpawnChance) AIActor.Spawn(PoisbuloidGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
                 if (!flagPurpleDrum) {
-                    if (UnityEngine.Random.value < 0.7) AIActor.Spawn(fungunGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= MainPotSpawnChance) AIActor.Spawn(fungunGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 } 
                 if (!flagBlueDrum) {
-                    if (UnityEngine.Random.value < 0.7) AIActor.Spawn(skusketHeadGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
+                    if (UnityEngine.Random.value <= MainPotSpawnChance) AIActor.Spawn(skusketHeadGUID, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true, 0, true);
                 }
             }
             else { PotFairyEngageDoer.InstantSpawn = false; }
@@ -733,69 +801,60 @@ namespace ChaosGlitchMod
             // Secret Floors and Tutorial
             if (currentFloor == -1)
             {
-                TrollModule.MaxWallMimicsPerRoom = 2;
-                TrollModule.MaxWallMimicsForFloor = 30;
+                MaxWallMimicsPerRoom = 2;
+                MaxWallMimicsForFloor = 20;
             }
             // Normal Floors with 1 = Keep, 2 = Gungeon Proper, and so on
             // Floor 1 guranteed to have 1 mimic per room.
             if (currentFloor == 1)
             {
-                TrollModule.MaxWallMimicsPerRoom = 1;
-                TrollModule.MaxWallMimicsForFloor = 30;
+                MaxWallMimicsPerRoom = 1;
+                MaxWallMimicsForFloor = 15;
             }
 
             // Floor 2 and onwards can have more then one mimic per room.
             // However not a gurantee that every room will have that count.
             if (currentFloor == 2)
             {
-                TrollModule.MaxWallMimicsPerRoom = 2;
-                TrollModule.MaxWallMimicsForFloor = 20;
+                MaxWallMimicsPerRoom = 2;
+                MaxWallMimicsForFloor = 20;
             }
 
             if (currentFloor == 3)
             {
-                TrollModule.MaxWallMimicsPerRoom = 2;
-                TrollModule.MaxWallMimicsForFloor = 25;
+                MaxWallMimicsPerRoom = 2;
+                MaxWallMimicsForFloor = 25;
             }
 
             if (currentFloor == 4)
             {
-                TrollModule.MaxWallMimicsPerRoom = 3;
-                TrollModule.MaxWallMimicsForFloor = 40;
+                MaxWallMimicsPerRoom = 2;
+                MaxWallMimicsForFloor = 30;
             }
 
             if (currentFloor == 5)
             {
-                TrollModule.MaxWallMimicsPerRoom = 3;
-                TrollModule.MaxWallMimicsForFloor = 50;
+                MaxWallMimicsPerRoom = 3;
+                MaxWallMimicsForFloor = 35;
             }
 
             if (currentFloor >= 6)
             {
-                TrollModule.MaxWallMimicsPerRoom = 4;
-                TrollModule.MaxWallMimicsForFloor = 60;
+                MaxWallMimicsPerRoom = 3;
+                MaxWallMimicsForFloor = 45;
             }
 
-            if (TrollModule.NoWallMimics)
+            if (NoWallMimics)
             {
-                TrollModule.MaxWallMimicsPerRoom = 1;
-                TrollModule.MaxWallMimicsForFloor = 0;
+                MaxWallMimicsPerRoom = 1;
+                MaxWallMimicsForFloor = 0;
                 return;
-            }
-            else
-            {
-                if (TrollModule.NormalWallMimicMode)
+            } else {
+                if (NormalWallMimicMode)
                 {
-                    TrollModule.MaxWallMimicsPerRoom = 1;
-                    TrollModule.MaxWallMimicsForFloor = 100;
+                    MaxWallMimicsPerRoom = 1;
+                    MaxWallMimicsForFloor = 100;
                 }
-            }
-
-            if (TrollModule.debugMimicFlag)
-            {
-                ETGModConsole.Log("[DEBUG] Current Floor: " + currentFloor);
-                ETGModConsole.Log("[DEBUG] Mimics Per Room: " + TrollModule.MaxWallMimicsPerRoom);
-                ETGModConsole.Log("[DEBUG] Mimics For Floor: " + TrollModule.MaxWallMimicsForFloor);
             }
         }
 
@@ -805,40 +864,67 @@ namespace ChaosGlitchMod
             SetStats();
 
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+            int currentFloor = GameManager.Instance.CurrentFloor;
+            int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(self.tileIndices.tilesetId);
 
-            if (levelOverrideState != GameManager.LevelOverrideState.NONE && levelOverrideState != GameManager.LevelOverrideState.TUTORIAL)
-            {
-                if (TrollModule.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics."); }
+            if (debugMimicFlag) {
+                ETGModConsole.Log("[DEBUG] Current Floor: " + currentFloor);
+                ETGModConsole.Log("[DEBUG] Wall Mimics assigned by RewardManager: " + numWallMimicsForFloor);
+            }
+
+            if (WallMimicsUseRewardManager) {
+                MaxWallMimicsPerRoom = 1;
+                MaxWallMimicsForFloor = numWallMimicsForFloor;
+            }
+
+            if (levelOverrideState != GameManager.LevelOverrideState.NONE && levelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
+                if (debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics."); }
                 return;
             }
-            else
-            {
-                if (TrollModule.MaxWallMimicsForFloor <= 0)
-                {
-                    if (TrollModule.debugMimicFlag) { ETGModConsole.Log("[DEBUG] There are no Wall Mimics assigned to this floor."); }
-                    return;
-                }
+
+            if (MaxWallMimicsForFloor <= 0) {
+                if (debugMimicFlag) { ETGModConsole.Log("[DEBUG] There are no Wall Mimics assigned to this floor."); }
+                return;
             }
 
             List<int> roomList = Enumerable.Range(0, self.data.rooms.Count).ToList();
             roomList = roomList.Shuffle();
 
+            if (debugMimicFlag) {
+                ETGModConsole.Log("[DEBUG] Wall Mimics Per Room: " + MaxWallMimicsPerRoom);
+                ETGModConsole.Log("[DEBUG] Max Wall Mimic assigned to floor if RewardManager overridden: " + MaxWallMimicsForFloor);
+            }
+
+            // Used for debug read out information
+            int NorthWallCount = 0;
+            int SouthWallCount = 0;
+            int EastWallCount = 0;
+            int WestWallCount = 0;
+
+            int WallMimicsPlaced = 0;
+
             if (debugRoom != null) { roomList = new List<int>(new int[] { self.data.rooms.IndexOf(debugRoom) }); }
 
             List<Tuple<IntVector2, DungeonData.Direction>> validWalls = new List<Tuple<IntVector2, DungeonData.Direction>>();
-            int WallMimicsPlaced = 0;
+            
             List<AIActor> enemiesList = new List<AIActor>();
-            for (int i = 0; i < roomList.Count; i++)
+            for (int checkedRooms = 0; checkedRooms < roomList.Count; checkedRooms++)
             {
-                RoomHandler roomHandler = self.data.rooms[roomList[i]];
+                RoomHandler roomHandler = self.data.rooms[roomList[checkedRooms]];
                 var roomCategory = roomHandler.area.PrototypeRoomCategory;
-                if (!roomHandler.IsMaintenanceRoom())
+
+                // if (roomHandler.IsShop || WallMimicsUseRewardManager) { continue; }
+                // if (roomHandler.GetRoomName().StartsWith("DraGunRoom")) { continue; }
+                // if (roomHandler.GetRoomName().StartsWith("DemonWallRoom")) { continue; }
+                // if (roomHandler.IsMaintenanceRoom()) { continue; }
+
+
+                if (!roomHandler.IsMaintenanceRoom() | roomHandler.IsShop || !WallMimicsUseRewardManager)
                 {
                     if (!roomHandler.area.IsProceduralRoom || roomHandler.area.proceduralCells == null)
                     {
-                        if (roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || !BraveUtility.RandomBool())
-                        {   
-                            // Added Wall monger boss room to ban list. Wall Mimics spawning in this room can sometimes cause Wall monger to get stuck. Camera keeps moving though so this would be an issue. :P
+                        if (roomHandler.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || !BraveUtility.RandomBool())
+                        {
                             if (!roomHandler.GetRoomName().StartsWith("DraGunRoom") && !roomHandler.GetRoomName().StartsWith("DemonWallRoom"))
                             {
                                 if (roomHandler.connectedRooms != null)
@@ -870,30 +956,34 @@ namespace ChaosGlitchMod
                                     {
                                         int X = roomHandler.area.basePosition.x + l;
                                         int Y = roomHandler.area.basePosition.y + m;
-                                        if (self.data.isWall(X, Y) && X % 3 == 0 && Y % 3 == 0)
+                                        if (self.data.isWall(X, Y) && X % 4 == 0 && Y % 4 == 0)
                                         {
-                                            int n = 0;
-                                            if (self.data.isWall(X - 1, Y) && self.data.isWall(X - 1, Y - 1) && self.data.isWall(X - 1, Y - 2) && self.data.isWall(X, Y) && self.data.isWall(X, Y - 1) && self.data.isWall(X, Y - 2) && self.data.isPlainEmptyCell(X, Y + 1) && self.data.isWall(X + 1, Y) && self.data.isWall(X + 1, Y - 1) && self.data.isWall(X + 1, Y - 2) && self.data.isPlainEmptyCell(X + 1, Y + 1) && self.data.isWall(X + 2, Y) && self.data.isWall(X + 2, Y - 1) && self.data.isWall(X + 2, Y - 2))
+                                            int WallCount = 0;
+                                            if (!self.data.isWall(X - 1, Y + 2) && !self.data.isWall(X, Y + 2) && !self.data.isWall(X + 1, Y + 2) && !self.data.isWall(X + 2, Y + 2) && !self.data.isWall(X - 1, Y + 1) && !self.data.isWall(X, Y + 1) && !self.data.isWall(X + 1, Y + 1) && !self.data.isWall(X + 2, Y + 1) && self.data.isWall(X - 1, Y) && self.data.isWall(X, Y) && self.data.isWall(X + 1, Y) && self.data.isWall(X + 2, Y) && self.data.isWall(X - 1, Y - 1) && self.data.isWall(X, Y - 1) && self.data.isWall(X + 1, Y - 1) && self.data.isWall(X + 2, Y - 1) && !self.data.isPlainEmptyCell(X - 1, Y - 3) && !self.data.isPlainEmptyCell(X, Y - 3) && !self.data.isPlainEmptyCell(X + 1, Y - 3) && !self.data.isPlainEmptyCell(X + 2, Y - 3))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.NORTH));
-                                                n++;
+                                                WallCount++;
+                                                SouthWallCount++;
                                             }
-                                            else if (self.data.isWall(X - 1, Y) && self.data.isWall(X - 1, Y + 1) && self.data.isWall(X - 1, Y + 2) && self.data.isWall(X, Y) && self.data.isWall(X, Y + 1) && self.data.isWall(X, Y + 2) && self.data.isPlainEmptyCell(X, Y - 1) && self.data.isWall(X + 1, Y) && self.data.isWall(X + 1, Y + 1) && self.data.isWall(X + 1, Y + 2) && self.data.isPlainEmptyCell(X + 1, Y - 1) && self.data.isWall(X + 2, Y) && self.data.isWall(X + 2, Y + 1) && self.data.isWall(X + 2, Y + 2))
+                                            else if (self.data.isWall(X - 1, Y + 2) && self.data.isWall(X, Y + 2) && self.data.isWall(X + 1, Y + 2) && self.data.isWall(X + 2, Y + 2) && self.data.isWall(X - 1, Y + 1) && self.data.isWall(X, Y + 1) && self.data.isWall(X + 1, Y + 1) && self.data.isWall(X + 2, Y + 1) && self.data.isWall(X - 1, Y) && self.data.isWall(X, Y) && self.data.isWall(X + 1, Y) && self.data.isWall(X + 2, Y) && self.data.isPlainEmptyCell(X, Y - 1) && self.data.isPlainEmptyCell(X + 1, Y - 1) && !self.data.isPlainEmptyCell(X, Y + 4) && !self.data.isPlainEmptyCell(X + 1, Y + 4))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.SOUTH));
-                                                n++;
+                                                WallCount++;
+                                                NorthWallCount++;
                                             }
-                                            else if (self.data.isWall(X, Y + 2) && self.data.isWall(X, Y + 1) && self.data.isWall(X, Y - 1) && self.data.isWall(X, Y - 2) && self.data.isWall(X - 1, Y) && self.data.isPlainEmptyCell(X + 1, Y) && self.data.isPlainEmptyCell(X + 1, Y - 1))
+                                            else if (!self.data.isPlainEmptyCell(X - 2, Y + 2) && self.data.isWall(X, Y + 2) && !self.data.isPlainEmptyCell(X - 2, Y + 1) && self.data.isWall(X, Y + 1) && !self.data.isPlainEmptyCell(X - 2, Y) && self.data.isWall(X - 1, Y) && self.data.isPlainEmptyCell(X + 1, Y) && !self.data.isPlainEmptyCell(X - 2, Y - 2) && self.data.isWall(X, Y - 1) && self.data.isPlainEmptyCell(X + 1, Y - 1) && !self.data.isPlainEmptyCell(X - 2, Y - 2) && self.data.isWall(X, Y - 2))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.EAST));
-                                                n++;
+                                                WallCount++;
+                                                WestWallCount++;
                                             }
-                                            else if (self.data.isWall(X, Y + 2) && self.data.isWall(X, Y + 1) && self.data.isWall(X, Y - 1) && self.data.isWall(X, Y - 2) && self.data.isWall(X + 1, Y) && self.data.isPlainEmptyCell(X - 1, Y) && self.data.isPlainEmptyCell(X - 1, Y - 1))
+                                            else if (self.data.isWall(X, Y + 2) && !self.data.isPlainEmptyCell(X + 2, Y + 2) && self.data.isWall(X, Y + 1) && !self.data.isPlainEmptyCell(X + 2, Y + 1) && self.data.isPlainEmptyCell(X - 1, Y) && self.data.isWall(X + 1, Y) && !self.data.isPlainEmptyCell(X + 2, Y) && self.data.isPlainEmptyCell(X - 1, Y - 1) && self.data.isWall(X, Y - 1) && !self.data.isPlainEmptyCell(X + 2, Y - 1) && self.data.isWall(X, Y - 2) && !self.data.isPlainEmptyCell(X + 2, Y - 2))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X - 1, Y), DungeonData.Direction.WEST));
-                                                n++;
+                                                WallCount++;
+                                                EastWallCount++;
                                             }
-                                            if (n > 0)
+                                            if (WallCount > 0)
                                             {
                                                 bool flag2 = true;
                                                 int num4 = -5;
@@ -921,27 +1011,30 @@ namespace ChaosGlitchMod
                                                 }
                                                 if (!flag2)
                                                 {
-                                                    while (n > 0)
+                                                    while (WallCount > 0)
                                                     {
                                                         validWalls.RemoveAt(validWalls.Count - 1);
-                                                        n--;
+                                                        WallCount--;
                                                     }
                                                 }
                                             }
                                         }
                                     }
+
                                 }
+
                                 if (debugRoom == null)
                                 {
-                                    for (int loopCount = 0; loopCount < TrollModule.MaxWallMimicsPerRoom; ++loopCount)
+                                    for (int loopCount = 0; loopCount < MaxWallMimicsPerRoom; ++loopCount)
                                     {
                                         if (validWalls.Count > 0)
                                         {
-                                            if (WallMimicsPlaced >= TrollModule.MaxWallMimicsForFloor) { break; }
+                                            if (!WallMimicsUseRewardManager) { if (WallMimicsPlaced >= MaxWallMimicsForFloor) { break; } }
                                             Tuple<IntVector2, DungeonData.Direction> tuple = BraveUtility.RandomElement(validWalls);
                                             validWalls.Remove(tuple);
                                             IntVector2 first = tuple.First;
                                             DungeonData.Direction second = tuple.Second;
+
                                             if (second != DungeonData.Direction.WEST)
                                             {
                                                 roomHandler.RuntimeStampCellComplex(first.x, first.y, CellType.FLOOR, DiagonalWallType.NONE);
@@ -950,11 +1043,14 @@ namespace ChaosGlitchMod
                                             {
                                                 roomHandler.RuntimeStampCellComplex(first.x + 1, first.y, CellType.FLOOR, DiagonalWallType.NONE);
                                             }
+
                                             AIActor orLoadByGuid = EnemyDatabase.GetOrLoadByGuid(GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid);
                                             AIActor.Spawn(orLoadByGuid, first, roomHandler, true, AIActor.AwakenAnimationType.Default, true);
                                             WallMimicsPlaced++;
+                                            if (WallMimicsUseRewardManager) { if (WallMimicsPlaced >= MaxWallMimicsForFloor) { break; } }
                                         }
                                     }
+                                    if (WallMimicsUseRewardManager) { if (WallMimicsPlaced >= MaxWallMimicsForFloor) { break; } }
                                 }
                             }
                         }
@@ -965,7 +1061,14 @@ namespace ChaosGlitchMod
             if (WallMimicsPlaced > 0)
             {
                 PhysicsEngine.Instance.ClearAllCachedTiles();
-                if (TrollModule.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Number of Mimics succesfully placed: " + WallMimicsPlaced); }
+                if (debugMimicFlag) {
+                    ETGModConsole.Log("[DEBUG] Number of Valid North Wall Mimics locations: " + NorthWallCount);
+                    ETGModConsole.Log("[DEBUG] Number of Valid South Wall Mimics locations: " + SouthWallCount);
+                    ETGModConsole.Log("[DEBUG] Number of Valid East Wall Mimics locations: " + EastWallCount);
+                    ETGModConsole.Log("[DEBUG] Number of Valid West Wall Mimics locations: " + WestWallCount);
+                    ETGModConsole.Log("[DEBUG] Number of Wall Mimics succesfully placed: " + WallMimicsPlaced);
+                    WallMimicsPlaced = 0;
+                }
             }
         }
 
