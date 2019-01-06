@@ -1,5 +1,6 @@
 ﻿using Dungeonator;
 using Pathfinding;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +12,11 @@ namespace ChaosGlitchMod
         public void TentacleTime() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-            StunEnemiesForTeleport(currentRoom, 2.7f);
+            try { StunEnemiesForTeleport(currentRoom, 2.7f); } catch (Exception ex) {
+                if (ChaosConsole.debugMimicFlag) {
+                    ETGModConsole.Log(ex.Message + "\n" + ex.StackTrace + "\nThere are no enemies in this room to stun!", false);
+                }
+            }
             primaryPlayer.ForceStopDodgeRoll();
             Tentacle();
             Invoke("TentacleHidePlayer", 0.7f);
@@ -24,23 +29,24 @@ namespace ChaosGlitchMod
             primaryPlayer.ForceStopDodgeRoll();
             Tentacle();
             Invoke("TentacleHidePlayer", 0.7f);
-            if(Random.value <= 0.2) {
+            if (UnityEngine.Random.value <= 0.2) {
                 Invoke("TeleportToCreepyroom", 1f);
-            } else {
+            }
+            else {
                 Invoke("TeleportToRandomRoom", 1f);
             }
         }
 
-        public void TentacleHidePlayer()
-        {
+        public void TentacleHidePlayer() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             primaryPlayer.IsVisible = false;
+            return;
         }
 
-        public void TentacleShowPlayer()
-        {
+        public void TentacleShowPlayer() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             primaryPlayer.IsVisible = true;
+            return;
         }
 
         public void Tentacle() {
@@ -54,8 +60,8 @@ namespace ChaosGlitchMod
                 gameObject2.transform.position = gameObject2.transform.position.Quantize(0.0625f);
                 gameObject2.GetComponent<tk2dBaseSprite>().UpdateZDepth();
             }
-            Pixelator.Instance.FadeToBlack(1.3f, false, 0f);
-
+            // Pixelator.Instance.FadeToBlack(1.4f, false, 0f);
+            return;
         }
 
         public void TentacleRelease()
@@ -70,6 +76,7 @@ namespace ChaosGlitchMod
                 gameObject2.transform.position = gameObject2.transform.position.Quantize(0.0625f);
                 gameObject2.GetComponent<tk2dBaseSprite>().UpdateZDepth();
             }
+            return;
         }
 
         public void Teleport() {
@@ -105,7 +112,6 @@ namespace ChaosGlitchMod
                 Invoke("Unfreeze", 2f);
                 return;
             }
-
             // IntVector2 newPos = currentRoom.GetRandomAvailableCellDumb();
             primaryPlayer.TeleportToPoint(newPos.ToCenterVector2(), false);
             Invoke("TentacleRelease", 1f);
@@ -113,8 +119,7 @@ namespace ChaosGlitchMod
             Invoke("Unfreeze", 2f);
         }
 
-        public void TeleportToCreepyroom()
-        {
+        public void TeleportToCreepyroom() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
@@ -122,12 +127,14 @@ namespace ChaosGlitchMod
             primaryPlayer.EscapeRoom(PlayerController.EscapeSealedRoomStyle.TELEPORTER, true, creepyRoom);
             primaryPlayer.WarpToPoint((creepyRoom.area.basePosition + new IntVector2(12, 4)).ToVector2(), false, false);
             primaryPlayer.WarpFollowersToPlayer();
+            // Pixelator.Instance.FadeToBlack(0.25f, true);
             Invoke("TentacleRelease", 1f);
             Invoke("TentacleShowPlayer", 1.45f);
             Invoke("Unfreeze", 2f);
             if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
                 GameManager.Instance.GetOtherPlayer(secondaryPlayer).ReuniteWithOtherPlayer(primaryPlayer, false);
             }
+            return;
         }
 
         public void TeleportToRandomRoom()
@@ -164,7 +171,6 @@ namespace ChaosGlitchMod
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("Unfreeze", 2f);
-
             }
         }
 

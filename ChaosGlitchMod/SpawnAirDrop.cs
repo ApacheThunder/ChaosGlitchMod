@@ -1,4 +1,5 @@
 using Dungeonator;
+using System;
 using UnityEngine;
 
 
@@ -16,7 +17,7 @@ namespace ChaosGlitchMod
 
             string SelectedEnemy = EnemyGUID;
             AIActor SelectedActor = EnemyDatabase.GetOrLoadByGuid(SelectedEnemy);
-
+            
             lootCrate.ChanceToExplode = ExplodeOdds;
             lootCrate.ChanceToSpawnEnemy = EnemyOdds;
             lootCrate.EnemyPlaceable.variantTiers[0].enemyPlaceableGuid = SelectedEnemy;

@@ -5,6 +5,7 @@
         public override void Init() { }
 
         public override void Start() {
+
         // Setup Console Commands for Glitch and Chaos stuff
         ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosConsole>();
         // Modified version of Anywhere mod

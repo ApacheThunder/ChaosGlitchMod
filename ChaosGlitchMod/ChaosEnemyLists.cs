@@ -14,12 +14,11 @@ namespace ChaosGlitchMod
 
     class ChaosEnemyLists : MonoBehaviour
     {
-
-        public static string[] SafeEnemyGUIDList = {
-            "eeb33c3a5a8e4eaaaaf39a743e8767bc", // candle_guy
-            "4538456236f64ea79f483784370bc62f", // fusebot
-            "c2f902b7cbe745efb3db4399927eab34" // skusket_head
-        };
+        public static string SafeEnemyGUIDList = "eeb33c3a5a8e4eaaaaf39a743e8767bc";  // candle_guy
+        // {
+        // "4538456236f64ea79f483784370bc62f", // fusebot
+        // "c2f902b7cbe745efb3db4399927eab34" // skusket_head
+        // };
 
         // These enemies have or may have collision issues if resized
         // Many bosses will softlock or have collision issues too.
@@ -84,13 +83,13 @@ namespace ChaosGlitchMod
             // "1bc2a07ef87741be90c37096910843ab", // chancebulon
             // "0239c0680f9f467dbe5c4aab7dd1eca6", // blobulon
             // "e61cab252cfb435db9172adc96ded75f", // poisbulon
+            // "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
+            // "fe3fe59d867347839824d5d9ae87f244", // poisbuloid
             "699cd24270af4cd183d671090d8323a1", // key_bullet_kin // Flee behaviour generates an exception in the logs.
             "a446c626b56d4166915a4e29869737fd", // chance_bullet_kin // His drops sometimes don't appear correctly when resized.
             "22fc2c2c45fb47cf9fb5f7b043a70122", // grip_master // Being tossed from a room from tiny Grip Master can soft lock the game.
             "42be66373a3d4d89b91a35c9ff8adfec", // blobulin
             "b8103805af174924b578c98e95313074", // poisbulin
-            "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
-            "fe3fe59d867347839824d5d9ae87f244", // poisbuloid
             "3e98ccecf7334ff2800188c417e67c15", // killithid
             "ffdc8680bdaa487f8f31995539f74265", // muzzle_wisp
             "d8a445ea4d944cc1b55a40f22821ae69", // muzzle_flare
@@ -134,12 +133,12 @@ namespace ChaosGlitchMod
             // Companions
             "c07ef60ae32b404f99e294a6f9acba75", // dog
             "7bd9c670f35b4b8d84280f52a5cc47f6", // cucco
-            "705e9081261446039e1ed9ff16905d04", // cop
             "998807b57e454f00a63d67883fcf90d6", // portable_turret
             "11a14dbd807e432985a89f69b5f9b31e", // phoenix
-            "640238ba85dd4e94b3d6f68888e6ecb8", // cop_android
             "6f9c28403d3248c188c391f5e40774c5", // turkey
             */
+            "705e9081261446039e1ed9ff16905d04", // cop
+            "640238ba85dd4e94b3d6f68888e6ecb8", // cop_android
             "3a077fa5872d462196bb9a3cb1af02a3", // super_space_turtle
             "1ccdace06ebd42dc984d46cb1f0db6cf", // r2g2
             "fe51c83b41ce4a46b42f54ab5f31e6d0", // pig
@@ -241,11 +240,22 @@ namespace ChaosGlitchMod
 
         public static string[] RoomEnemyGUIDList = {
             "01972dee89fc4404a5c408d50007dad5", // bullet_kin
+            "d4a9836f8ab14f3fadd0f597438b1f1f", // mutant_bullet_kin
+            "05891b158cd542b1a5f3df30fb67a7ff", // arrow_head
             "f155fd2759764f4a9217db29dd21b7eb", // mountain_cube
             "9b2cf2949a894599917d4d391a0b7394", // high_gunjurer
+            "a9cc6a4e9b3d46ea871e70a03c9f77d4", // marines_past_imp
+            "1cec0cdf383e42b19920787798353e46", // black_skusket
+            "95ec774b5a75467a9ab05fa230c0c143", // skullmet
+            "5288e86d20184fa69c91ceb642d31474", // gummy
+            "d8a445ea4d944cc1b55a40f22821ae69", // muzzle_flare
+            "43426a2e39584871b287ac31df04b544", // wizbang
+            "8b4a938cdbc64e64822e841e482ba3d2", // jammomancer
+            "ba657723b2904aa79f9e51bce7d23872", // jamerlengo
             "2ebf8ef6728648089babb507dec4edb7", // brown_chest_mimic
             "8bb5578fba374e8aae8e10b754e61d62", // cardinal
             "37340393f97f41b2822bc02d14654172", // creech
+            "062b9b64371e46e195de17b6f10e47c8", // bloodbulon
             "044a9f39712f456597b9762893fbc19c", // shotgrub
             "5f3abc2d561b4b9c9e72b879c6f10c7e", // fallen_bullet_kin
             "c4fba8def15e47b297865b18e36cbef8", // gunjurer
@@ -254,7 +264,7 @@ namespace ChaosGlitchMod
             "699cd24270af4cd183d671090d8323a1", // key_bullet_kin
             "57255ed50ee24794b7aac1ac3cfb8a95", // gun_cultist
             "022d7c822bc146b58fe3b0287568aaa2", // blizzbulon
-            // "56f5a0f2c1fc4bc78875aea617ee31ac", // spectre
+            "56f5a0f2c1fc4bc78875aea617ee31ac", // spectre
             "56fb939a434140308b8f257f0f447829", // lore_gunjurer
             "1bd8e49f93614e76b140077ff2e33f2b", // ashen_shotgun_kin
             "1a78cfb776f54641b832e92c44021cf2", // ashen_bullet_kin
@@ -266,7 +276,10 @@ namespace ChaosGlitchMod
             "c5b11bfc065d417b9c4d03a5e385fe2c", // professional
             "2752019b770f473193b08b4005dc781f", // veteran_shotgun_kin
             "70216cae6c1346309d86d4a0b4603045", // veteran_bullet_kin
-            "19b420dec96d4e9ea4aebc3398c0ba7a", //  bombshee
+            "19b420dec96d4e9ea4aebc3398c0ba7a", // bombshee
+            "98ca70157c364750a60f5e0084f9d3e2", // phaser_spider
+            "1bc2a07ef87741be90c37096910843ab", // chancebulon
+            "45192ff6d6cb43ed8f1a874ab6bef316", // misfire_beast
             "12a054b8a6e549dcac58a82b89e319e5", // robots_past_terminator
             "556e9f2a10f9411cb9dbfd61e0e0f1e1", // convicts_past_soldier
             "eeb33c3a5a8e4eaaaaf39a743e8767bc" // candle_guy
@@ -274,6 +287,7 @@ namespace ChaosGlitchMod
 
         public static string[] ReplacementEnemyGUIDList = {
             "01972dee89fc4404a5c408d50007dad5", // bullet_kin
+            "05891b158cd542b1a5f3df30fb67a7ff", // arrow_head
             "4d37ce3d666b4ddda8039929225b7ede", // grenade_kin
             "8bb5578fba374e8aae8e10b754e61d62", // cardinal
             "f905765488874846b7ff257ff81d6d0c", // fungun
@@ -337,10 +351,36 @@ namespace ChaosGlitchMod
         */
 
         public static string[] DontDieOnCollisionWhenTinyGUIDList = {
-            // "f38686671d524feda75261e469f30e0b", // ammoconda_ball
-            "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton"
             "76bc43539fc24648bff4568c75c686d1", // chicken - This already dies on contact, plus I don't want to override it's death sound. :P
+            // Companions
+            "c07ef60ae32b404f99e294a6f9acba75", // dog
+            "7bd9c670f35b4b8d84280f52a5cc47f6", // cucco
+            "705e9081261446039e1ed9ff16905d04", // cop
+            "998807b57e454f00a63d67883fcf90d6", // portable_turret
+            "11a14dbd807e432985a89f69b5f9b31e", // phoenix
+            "640238ba85dd4e94b3d6f68888e6ecb8", // cop_android
+            "6f9c28403d3248c188c391f5e40774c5", // turkey
+            "3a077fa5872d462196bb9a3cb1af02a3", // super_space_turtle
+            "1ccdace06ebd42dc984d46cb1f0db6cf", // r2g2
+            "fe51c83b41ce4a46b42f54ab5f31e6d0", // pig
+            "ededff1deaf3430eaf8321d0c6b2bd80", // hunters_past_dog
+            "d375913a61d1465f8e4ffcf4894e4427", // caterpillar
+            "5695e8ffa77c4d099b4d9bd9536ff35e", // blank_companion
+            "c6c8e59d0f5d41969c74e802c9d67d07", // ser_junkan
+            "86237c6482754cd29819c239403a2de7", // pig_synergy
+            "ad35abc5a3bf451581c3530417d89f2c", // blank_companion_synergy
+            "e9fa6544000942a79ad05b6e4afb62db", // raccoon
+            "ebf2314289ff4a4ead7ea7ef363a0a2e", // dog_synergy_1
+            "ab4a779d6e8f429baafa4bf9e5dca3a9", // dog_synergy_2
+            "9216803e9c894002a4b931d7ea9c6bdf", // super_space_turtle_synergy
+            "cc9c41aa8c194e17b44ac45f993dd212", // super_space_turtle_dummy
+            "45f5291a60724067bd3ccde50f65ac22", // payday_shooter_01
+            "41ab10778daf4d3692e2bc4b370ab037", // payday_shooter_02
+            "2976522ec560460c889d11bb54fbe758", // payday_shooter_03
+            "e456b66ed3664a4cb590eab3a8ff3814" // baby_mimic
             /*
+            "f38686671d524feda75261e469f30e0b", // ammoconda_ball
+            "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton"
             "ec8ea75b557d4e7b8ceeaacdf6f8238c", // gun_nut
             "383175a55879441d90933b5c4e60cf6f", // spectre_gun_nut
             "463d16121f884984abe759de38418e48", // chain_gunner
@@ -367,9 +407,119 @@ namespace ChaosGlitchMod
         };
 
         public static string[] OverrideFallIntoPitsList = {
+            "6b7ef9e5d05b4f96b04f05ef4a0d1b18", // rubber_kin
+            "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
+            "2feb50a6a40f4f50982e89fd276f6f15", // bullat
+            "2d4f8b5404614e7d8b235006acde427a", // shotgat
+            "b4666cb6ef4f4b038ba8924fd8adf38f", // grenat
+            "7ec3e8146f634c559a7d58b19191cd43", // spirat
+            "4db03291a12144d69fe940d5a01de376", // hollowpoint
             "b70cbd875fea498aa7fd14b970248920", // great_bullet_shark
             "72d2f44431da43b8a3bae7d8a114a46d", // bullet_shark
+            "c182a5cb704d460d9d099a47af49c913", // pot_fairy
+            "9b4fb8a2a60a457f90dcf285d34143ac", // gat
+            "48d74b9c65f44b888a94f9e093554977", // x_det
+            "c5a0fd2774b64287bf11127ca59dd8b4", // diagonal_x_det
+            "b67ffe82c66742d1985e5888fd8e6a03", // vertical_det
+            "d9632631a18849539333a92332895ebd", // diagonal_det
+            "1898f6fe1ee0408e886aaf05c23cc216", // horizontal_det
+            "abd816b0bcbf4035b95837ca931169df", // vertical_x_det
+            "07d06d2b23cc48fe9f95454c839cb361", // horizontal_x_det
+            "ccf6d241dad64d989cbcaca2a8477f01", // t_bulon
+            "864ea5a6a9324efc95a0dd2407f42810", // cubulon
+            "1bc2a07ef87741be90c37096910843ab", // chancebulon
+            "88f037c3f93b4362a040a87b30770407", // gunreaper
+            "0d3f7c641557426fbac8596b61c9fb45", // lord_of_the_jammed
+            // Companions
+            "c07ef60ae32b404f99e294a6f9acba75", // dog
+            "7bd9c670f35b4b8d84280f52a5cc47f6", // cucco
+            "705e9081261446039e1ed9ff16905d04", // cop
+            "998807b57e454f00a63d67883fcf90d6", // portable_turret
+            "11a14dbd807e432985a89f69b5f9b31e", // phoenix
+            "640238ba85dd4e94b3d6f68888e6ecb8", // cop_android
+            "6f9c28403d3248c188c391f5e40774c5", // turkey
+            "3a077fa5872d462196bb9a3cb1af02a3", // super_space_turtle
+            "1ccdace06ebd42dc984d46cb1f0db6cf", // r2g2
+            "fe51c83b41ce4a46b42f54ab5f31e6d0", // pig
+            "ededff1deaf3430eaf8321d0c6b2bd80", // hunters_past_dog
+            "d375913a61d1465f8e4ffcf4894e4427", // caterpillar
+            "5695e8ffa77c4d099b4d9bd9536ff35e", // blank_companion
+            "c6c8e59d0f5d41969c74e802c9d67d07", // ser_junkan
+            "86237c6482754cd29819c239403a2de7", // pig_synergy
+            "ad35abc5a3bf451581c3530417d89f2c", // blank_companion_synergy
+            "e9fa6544000942a79ad05b6e4afb62db", // raccoon
+            "ebf2314289ff4a4ead7ea7ef363a0a2e", // dog_synergy_1
+            "ab4a779d6e8f429baafa4bf9e5dca3a9", // dog_synergy_2
+            "9216803e9c894002a4b931d7ea9c6bdf", // super_space_turtle_synergy
+            "cc9c41aa8c194e17b44ac45f993dd212", // super_space_turtle_dummy
+            "45f5291a60724067bd3ccde50f65ac22", // payday_shooter_01
+            "41ab10778daf4d3692e2bc4b370ab037", // payday_shooter_02
+            "2976522ec560460c889d11bb54fbe758", // payday_shooter_03
+            "e456b66ed3664a4cb590eab3a8ff3814" // baby_mimic
         };
+
+        public static string[] DieOnContactOverrideList = {
+            "2feb50a6a40f4f50982e89fd276f6f15", // bullat
+            "2d4f8b5404614e7d8b235006acde427a", // shotgat
+            "b4666cb6ef4f4b038ba8924fd8adf38f", // grenat
+            "7ec3e8146f634c559a7d58b19191cd43" // spirat
+        };
+
+        public static string[] PreventBeingJammedOverrideList = {
+            "2feb50a6a40f4f50982e89fd276f6f15", // bullat
+            "2d4f8b5404614e7d8b235006acde427a", // shotgat
+            "b4666cb6ef4f4b038ba8924fd8adf38f", // grenat
+            "7ec3e8146f634c559a7d58b19191cd43", // spirat
+            "6ad1cafc268f4214a101dca7af61bc91", // rat
+            "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
+            "76bc43539fc24648bff4568c75c686d1", // chicken
+            "0ff278534abb4fbaaa65d3f638003648", // poopulons_corn
+            "8b43a5c59b854eb780f9ab669ec26b7a", // dragun_egg_slimeguy
+            "d1c9781fdac54d9e8498ed89210a0238" // tiny_blobulord
+        };
+
+        public static string[] PreventDeathOnBossKillList = {
+            "6ad1cafc268f4214a101dca7af61bc91", // rat
+            "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
+            "76bc43539fc24648bff4568c75c686d1", // chicken
+            "8b43a5c59b854eb780f9ab669ec26b7a", // dragun_egg_slimeguy
+            "d1c9781fdac54d9e8498ed89210a0238" // tiny_blobulord
+        };
+
+        public static string[] KillOnRoomClearList = {
+            "4538456236f64ea79f483784370bc62f", // fusebot
+            "be0683affb0e41bbb699cb7125fdded6", // mouser
+            "6b7ef9e5d05b4f96b04f05ef4a0d1b18", // rubber_kin
+            "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
+            "d4dd2b2bbda64cc9bcec534b4e920518", // bullet_kings_toadie_revenge
+            "42be66373a3d4d89b91a35c9ff8adfec", // blobulin
+            "b8103805af174924b578c98e95313074", // poisbulin
+            "c2f902b7cbe745efb3db4399927eab34", // skusket_head
+            "4d37ce3d666b4ddda8039929225b7ede", // grenade_kin
+            "2feb50a6a40f4f50982e89fd276f6f15", // bullat
+            "2d4f8b5404614e7d8b235006acde427a", // shotgat
+            "b4666cb6ef4f4b038ba8924fd8adf38f", // grenat
+            "7ec3e8146f634c559a7d58b19191cd43", // spirat
+            "566ecca5f3b04945ac6ce1f26dedbf4f" // mine_flayers_claymore
+        };
+
+        public static string[] AlreadyIgnoredForRoomClearList = {
+            "6ad1cafc268f4214a101dca7af61bc91", // rat
+            "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
+            "1386da0f42fb4bcabc5be8feb16a7c38", // snake
+            "76bc43539fc24648bff4568c75c686d1", // chicken
+            "8b43a5c59b854eb780f9ab669ec26b7a", // dragun_egg_slimeguy
+            "d1c9781fdac54d9e8498ed89210a0238", // tiny_blobulord
+            "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1
+            "42432592685e47c9941e339879379d3a", // robots_past_critter_2
+            "4254a93fc3c84c0dbe0a8f0dddf48a5a", // robots_past_critter_3
+            "b5e699a0abb94666bda567ab23bd91c4", // bullet_kings_toadie
+            "02a14dec58ab45fb8aacde7aacd25b01", // old_kings_toadie
+            "566ecca5f3b04945ac6ce1f26dedbf4f", // mine_flayers_claymore
+            "78a8ee40dff2477e9c2134f6990ef297", // mine_flayers_bell
+            "0ff278534abb4fbaaa65d3f638003648" // poopulons_corn
+        };
+
         public static string[] TriggerTwinsGUIDList = {
             "ea40fcc863d34b0088f490f4e57f8913", // smiley
             "c00390483f394a849c36143eb878998f" // shades
