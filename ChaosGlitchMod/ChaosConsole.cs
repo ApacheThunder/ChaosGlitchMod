@@ -2,6 +2,7 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Dungeonator;
+using System.Collections.Generic;
 
 namespace ChaosGlitchMod
 {
@@ -20,6 +21,7 @@ namespace ChaosGlitchMod
         public static float LootCrateBigLootDropChances = 0.1f;
         public static float TentacleTimeChances = 0.1f;
         public static float TentacleTimeRandomRoomChances = 0.1f;
+        public static float ChallengeTimeChances = 0f;
 
 
         public static bool autoUltra = false;
@@ -28,9 +30,9 @@ namespace ChaosGlitchMod
         public static bool GlitchRandomized = true;
         public static bool GlitchEnemies = false;
         public static bool potDebug = false;
+        public static bool DebugExceptions = false;
         public static bool NormalWallMimicMode = false;
         public static bool WallMimicsUseRewardManager = true;
-        public static bool NoWallMimics = false;
         public static bool addRandomEnemy = false;
         public static bool debugMimicFlag = false;
         public static bool randomEnemySizeEnabled = false;
@@ -38,6 +40,7 @@ namespace ChaosGlitchMod
         public static bool isUltraMode = false;
         public static bool hasBeenTentacled = false;
         public static bool hasBeenTentacledToAnotherRoom = false;
+        public static bool hasBeenHammered = false;
         public static bool allowRandomBulletKinReplacement = false;
 
         public static int MaxWallMimicsPerRoom = 1;
@@ -54,7 +57,6 @@ namespace ChaosGlitchMod
                 isUltraMode = true;
                 allowRandomBulletKinReplacement = true;
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 WallMimicsUseRewardManager = false;
                 SharedHooks.InstallPrimaryHooks();
 
@@ -118,25 +120,22 @@ namespace ChaosGlitchMod
                     ETGModConsole.Log("The Walls can no longer be trusted...", false);
                 }
                 NormalWallMimicMode = true;
-                NoWallMimics = false;
                 WallMimicsUseRewardManager = false;
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls_ultra", delegate (string[] e) {
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager && !NoWallMimics) {
+                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already closing in! Use 'chaos reset' to disable it!", false);
                 } else {
                     ETGModConsole.Log("The Walls are closing in...", false);
                 }
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 WallMimicsUseRewardManager = false;
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls_disabled", delegate (string[] e) {
-                if (NoWallMimics) { ETGModConsole.Log("Wall Mimics are already disabled! Use 'chaos reset' to restore!", false); }
-                NoWallMimics = true;
-                WallMimicsUseRewardManager = false;
+                if (WallMimicsUseRewardManager) { ETGModConsole.Log("Wall Mimics are already disabled! Use 'chaos reset' to reset!", false); }
+                WallMimicsUseRewardManager = true;
                 ETGModConsole.Log("Wall Mimics have been disabled and won't appear at all...", false);
             });
 
@@ -169,7 +168,6 @@ namespace ChaosGlitchMod
                 }
 
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 addRandomEnemy = false;
                 randomEnemySizeEnabled = true;
                 isHardMode = false;
@@ -191,10 +189,9 @@ namespace ChaosGlitchMod
                         typeof(SharedHooks).GetMethod("SpawnAnnoyingEnemy")
                     );
                 }
-                if (NormalWallMimicMode && !WallMimicsUseRewardManager && !NoWallMimics) { ETGModConsole.Log("The Walls are already untrusted!", false); }
+                if (NormalWallMimicMode && !WallMimicsUseRewardManager) { ETGModConsole.Log("The Walls are already untrusted!", false); }
 
                 NormalWallMimicMode = true;
-                NoWallMimics = false;
                 addRandomEnemy = true;
                 allowRandomBulletKinReplacement = false;
                 randomEnemySizeEnabled = true;
@@ -218,12 +215,11 @@ namespace ChaosGlitchMod
                     );
                 }
 
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager && !NoWallMimics) {
+                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already closing in!", false);
                 }
 
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 addRandomEnemy = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
@@ -248,7 +244,7 @@ namespace ChaosGlitchMod
                     );
                 }
 
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager && !NoWallMimics) {
+                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already closing in!", false);
                 }
 
@@ -264,7 +260,6 @@ namespace ChaosGlitchMod
                 GlitchEnemies = true;
                 GlitchEverything = true;
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 addRandomEnemy = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
@@ -280,17 +275,6 @@ namespace ChaosGlitchMod
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
                 lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, usePlayerPosition: true);
                 ETGModConsole.Log("Bullet Kin to the rescue!.....Or maybe not? :P", false);
-            });
-
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("hammer", delegate (string[] e) {
-                HammerTimeChallengeModifier hammer = GameManager.Instance.gameObject.GetComponent<HammerTimeChallengeModifier>();
-                PlayerController player = GameManager.Instance.PrimaryPlayer;
-                GameObject gameObject = hammer.HammerPlaceable.InstantiateObject(player.CurrentRoom, player.CurrentRoom.Epicenter, false, false);
-                ForgeHammerController component = gameObject.GetComponent<ForgeHammerController>();
-                component.MinTimeBetweenAttacks = hammer.MinTimeBetweenAttacks;
-                component.MaxTimeBetweenAttacks = hammer.MaxTimeBetweenAttacks;
-                component.Activate();
-                ETGModConsole.Log("HmammerTimeTest", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawnlootcrate", delegate (string[] e) {
@@ -342,6 +326,18 @@ namespace ChaosGlitchMod
                     if (debugMimicFlag) {
                         debugMimicFlag = false;
                         ETGModConsole.Log("Debug Mode Off...", false);
+                    }
+                }
+            });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("superdebug", delegate (string[] e) {
+                if (!DebugExceptions) {
+                    DebugExceptions = true;
+                    ETGModConsole.Log("Exceptions Debug Mode On...", false);
+                } else {
+                    if (DebugExceptions) {
+                        DebugExceptions = false;
+                        ETGModConsole.Log("Exceptions Debug Mode Off...", false);
                     }
                 }
             });
@@ -417,12 +413,13 @@ namespace ChaosGlitchMod
                 isUltraMode = false;
                 WallMimicsUseRewardManager = true;
                 NormalWallMimicMode = false;
-                NoWallMimics = false;
                 addRandomEnemy = false;
                 debugMimicFlag = false;
                 potDebug = false;
+                DebugExceptions = false;
                 hasBeenTentacled = false;
                 hasBeenTentacledToAnotherRoom = false;
+                hasBeenHammered = false;
                 allowRandomBulletKinReplacement = true;
                 GlitchRandomActors = 0.3f;
                 GlitchRandomAll = 0.2f;
@@ -438,6 +435,7 @@ namespace ChaosGlitchMod
                 EnemyCrateExplodeChances = 0.1f;
                 RandomPits = 0;
                 RandomPitsPerRoom = 0;
+                ChallengeTimeChances = 0f;
                 TentacleTimeChances = 0.1f;
                 TentacleTimeRandomRoomChances = 0.1f;
 

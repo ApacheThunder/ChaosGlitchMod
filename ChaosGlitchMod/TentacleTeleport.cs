@@ -81,38 +81,16 @@ namespace ChaosGlitchMod
 
         public void Teleport() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+            ChaosUtility chaosUtility = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosUtility>();
             AIActor DummyEnemy = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.BulletKinEnemyGUID);
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-            IntVector2 newPos = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-
-            IntVector2? targetCenter = new IntVector2?(GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-            CellValidator cellValidator = delegate (IntVector2 c) {
-                // Use BulletKin + 5/5 clearance to ensure it doesn't teleport player into a wall.
-                for (int j = 0; j < DummyEnemy.Clearance.x + 5; j++)
-                {
-                    for (int k = 0; k < DummyEnemy.Clearance.y + 5; k++)
-                    {
-                        if (GameManager.Instance.Dungeon.data.isTopWall(c.x + j, c.y + k)) { return false; }
-                        if (GameManager.Instance.Dungeon.data.isWall(c.x + j, c.y + k)) { return false; }
-                        if (targetCenter.HasValue){
-                            if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) < 4) { return false; }
-                            if (IntVector2.Distance(targetCenter.Value, c.x + j, c.y + k) > 20) { return false; }
-                        }
-                    }
-                }
-                return true;
-            };
-            IntVector2? randomAvailableCell = GameManager.Instance.PrimaryPlayer.CurrentRoom.GetRandomAvailableCell(new IntVector2?(DummyEnemy.Clearance), new CellTypes?(DummyEnemy.PathableTiles), false, cellValidator);
-            if (randomAvailableCell.HasValue) {
-                newPos = randomAvailableCell.Value;
-            } else {
-                // If room is too small or narrow for safe teleport, just finish the animation and return.
+            IntVector2 newPos = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, primaryPlayer, DummyEnemy, 5, 5, false);
+            if (newPos == new IntVector2(0,0)) {
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("Unfreeze", 2f);
                 return;
             }
-            // IntVector2 newPos = currentRoom.GetRandomAvailableCellDumb();
             primaryPlayer.TeleportToPoint(newPos.ToCenterVector2(), false);
             Invoke("TentacleRelease", 1f);
             Invoke("TentacleShowPlayer", 1.45f);

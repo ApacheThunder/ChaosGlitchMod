@@ -378,6 +378,8 @@ namespace ChaosGlitchMod
             "41ab10778daf4d3692e2bc4b370ab037", // payday_shooter_02
             "2976522ec560460c889d11bb54fbe758", // payday_shooter_03
             "e456b66ed3664a4cb590eab3a8ff3814" // baby_mimic
+            // "4d37ce3d666b4ddda8039929225b7ede", // grenade_kin
+            // "c0260c286c8d4538a697c5bf24976ccf" // dynamite_kin
             /*
             "f38686671d524feda75261e469f30e0b", // ammoconda_ball
             "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton"
@@ -391,7 +393,6 @@ namespace ChaosGlitchMod
             "d8fd592b184b4ac9a3be217bc70912a2", // red_chest_mimic
             "b70cbd875fea498aa7fd14b970248920", // great_bullet_shark
             "78a8ee40dff2477e9c2134f6990ef297", // mine_flayers_bell
-            "c0260c286c8d4538a697c5bf24976ccf", // dynamite_kin
             "eed5addcc15148179f300cc0d9ee7f94", // spogre
             "0239c0680f9f467dbe5c4aab7dd1eca6", // blobulon
             "e61cab252cfb435db9172adc96ded75f", // poisbulon
@@ -400,6 +401,7 @@ namespace ChaosGlitchMod
         };
 
         public static string[] DontGlitchMeList = {
+            "c0260c286c8d4538a697c5bf24976ccf", // dynamite_kin
             "128db2f0781141bcb505d8f00f9e4d47", // red_shotgun_kin
             "b54d89f9e802455cbb2b8a96a31e8259", // blue_shotgun_kin
             "70216cae6c1346309d86d4a0b4603045", // veteran_bullet_kin
@@ -508,6 +510,7 @@ namespace ChaosGlitchMod
             "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
             "1386da0f42fb4bcabc5be8feb16a7c38", // snake
             "76bc43539fc24648bff4568c75c686d1", // chicken
+            "c2f902b7cbe745efb3db4399927eab34", // skusket_head
             "8b43a5c59b854eb780f9ab669ec26b7a", // dragun_egg_slimeguy
             "d1c9781fdac54d9e8498ed89210a0238", // tiny_blobulord
             "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1

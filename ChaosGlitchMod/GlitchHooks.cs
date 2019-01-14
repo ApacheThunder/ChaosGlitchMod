@@ -22,13 +22,26 @@ namespace ChaosGlitchMod
 
             if (s == null) return;
 
+            float RandomIntervalFloat = UnityEngine.Random.Range(0.03f, 0.05f);
+            float RandomDispFloat = UnityEngine.Random.Range(0.5f, 0.8f);
+            float RandomDispIntensityFloat = UnityEngine.Random.Range(0.02f, 0.08f);
+            float RandomColorProbFloat = UnityEngine.Random.Range(0.055f, 0.085f);
+            float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.025f, 0.075f);
+
             sprite.usesOverrideMaterial = true;
             material = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
+            material.SetFloat("_GlitchInterval", RandomIntervalFloat);
+            material.SetFloat("_DispProbability", RandomDispFloat);
+            material.SetFloat("_DispIntensity", RandomDispIntensityFloat);
+            material.SetFloat("_ColorProbability", RandomColorProbFloat);
+            material.SetFloat("_ColorIntensity", RnadomColorIntensityFloat);
+            /*
             material.SetFloat("_GlitchInterval", 0.04f);
             material.SetFloat("_DispProbability", 0.07f);
             material.SetFloat("_DispIntensity", 0.05f);
             material.SetFloat("_ColorProbability", 0.07f);
             material.SetFloat("_ColorIntensity", 0.05f);
+            */
 
             MeshRenderer component = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = component.sharedMaterials;

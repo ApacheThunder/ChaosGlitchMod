@@ -7,6 +7,7 @@ namespace ChaosGlitchMod
 {
     public class LootCrate : MonoBehaviour
     {
+
         public IntVector2 SpawnAirDrop(IntVector2 roomVector, GenericLootTable overrideTable = null, float EnemyOdds = 0f, float ExplodeOdds = 0f, bool usePlayerPosition = true, bool playSoundFX = true, string EnemyGUID = "01972dee89fc4404a5c408d50007dad5")
         {
             GameObject EmergancyCratePrefab = (GameObject)BraveResources.Load("EmergencyCrate", ".prefab");

@@ -61,11 +61,14 @@
     <Compile Include="DungeonFlowModule.cs" />
     <Compile Include="ChaosGlitchMod.cs" />
     <Compile Include="GlitchHooks.cs" />
+    <Compile Include="ObjectRandomizer.cs" />
+    <Compile Include="patch_KickableObject.cs" />
     <Compile Include="PitRandomizer.cs" />
     <Compile Include="SpawnAirDrop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharedHooks.cs" />
     <Compile Include="TentacleTeleport.cs" />
+    <Compile Include="ChaosUtilities.cs" />
     <Compile Include="WallMimicHook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

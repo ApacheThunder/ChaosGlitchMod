@@ -11,8 +11,8 @@ namespace ChaosGlitchMod
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
             "EndTimes_Chamber",
-            "DraGunRoom",
-            "DemonWallRoom",
+            "DraGunRoom01",
+            "DemonWallRoom01",
             "ElevatorMaintenanceRoom"
         };
 
@@ -20,6 +20,7 @@ namespace ChaosGlitchMod
         {
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
+            ChaosConsole.hasBeenHammered = false;
 
             if (currentFloor == -1) {
                 ChaosConsole.RandomPits = UnityEngine.Random.Range(80, 100);
@@ -83,8 +84,8 @@ namespace ChaosGlitchMod
             // Floor 1 guranteed to have 1 mimic per room.
             if (currentFloor == 1) {
                 ChaosConsole.MaxWallMimicsPerRoom = 1;
-                ChaosConsole.MaxWallMimicsForFloor = 15;
-                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = 20; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(5, 15);
+                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(15, 25); }
                 ChaosConsole.TentacleTimeRandomRoomChances = 0f;
             }
 
@@ -92,42 +93,37 @@ namespace ChaosGlitchMod
             // However not a gurantee that every room will have that count.
             if (currentFloor == 2) {
                 if(BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 1; } else { ChaosConsole.MaxWallMimicsPerRoom = 2; }
-                ChaosConsole.MaxWallMimicsForFloor = 15;
-                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = 25; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(10, 15);
+                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(20, 25); }
             }
 
             if (currentFloor == 3) {
                 if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 1; } else { ChaosConsole.MaxWallMimicsPerRoom = 2; }
-                ChaosConsole.MaxWallMimicsForFloor = 20;
-                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = 30; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(15, 20);
+                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(20, 25); }
             }
 
             if (currentFloor == 4) {
-                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 2; } else { ChaosConsole.MaxWallMimicsPerRoom = 2; }
-                ChaosConsole.MaxWallMimicsForFloor = 25;
-                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = 40; }
+                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 1; } else { ChaosConsole.MaxWallMimicsPerRoom = 2; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(20, 25);
+                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(25, 35); }
             }
 
             if (currentFloor == 5) {
-                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 2; } else { ChaosConsole.MaxWallMimicsPerRoom = 3; }
-                ChaosConsole.MaxWallMimicsForFloor = 30;
-                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = 50; }
+                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 1; } else { ChaosConsole.MaxWallMimicsPerRoom = 3; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(20, 30);
+                if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(30, 40); }
             }
 
             if (currentFloor >= 6) {
-                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 2; } else { ChaosConsole.MaxWallMimicsPerRoom = 3; }
-                ChaosConsole.MaxWallMimicsForFloor = 35;
-                if (currentCurse >= 5) { ChaosConsole.MaxWallMimicsForFloor = 55; }
+                if (BraveUtility.RandomBool()) { ChaosConsole.MaxWallMimicsPerRoom = 1; } else { ChaosConsole.MaxWallMimicsPerRoom = 3; }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(30, 40);
+                if (currentCurse >= 5) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(35, 50); }
             }
 
-            if (ChaosConsole.NoWallMimics) {
+            if (ChaosConsole.NormalWallMimicMode) {
                 ChaosConsole.MaxWallMimicsPerRoom = 1;
-                ChaosConsole.MaxWallMimicsForFloor = 0;
-            } else {
-                if (ChaosConsole.NormalWallMimicMode) {
-                    ChaosConsole.MaxWallMimicsPerRoom = 1;
-                    ChaosConsole.MaxWallMimicsForFloor = 50;
-                }
+                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(10, 40);
             }
             return;
         }
@@ -158,12 +154,23 @@ namespace ChaosGlitchMod
                 if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
                 return;
             }
-
+            
             if (ChaosConsole.isUltraMode) {
                 if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) {
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
                 } else {
                     PitRandomizer.PlaceRandomPits(dungeon, roomHandler, currentFloor);
+                }
+            }
+
+            if (ChaosConsole.isUltraMode) {
+                try {
+                    ObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
+                } catch (Exception ex) {
+                    if (ChaosConsole.debugMimicFlag) {
+                        ETGModConsole.Log("[DEBUG] Exception Caught while placing objects:", false);
+                        ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);
+                    }
                 }
             }
 
@@ -191,7 +198,7 @@ namespace ChaosGlitchMod
             int SouthWallCount = 0;
             int EastWallCount = 0;
             int WestWallCount = 0;
-
+            int RoomMimicCount = 0;
             int WallMimicsPlaced = 0;
 
             if (roomHandler != null) { roomList = new List<int>(new int[] { dungeon.data.rooms.IndexOf(roomHandler) }); }
@@ -205,29 +212,29 @@ namespace ChaosGlitchMod
                 if (!currentRoom.IsShop || ChaosConsole.WallMimicsUseRewardManager) {
                     if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
                         if (roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || !BraveUtility.RandomBool()) {
-                            if (!BannedWallMimicRoomList.Contains(currentRoom.GetRoomName())) {
+                            if (!BannedWallMimicRoomList.Contains(currentRoom.GetRoomName()) && currentRoom.GetRoomName() != null) {
                                 if (currentRoom.connectedRooms != null) {
                                     for (int j = 0; j < currentRoom.connectedRooms.Count; j++) {
                                         if (currentRoom.connectedRooms[j] == null || currentRoom.connectedRooms[j].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
                                     }
                                 }
-                                if (roomHandler == null) {
-                                    bool flag = false;
+                                if (roomHandler == null && ChaosConsole.WallMimicsUseRewardManager) {
+                                    bool MaxMimicCountReached = false;
                                     currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All, ref enemiesList);
-                                    for (int k = 0; k < enemiesList.Count; k++) {
-                                        AIActor aiactor = enemiesList[k];
+                                    for (int EnemyCount = 0; EnemyCount < enemiesList.Count; EnemyCount++) {
+                                        AIActor aiactor = enemiesList[EnemyCount];
                                         if (aiactor && aiactor.EnemyGuid == GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid) {
-                                            flag = true;
-                                            break;
+                                            RoomMimicCount++;
                                         }
+                                        if (RoomMimicCount >= ChaosConsole.MaxWallMimicsPerRoom) { MaxMimicCountReached = true; break; }
                                     }
-                                    if (flag) { goto IL_EXIT; }
+                                    if (MaxMimicCountReached) { goto IL_EXIT; }
                                 }
                                 validWalls.Clear();
-                                for (int l = -1; l <= currentRoom.area.dimensions.x; l++) {
-                                    for (int m = -1; m <= currentRoom.area.dimensions.y; m++) {
-                                        int X = currentRoom.area.basePosition.x + l;
-                                        int Y = currentRoom.area.basePosition.y + m;
+                                for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
+                                    for (int Height = -1; Height <= currentRoom.area.dimensions.y; Height++) {
+                                        int X = currentRoom.area.basePosition.x + Width;
+                                        int Y = currentRoom.area.basePosition.y + Height;
                                         if (dungeon.data.isWall(X, Y) && X % 4 == 0 && Y % 4 == 0) {
                                             int WallCount = 0;
                                             if (!dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) && dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && dungeon.data.isWall(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isWall(X + 1, Y - 1) && dungeon.data.isWall(X + 2, Y - 1) && !dungeon.data.isPlainEmptyCell(X - 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 3))
@@ -288,18 +295,18 @@ namespace ChaosGlitchMod
                                     for (int loopCount = 0; loopCount < ChaosConsole.MaxWallMimicsPerRoom; ++loopCount) {
                                         if (validWalls.Count > 0) {
                                             if (!ChaosConsole.WallMimicsUseRewardManager) { if (WallMimicsPlaced >= ChaosConsole.MaxWallMimicsForFloor) { break; } }
-                                            Tuple<IntVector2, DungeonData.Direction> tuple = BraveUtility.RandomElement(validWalls);
-                                            validWalls.Remove(tuple);
-                                            IntVector2 first = tuple.First;
-                                            DungeonData.Direction second = tuple.Second;
-                                            if (second != DungeonData.Direction.WEST) {
-                                                currentRoom.RuntimeStampCellComplex(first.x, first.y, CellType.FLOOR, DiagonalWallType.NONE);
+                                            Tuple<IntVector2, DungeonData.Direction> WallCell = BraveUtility.RandomElement(validWalls);
+                                            validWalls.Remove(WallCell);
+                                            IntVector2 Position = WallCell.First;
+                                            DungeonData.Direction Direction = WallCell.Second;
+                                            if (Direction != DungeonData.Direction.WEST) {
+                                                currentRoom.RuntimeStampCellComplex(Position.x, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
                                             }
-                                            if (second != DungeonData.Direction.EAST) {
-                                                currentRoom.RuntimeStampCellComplex(first.x + 1, first.y, CellType.FLOOR, DiagonalWallType.NONE);
+                                            if (Direction != DungeonData.Direction.EAST) {
+                                                currentRoom.RuntimeStampCellComplex(Position.x + 1, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
                                             }
                                             AIActor orLoadByGuid = EnemyDatabase.GetOrLoadByGuid(GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid);
-                                            AIActor.Spawn(orLoadByGuid, first, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
+                                            AIActor.Spawn(orLoadByGuid, Position, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
                                             WallMimicsPlaced++;
                                             if (ChaosConsole.WallMimicsUseRewardManager) { if (WallMimicsPlaced >= ChaosConsole.MaxWallMimicsForFloor) { break; } }
                                         }

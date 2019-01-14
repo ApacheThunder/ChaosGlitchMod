@@ -32,6 +32,14 @@ namespace ChaosGlitchMod
 
         private static string[] PotEnemiesBannedRooms = {
             // "Cathedral_Abbey_Joe_Square_007",
+            "Tutorial_Room_007_bosstime",
+            "DraGunRoom01",
+            "DemonWallRoom01"
+        };
+
+        private static string[] BonusEnemiesBannedRooms = {
+            "Castle_Normal_TinyRoom_NoCoop",
+            "Tutorial_Room_007_bosstime",
             "DraGunRoom01",
             "DemonWallRoom01"
         };
@@ -121,6 +129,7 @@ namespace ChaosGlitchMod
                 self.DiesOnCollison = true;
                 self.EnemyScale = new Vector2(1.25f, 1.25f);
                 self.procedurallyOutlined = false;
+                self.IgnoreForRoomClear = true;
             }
             
             if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode && ChaosEnemyLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
@@ -130,21 +139,28 @@ namespace ChaosGlitchMod
                 if (ChaosEnemyLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
             }
 
+            // if (ChaosConsole.GlitchEnemies && ChaosEnemyLists.DontGlitchMeList.Contains(self.EnemyGuid)) { self.sprite.usesOverrideMaterial = true; }
+
             if (ChaosConsole.GlitchEnemies && !ChaosEnemyLists.DontGlitchMeList.Contains(self.EnemyGuid)) {
                 if (UnityEngine.Random.value < ChaosConsole.GlitchRandomActors) {
                     // Material = self.sprite.renderer.material;
                     material = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
+                    float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
+                    float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
+                    float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
+                    float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
+                    float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
+                    material.SetFloat("_GlitchInterval", RandomIntervalFloat);
+                    material.SetFloat("_DispProbability", RandomDispFloat);
+                    material.SetFloat("_DispIntensity", RandomDispIntensityFloat);
+                    material.SetFloat("_ColorProbability", RandomColorProbFloat);
+                    material.SetFloat("_ColorIntensity", RnadomColorIntensityFloat);
+                    /*
                     material.SetFloat("_GlitchInterval", 0.04f);
                     material.SetFloat("_DispProbability", 0.12f);
                     material.SetFloat("_DispIntensity", 0.2f);
                     material.SetFloat("_ColorProbability", 0.1f);
                     material.SetFloat("_ColorIntensity", 0.15f);
-                    /*
-                    Material.SetFloat("_GlitchInterval", 0.1f);
-                    Material.SetFloat("_DispProbability", 0.4f);
-                    Material.SetFloat("_DispIntensity", 0.01f);
-                    Material.SetFloat("_ColorProbability", 0.4f);
-                    Material.SetFloat("_ColorIntensity", 0.04f);
                     */
 
                     MeshRenderer component = self.GetComponent<MeshRenderer>();
@@ -154,6 +170,7 @@ namespace ChaosGlitchMod
                     CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
                     sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
                     component.sharedMaterials = sharedMaterials;
+                    self.procedurallyOutlined = false;
 
                     if (!ChaosConsole.randomEnemySizeEnabled) {
                         self.BaseMovementSpeed *= 1.1f;
@@ -284,18 +301,11 @@ namespace ChaosGlitchMod
 
         public static void OnRoomClearedHook(Action<PlayerController> orig, PlayerController self) {
             orig(self);
-
-            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
-            RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-
+            RoomHandler currentRoom = self.CurrentRoom;
             bool PotsEnabled = minorbreakablehook != null;
-
             if (PotsEnabled) { PotsTelefragRoom(currentRoom); }
         }
 
-        // Working hook of RoomHandler thanks to KyleTheScientist
-        // Added check for new combat. Mostly to keep it from running this everytime I enter/exit a room.
-        // Limit effect being re-applied to new combat rooms only.
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
             orig(self, player);
             TentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<TentacleTeleport>();
@@ -327,17 +337,53 @@ namespace ChaosGlitchMod
                 } else { if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Teleporting not allowed on this floor...", false); } }
             }
 
-            if (ChaosConsole.addRandomEnemy && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.GetRoomName().StartsWith("DraGunRoom"))
+            if (ChaosConsole.addRandomEnemy && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && !BonusEnemiesBannedRooms.Contains(self.GetRoomName()))
             {
                 int currentFloor = GameManager.Instance.CurrentFloor;
+                RoomHandler currentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
                 int currentCurse = PlayerStats.GetTotalCurse();
                 int currentCoolness = PlayerStats.GetTotalCoolness();
+                float LootCrateExplodeChances = ChaosConsole.LootCrateExplodeChances;
+                float EnemyCrateExplodeChances = ChaosConsole.EnemyCrateExplodeChances;
+                float BonusEnemyChances = ChaosConsole.BonusEnemyChances;
+                float BonusLootChances = ChaosConsole.BonusLootChances;
+                float LootCrateBigLootDropChances = ChaosConsole.LootCrateBigLootDropChances;
+                float ChallengeTimeChances = ChaosConsole.ChallengeTimeChances;
+                bool isHardMode = ChaosConsole.isHardMode;
+                bool isUltraMode = ChaosConsole.isUltraMode;
                 float lootAmmoChance = 0.2f;
 
                 string SelectedEnemy = ChaosEnemyLists.RoomEnemyGUIDList.RandomEnemy();
-
                 AIActor SelectedActor = EnemyDatabase.GetOrLoadByGuid(SelectedEnemy);
+
                 IntVector2 RoomVector;
+                IntVector2 HammerRoomVector = GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor);
+
+                if (currentFloor != -1 && currentFloor == 1) { ChallengeTimeChances = 0.08f; }
+                if (currentFloor != -1 && currentFloor >= 3 && currentFloor <= 4) { ChallengeTimeChances = 0.05f; }
+                if (currentFloor != -1 && currentFloor == 5) { ChallengeTimeChances = 0.01f; }
+                if (currentFloor != -1 && currentFloor > 5) { ChallengeTimeChances = 0f; }
+                if (currentFloor == -1) { ChallengeTimeChances = 0.06f; }
+
+                if (isUltraMode && UnityEngine.Random.value <= ChallengeTimeChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
+                    ChallengeManager.ChallengeModeType = ChallengeModeType.GunslingKingTemporary;
+                    ChallengeManager.Instance.GunslingTargetRoom = player.CurrentRoom;
+                } /*else {
+                    if (isUltraMode && UnityEngine.Random.value <= 0.15 && !ChaosConsole.hasBeenHammered && !BonusEnemiesBannedRooms.Contains(currentRoom.GetRoomName())) {
+                        AssetBundle sharedauto001_assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
+                        IntVector2 dimensions = currentRoom.area.dimensions;
+                        IntVector2 value = currentRoom.GetNearestAvailableCell(player.sprite.WorldCenter, null, null, false, null).Value;
+                        IntVector2 intVector = value - (currentRoom.Epicenter - dimensions / 2) + new IntVector2(-2, 1);
+
+                        GameObject hammerObject = sharedauto001_assetBundle.LoadAsset("Forge_Hammer") as GameObject;
+                        DungeonPlaceableBehaviour hammerPlaceable = hammerObject.AddComponent<ForgeHammerController>();
+                        ForgeHammerController HammerTime = hammerObject.GetComponent<ForgeHammerController>();
+                        HammerTime.InitialDelay = 5f;
+                        HammerTime.DamageToEnemies = 100f;
+                        GameObject PlaceHammer = hammerPlaceable.InstantiateObject(currentRoom, currentRoom.Epicenter, false);
+                        ChaosConsole.hasBeenHammered = true;
+                    }
+                }*/
 
                 if (BraveUtility.RandomBool()) { lootTableCoolRandom = lootTableGuns; } else { lootTableCoolRandom = lootTableItems; }
 
@@ -347,29 +393,26 @@ namespace ChaosGlitchMod
                     if (UnityEngine.Random.value <= 0.2) { lootTableRandom = lootTable; } else { lootTableRandom = lootTable2; }
                 }
 
-                if (currentCurse <= 0) { ChaosConsole.LootCrateExplodeChances = 0.1f; goto IL_START; }
-                if (currentCurse >= 1 && currentCurse <= 3) { ChaosConsole.LootCrateExplodeChances = 0.15f; goto IL_START; }
-                if (currentCurse >= 4 && currentCurse <= 6) { ChaosConsole.LootCrateExplodeChances = 0.2f; goto IL_START; }
-                if (currentCurse >= 7 && currentCurse <= 9) { ChaosConsole.LootCrateExplodeChances = 0.25f; goto IL_START; }
-                if (currentCurse > 9) { ChaosConsole.LootCrateExplodeChances = 0.3f; }
+                if (currentCurse <= 0) { LootCrateExplodeChances = 0.1f; }
+                if (currentCurse >= 1 && currentCurse <= 3) { LootCrateExplodeChances = 0.15f; }
+                if (currentCurse >= 4 && currentCurse <= 6) { LootCrateExplodeChances = 0.2f; }
+                if (currentCurse >= 7 && currentCurse <= 9) { LootCrateExplodeChances = 0.25f; }
+                if (currentCurse > 9) { LootCrateExplodeChances = 0.3f; }
 
-                IL_START:;
-                if (currentCoolness <= 0) { ChaosConsole.EnemyCrateExplodeChances = 0.1f; goto IL_START2; }
-                if (currentCoolness >= 1 && currentCurse <= 3) { ChaosConsole.EnemyCrateExplodeChances = 0.15f; goto IL_START2; }
-                if (currentCoolness >= 4 && currentCurse <= 6) { ChaosConsole.EnemyCrateExplodeChances = 0.2f; goto IL_START2; }
-                if (currentCoolness >= 7 && currentCurse <= 9) { ChaosConsole.EnemyCrateExplodeChances = 0.3f; goto IL_START2; }
-                if (currentCoolness > 9) { ChaosConsole.EnemyCrateExplodeChances = 0.4f; }
+                if (currentCoolness <= 0) { EnemyCrateExplodeChances = 0.1f; }
+                if (currentCoolness >= 1 && currentCurse <= 3) { EnemyCrateExplodeChances = 0.15f; }
+                if (currentCoolness >= 4 && currentCurse <= 6) { EnemyCrateExplodeChances = 0.2f; }
+                if (currentCoolness >= 7 && currentCurse <= 9) { EnemyCrateExplodeChances = 0.3f; }
+                if (currentCoolness > 9) { EnemyCrateExplodeChances = 0.4f; }
 
-                IL_START2:;
-                if (currentFloor == -1) { ChaosConsole.BonusEnemyChances = 0.4f; ChaosConsole.BonusLootChances = 0.4f; goto IL_START3; }
-                if (currentFloor == 1) { ChaosConsole.BonusEnemyChances = 0.25f; ChaosConsole.BonusLootChances = 0.25f; goto IL_START3; }
-                if (currentFloor == 2) { ChaosConsole.BonusEnemyChances = 0.35f; ChaosConsole.BonusLootChances = 0.4f; goto IL_START3; }
-                if (currentFloor == 3) { ChaosConsole.BonusEnemyChances = 0.45f; ChaosConsole.BonusLootChances = 0.45f; goto IL_START3; }
-                if (currentFloor == 4) { ChaosConsole.BonusEnemyChances = 0.6f; ChaosConsole.BonusLootChances = 0.55f; goto IL_START3; }
-                if (currentFloor == 5) { ChaosConsole.BonusEnemyChances = 0.7f; ChaosConsole.BonusLootChances = 0.65f; goto IL_START3; }
-                if (currentFloor > 5) { ChaosConsole.BonusEnemyChances = 0.8f; ChaosConsole.BonusLootChances = 0.75f; }
+                if (currentFloor == -1) { BonusEnemyChances = 0.4f; BonusLootChances = 0.4f; }
+                if (currentFloor == 1) { BonusEnemyChances = 0.25f; BonusLootChances = 0.25f; }
+                if (currentFloor == 2) { BonusEnemyChances = 0.35f; BonusLootChances = 0.4f; }
+                if (currentFloor == 3) { BonusEnemyChances = 0.45f; BonusLootChances = 0.45f; }
+                if (currentFloor == 4) { BonusEnemyChances = 0.6f; BonusLootChances = 0.55f; }
+                if (currentFloor == 5) { BonusEnemyChances = 0.7f; BonusLootChances = 0.65f;  }
+                if (currentFloor > 5) { BonusEnemyChances = 0.8f; BonusLootChances = 0.75f; }
 
-                IL_START3:;
                 if (currentCurse >= 2 && currentCurse <= 5) { lootAmmoChance = 0.3f; }
                 if (currentCurse <=9) { lootAmmoChance = 0.35f; }
                 if (currentCoolness >= 5) { lootAmmoChance = 0.15f; }
@@ -377,12 +420,12 @@ namespace ChaosGlitchMod
                     ChaosConsole.LootCrateBigLootDropChances = 0.2f;
                 } else {
                     if (currentCoolness >= 4 && currentCoolness <= 7) {
-                        ChaosConsole.LootCrateBigLootDropChances = 0.3f;
+                        LootCrateBigLootDropChances = 0.3f;
                     } else {
-                        if (currentCoolness > 8) { ChaosConsole.LootCrateBigLootDropChances = 0.45f; }
+                        if (currentCoolness > 8) { LootCrateBigLootDropChances = 0.45f; }
                     }
                 }
-                
+                /*
                 IntVector2? targetCenter = new IntVector2?(GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
                 CellValidator cellValidator = delegate (IntVector2 c) {
                     for (int j = 0; j < SelectedActor.Clearance.x + 2; j++)
@@ -405,23 +448,25 @@ namespace ChaosGlitchMod
                 } else {
                     RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
                 }
+                */
+                RoomVector = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, SelectedActor, 2, 2, true);
 
-                if (UnityEngine.Random.value <= ChaosConsole.BonusLootChances && ChaosConsole.isHardMode) {
+                if (UnityEngine.Random.value <= BonusLootChances && isHardMode) {
 
-                    if (UnityEngine.Random.value <= ChaosConsole.LootCrateBigLootDropChances) {
+                    if (UnityEngine.Random.value <= LootCrateBigLootDropChances) {
                         lootCrate.SpawnAirDrop(RoomVector, lootTableCoolRandom, 0f, 0f, true);
                     } else {
-                        lootCrate.SpawnAirDrop(RoomVector, lootTableRandom, 0f, ChaosConsole.LootCrateExplodeChances, true);
+                        lootCrate.SpawnAirDrop(RoomVector, lootTableRandom, 0f, LootCrateExplodeChances, true);
                     }
                 }
 
-                if (UnityEngine.Random.value <= ChaosConsole.BonusEnemyChances && !self.GetRoomName().StartsWith("DemonWallRoom") && !self.GetRoomName().StartsWith("DraGunRoom") && !self.GetRoomName().StartsWith("Tutorial_Room_007_bosstime") && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom && !self.IsDarkAndTerrifying)
+                if (UnityEngine.Random.value <= BonusEnemyChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom)
                 {
 
                     if (self.GetRoomName().StartsWith("BulletBrosRoom") && UnityEngine.Random.value <= 0.2) {
                         lootCrate.SpawnAirDrop(RoomVector, null, 1f, 0f, false, false, ChaosEnemyLists.TriggerTwinsGUIDList.RandomEnemy());
                     } else {
-                        lootCrate.SpawnAirDrop(RoomVector, null, 1f, ChaosConsole.EnemyCrateExplodeChances, false, false, ChaosEnemyLists.RoomEnemyGUIDList.RandomEnemy());
+                        lootCrate.SpawnAirDrop(RoomVector, null, 1f, EnemyCrateExplodeChances, false, false, ChaosEnemyLists.RoomEnemyGUIDList.RandomEnemy());
                     }
                 }
             }
