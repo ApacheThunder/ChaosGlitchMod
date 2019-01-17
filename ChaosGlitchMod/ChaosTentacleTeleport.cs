@@ -1,5 +1,4 @@
 ﻿using Dungeonator;
-using Pathfinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace ChaosGlitchMod
 {
-	internal class TentacleTeleport : MonoBehaviour
+	internal class ChaosTentacleTeleport : MonoBehaviour
 	{
         public void TentacleTime() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
@@ -177,3 +176,4 @@ namespace ChaosGlitchMod
         }
     }
 }
+

@@ -57,7 +57,7 @@ namespace ChaosGlitchMod {
             }
         }
 
-        public static IntVector2 GetRandomAvailableCellForPlacable(Dungeon dungeon, RoomHandler currentRoom) {
+        public static IntVector2 GetRandomAvailableCellForPlacable(Dungeon dungeon, RoomHandler currentRoom, bool allowPlaceOverPits = false) {
             IntVector2 currentRoomSize = currentRoom.area.dimensions;
             List<IntVector2> validCells = new List<IntVector2>();
             validCells.Clear();
@@ -65,29 +65,86 @@ namespace ChaosGlitchMod {
                 for (int height = -1; height <= currentRoom.area.dimensions.y; height++) {
                     int X = currentRoom.area.basePosition.x + Width;
                     int Y = currentRoom.area.basePosition.y + height;
-                    if (!dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
-                        !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
-                        !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) &&
-                        !dungeon.data.isWall(X - 2, Y - 1) && !dungeon.data.isWall(X - 1, Y - 1) && !dungeon.data.isWall(X, Y - 1) && !dungeon.data.isWall(X + 1, Y - 1) && !dungeon.data.isWall(X + 2, Y - 1) &&
-                        !dungeon.data.isWall(X - 2, Y - 2) && !dungeon.data.isWall(X - 1, Y - 2) && !dungeon.data.isWall(X, Y - 2) && !dungeon.data.isWall(X + 1, Y - 2) && !dungeon.data.isWall(X + 2, Y - 2) &&
-                         dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && dungeon.data.isPlainEmptyCell(X - 1, Y + 2) && dungeon.data.isPlainEmptyCell(X, Y + 2) && dungeon.data.isPlainEmptyCell(X + 1, Y + 2) && dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
-                         dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && dungeon.data.isPlainEmptyCell(X - 1, Y + 1) && dungeon.data.isPlainEmptyCell(X, Y + 1) && dungeon.data.isPlainEmptyCell(X + 1, Y + 1) && dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
-                         dungeon.data.isPlainEmptyCell(X - 2, Y) && dungeon.data.isPlainEmptyCell(X - 1, Y) && dungeon.data.isPlainEmptyCell(X, Y) && dungeon.data.isPlainEmptyCell(X + 1, Y) && dungeon.data.isPlainEmptyCell(X + 2, Y) &&
-                         dungeon.data.isPlainEmptyCell(X - 2, Y - 1) && dungeon.data.isPlainEmptyCell(X - 1, Y - 1) && dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
-                         dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isPlainEmptyCell(X - 1, Y - 2) && dungeon.data.isPlainEmptyCell(X, Y - 2) && dungeon.data.isPlainEmptyCell(X + 1, Y - 2) && dungeon.data.isPlainEmptyCell(X + 2, Y - 2) &&
-                        !dungeon.data.isPit(X - 1, Y + 1) && !dungeon.data.isPit(X, Y + 1) && !dungeon.data.isPit(X + 1, Y + 1) &&
-                        !dungeon.data.isPit(X - 1, Y) && !dungeon.data.isPit(X, Y) && !dungeon.data.isPit(X + 1, Y) &&
-                        !dungeon.data.isPit(X - 1, Y - 1) && !dungeon.data.isPit(X, Y - 1) && !dungeon.data.isPit(X + 1, Y - 1))
-                    {
-                        validCells.Add(new IntVector2(X, Y));
+                    if (allowPlaceOverPits) {
+                        if (!dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+                            !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+                            !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) &&
+                            !dungeon.data.isWall(X - 2, Y - 1) && !dungeon.data.isWall(X - 1, Y - 1) && !dungeon.data.isWall(X, Y - 1) && !dungeon.data.isWall(X + 1, Y - 1) && !dungeon.data.isWall(X + 2, Y - 1) &&
+                            !dungeon.data.isWall(X - 2, Y - 2) && !dungeon.data.isWall(X - 1, Y - 2) && !dungeon.data.isWall(X, Y - 2) && !dungeon.data.isWall(X + 1, Y - 2) && !dungeon.data.isWall(X + 2, Y - 2))
+                        {
+                            validCells.Add(new IntVector2(X, Y));
+                        }
+                    } else {
+                        if (!dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+                            !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+                            !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) &&
+                            !dungeon.data.isWall(X - 2, Y - 1) && !dungeon.data.isWall(X - 1, Y - 1) && !dungeon.data.isWall(X, Y - 1) && !dungeon.data.isWall(X + 1, Y - 1) && !dungeon.data.isWall(X + 2, Y - 1) &&
+                            !dungeon.data.isWall(X - 2, Y - 2) && !dungeon.data.isWall(X - 1, Y - 2) && !dungeon.data.isWall(X, Y - 2) && !dungeon.data.isWall(X + 1, Y - 2) && !dungeon.data.isWall(X + 2, Y - 2) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && dungeon.data.isPlainEmptyCell(X - 1, Y + 2) && dungeon.data.isPlainEmptyCell(X, Y + 2) && dungeon.data.isPlainEmptyCell(X + 1, Y + 2) && dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && dungeon.data.isPlainEmptyCell(X - 1, Y + 1) && dungeon.data.isPlainEmptyCell(X, Y + 1) && dungeon.data.isPlainEmptyCell(X + 1, Y + 1) && dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y) && dungeon.data.isPlainEmptyCell(X - 1, Y) && dungeon.data.isPlainEmptyCell(X, Y) && dungeon.data.isPlainEmptyCell(X + 1, Y) && dungeon.data.isPlainEmptyCell(X + 2, Y) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y - 1) && dungeon.data.isPlainEmptyCell(X - 1, Y - 1) && dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isPlainEmptyCell(X - 1, Y - 2) && dungeon.data.isPlainEmptyCell(X, Y - 2) && dungeon.data.isPlainEmptyCell(X + 1, Y - 2) && dungeon.data.isPlainEmptyCell(X + 2, Y - 2) &&
+                            !dungeon.data.isPit(X - 1, Y + 1) && !dungeon.data.isPit(X, Y + 1) && !dungeon.data.isPit(X + 1, Y + 1) &&
+                            !dungeon.data.isPit(X - 1, Y) && !dungeon.data.isPit(X, Y) && !dungeon.data.isPit(X + 1, Y) &&
+                            !dungeon.data.isPit(X - 1, Y - 1) && !dungeon.data.isPit(X, Y - 1) && !dungeon.data.isPit(X + 1, Y - 1))
+                        {
+                            validCells.Add(new IntVector2(X, Y));
+                        }
                     }
                 }
             }
             if (validCells.Count > 0) {
+                validCells = validCells.Shuffle();
                 IntVector2 SelectedCell = BraveUtility.RandomElement(validCells) - currentRoom.area.basePosition + IntVector2.One;
-                // IntVector2 SelectedCellConverted = SelectedCell - (currentRoom.Epicenter - currentRoomSize / 2);
                 return SelectedCell;
             } else { return new IntVector2(0, 0); }
+        }
+
+        public static Vector2 GetRandomAvailableCellForObject(Dungeon dungeon, RoomHandler currentRoom, bool allowPlaceOverPits = false) {
+            IntVector2 currentRoomSize = currentRoom.area.dimensions;
+            List<IntVector2> validCells = new List<IntVector2>();
+            validCells.Clear();
+            for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
+                for (int height = -1; height <= currentRoom.area.dimensions.y; height++) {
+                    int X = currentRoom.area.basePosition.x + Width;
+                    int Y = currentRoom.area.basePosition.y + height;
+                    if (allowPlaceOverPits)
+                    {
+                        if (!dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+                            !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+                            !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) &&
+                            !dungeon.data.isWall(X - 2, Y - 1) && !dungeon.data.isWall(X - 1, Y - 1) && !dungeon.data.isWall(X, Y - 1) && !dungeon.data.isWall(X + 1, Y - 1) && !dungeon.data.isWall(X + 2, Y - 1) &&
+                            !dungeon.data.isWall(X - 2, Y - 2) && !dungeon.data.isWall(X - 1, Y - 2) && !dungeon.data.isWall(X, Y - 2) && !dungeon.data.isWall(X + 1, Y - 2) && !dungeon.data.isWall(X + 2, Y - 2))
+                        {
+                            validCells.Add(new IntVector2(X, Y));
+                        }
+                    } else {
+                        if (!dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+                            !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+                            !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) &&
+                            !dungeon.data.isWall(X - 2, Y - 1) && !dungeon.data.isWall(X - 1, Y - 1) && !dungeon.data.isWall(X, Y - 1) && !dungeon.data.isWall(X + 1, Y - 1) && !dungeon.data.isWall(X + 2, Y - 1) &&
+                            !dungeon.data.isWall(X - 2, Y - 2) && !dungeon.data.isWall(X - 1, Y - 2) && !dungeon.data.isWall(X, Y - 2) && !dungeon.data.isWall(X + 1, Y - 2) && !dungeon.data.isWall(X + 2, Y - 2) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && dungeon.data.isPlainEmptyCell(X - 1, Y + 2) && dungeon.data.isPlainEmptyCell(X, Y + 2) && dungeon.data.isPlainEmptyCell(X + 1, Y + 2) && dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && dungeon.data.isPlainEmptyCell(X - 1, Y + 1) && dungeon.data.isPlainEmptyCell(X, Y + 1) && dungeon.data.isPlainEmptyCell(X + 1, Y + 1) && dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y) && dungeon.data.isPlainEmptyCell(X - 1, Y) && dungeon.data.isPlainEmptyCell(X, Y) && dungeon.data.isPlainEmptyCell(X + 1, Y) && dungeon.data.isPlainEmptyCell(X + 2, Y) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y - 1) && dungeon.data.isPlainEmptyCell(X - 1, Y - 1) && dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
+                             dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isPlainEmptyCell(X - 1, Y - 2) && dungeon.data.isPlainEmptyCell(X, Y - 2) && dungeon.data.isPlainEmptyCell(X + 1, Y - 2) && dungeon.data.isPlainEmptyCell(X + 2, Y - 2) &&
+                            !dungeon.data.isPit(X - 1, Y + 1) && !dungeon.data.isPit(X, Y + 1) && !dungeon.data.isPit(X + 1, Y + 1) &&
+                            !dungeon.data.isPit(X - 1, Y) && !dungeon.data.isPit(X, Y) && !dungeon.data.isPit(X + 1, Y) &&
+                            !dungeon.data.isPit(X - 1, Y - 1) && !dungeon.data.isPit(X, Y - 1) && !dungeon.data.isPit(X + 1, Y - 1))
+                        {
+                            validCells.Add(new IntVector2(X, Y));
+                        }
+                    }
+                }
+            }
+            if (validCells.Count > 0) {
+                validCells = validCells.Shuffle();
+                IntVector2 SelectedCell = BraveUtility.RandomElement(validCells);
+                return SelectedCell.ToVector2();
+            }
+            else { return new Vector2(0, 0); }
         }
     }
 }

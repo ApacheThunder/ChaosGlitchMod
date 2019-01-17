@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ChaosGlitchMod
 {
-    class WallMimicHook : MonoBehaviour
+    class ChaosPlaceWallMimic : MonoBehaviour
     {
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
@@ -21,27 +21,23 @@ namespace ChaosGlitchMod
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
             ChaosConsole.hasBeenHammered = false;
+            ChaosConsole.preventTeleportingThisFloor = BraveUtility.RandomBool();
 
             if (currentFloor == -1) {
-                ChaosConsole.RandomPits = UnityEngine.Random.Range(80, 100);
-                ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(8, 10);
+                ChaosConsole.RandomPits = UnityEngine.Random.Range(50, 75);
+                ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(5, 8);
             } else {
                 if (currentFloor == 2 | currentFloor == 3) {
-                    ChaosConsole.RandomPits = UnityEngine.Random.Range(75, 100);
-                    ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(10, 18);
+                    ChaosConsole.RandomPits = UnityEngine.Random.Range(60, 85);
+                    ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(6, 9);
                 } else {
                     if (currentFloor == 4) {
-                        ChaosConsole.RandomPits = UnityEngine.Random.Range(100, 150);
-                        ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(18, 20);
+                        ChaosConsole.RandomPits = UnityEngine.Random.Range(75, 95);
+                        ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(8, 12);
                     } else {
-                        if (currentFloor == 5) {
-                            ChaosConsole.RandomPits = UnityEngine.Random.Range(150, 250);
-                            ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(20, 25);
-                        } else {
-                            if (currentFloor > 5) {
-                                ChaosConsole.RandomPits = UnityEngine.Random.Range(250, 350);
-                                ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(20, 25);
-                            }
+                        if (currentFloor > 5) {
+                            ChaosConsole.RandomPits = UnityEngine.Random.Range(125, 200);
+                            ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(15, 20);
                         }
                     }
                 }
@@ -53,20 +49,20 @@ namespace ChaosGlitchMod
             }
 
             if (currentCoolness >= 5) {
-                ChaosConsole.TentacleTimeChances = 0.08f;
-                ChaosConsole.TentacleTimeRandomRoomChances = 0.1f;
+                ChaosConsole.TentacleTimeChances = 0.04f;
+                ChaosConsole.TentacleTimeRandomRoomChances = 0.05f;
             } else {
                 if (currentCurse == 0) {
-                    ChaosConsole.TentacleTimeChances = 0.1f;
-                    ChaosConsole.TentacleTimeRandomRoomChances = 0.1f;
+                    ChaosConsole.TentacleTimeChances = 0.05f;
+                    ChaosConsole.TentacleTimeRandomRoomChances = 0.08f;
                 } else {
                     if (currentCurse >= 1 && currentCurse <= 3) {
-                        ChaosConsole.TentacleTimeChances = 0.15f;
-                        ChaosConsole.TentacleTimeRandomRoomChances = 0.2f;
+                        ChaosConsole.TentacleTimeChances = 0.1f;
+                        ChaosConsole.TentacleTimeRandomRoomChances = 0.15f;
                     } else {
                         if (currentCurse >= 4 && currentCurse <= 6) {
-                            ChaosConsole.TentacleTimeChances = 0.2f;
-                            ChaosConsole.TentacleTimeRandomRoomChances = 0.25f;
+                            ChaosConsole.TentacleTimeChances = 0.15f;
+                            ChaosConsole.TentacleTimeRandomRoomChances = 0.2f;
                         } else {
                             if (currentCurse > 9) { ChaosConsole.TentacleTimeChances = 0.35f; ChaosConsole.TentacleTimeRandomRoomChances = 0.4f; }
                         }
@@ -128,7 +124,7 @@ namespace ChaosGlitchMod
             return;
         }
 
-        public static void PlaceWallMimicsHook(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler)
+        public static void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler)
         {
             int currentFloor = GameManager.Instance.CurrentFloor;
             int currentCurse = PlayerStats.GetTotalCurse();
@@ -159,14 +155,17 @@ namespace ChaosGlitchMod
                 if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) {
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
                 } else {
-                    PitRandomizer.PlaceRandomPits(dungeon, roomHandler, currentFloor);
+                    try { ChaosPitRandomizer.PlaceRandomPits(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
+                        if (ChaosConsole.debugMimicFlag) {
+                            ETGModConsole.Log("[DEBUG] Exception Caught while placing pits:", false);
+                            ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);
+                        }
+                    }
                 }
             }
 
             if (ChaosConsole.isUltraMode) {
-                try {
-                    ObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
-                } catch (Exception ex) {
+                try { ChaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
                     if (ChaosConsole.debugMimicFlag) {
                         ETGModConsole.Log("[DEBUG] Exception Caught while placing objects:", false);
                         ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);

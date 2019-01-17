@@ -85,6 +85,13 @@ namespace ChaosGlitchMod
             // "e61cab252cfb435db9172adc96ded75f", // poisbulon
             // "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
             // "fe3fe59d867347839824d5d9ae87f244", // poisbuloid
+            "57255ed50ee24794b7aac1ac3cfb8a95", // gun_cultist
+            "4db03291a12144d69fe940d5a01de376", // hollowpoint
+            "206405acad4d4c33aac6717d184dc8d4", // apprentice_gunjurer
+            "c4fba8def15e47b297865b18e36cbef8", // gunjurer
+            "56fb939a434140308b8f257f0f447829", // lore_gunjurer
+            "9b2cf2949a894599917d4d391a0b7394", // high_gunjurer
+            "43426a2e39584871b287ac31df04b544", // wizbang
             "699cd24270af4cd183d671090d8323a1", // key_bullet_kin // Flee behaviour generates an exception in the logs.
             "a446c626b56d4166915a4e29869737fd", // chance_bullet_kin // His drops sometimes don't appear correctly when resized.
             "22fc2c2c45fb47cf9fb5f7b043a70122", // grip_master // Being tossed from a room from tiny Grip Master can soft lock the game.
@@ -123,13 +130,13 @@ namespace ChaosGlitchMod
             "33b212b856b74ff09252bf4f2e8b8c57", // lead_cube
             "3f2026dc3712490289c4658a2ba4a24b", // flesh_cube
             // Chest Mimics
-            /*
             "2ebf8ef6728648089babb507dec4edb7", // brown_chest_mimic
             "d8d651e3484f471ba8a2daa4bf535ce6", // blue_chest_mimic
             "abfb454340294a0992f4173d6e5898a8", // green_chest_mimic
             "d8fd592b184b4ac9a3be217bc70912a2", // red_chest_mimic
             "6450d20137994881aff0ddd13e3d40c8", // black_chest_mimic
             "ac9d345575444c9a8d11b799e8719be0", // rat_chest_mimic
+            /*
             // Companions
             "c07ef60ae32b404f99e294a6f9acba75", // dog
             "7bd9c670f35b4b8d84280f52a5cc47f6", // cucco

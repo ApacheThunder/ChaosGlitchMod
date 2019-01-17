@@ -5,7 +5,7 @@ using Dungeonator;
 
 namespace ChaosGlitchMod
 {
-    class PitRandomizer : MonoBehaviour
+    class ChaosPitRandomizer : MonoBehaviour
     {
         private static string[] BannedPitsRoomList = {
             // "Forge_Hub_003",
@@ -26,7 +26,7 @@ namespace ChaosGlitchMod
             
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
 
-            if (currentFloor == 1) {
+            if (currentFloor == 1 | currentFloor == 5) {
                 if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
                 return;
             }
