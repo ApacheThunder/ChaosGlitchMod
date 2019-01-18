@@ -11,8 +11,42 @@ using ChaosGlitchMod;
 // This can cause frame drops. So this object class has been cloned and the break on roll property disabled by default.
 // A few other bools that are null by default have also now been set to proper values.
 public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractable, IPlaceConfigurable {
-	// Token: 0x06007894 RID: 30868 RVA: 0x002F1E68 File Offset: 0x002F0068
-	public ChaosKickableObject() {
+
+    public bool explodesOnKick;
+    public float rollSpeed;
+    [CheckAnimation(null)]
+    public string[] rollAnimations;
+    [CheckAnimation(null)]
+    public string[] impactAnimations;
+    public bool leavesGoopTrail;
+    [ShowInInspectorIf("leavesGoopTrail", false)]
+    public GoopDefinition goopType;
+    [ShowInInspectorIf("leavesGoopTrail", false)]
+    public float goopFrequency;
+    [ShowInInspectorIf("leavesGoopTrail", false)]
+    public float goopRadius;
+    public bool triggersBreakTimer;
+    [ShowInInspectorIf("triggersBreakTimer", false)]
+    public float breakTimerLength;
+    [ShowInInspectorIf("triggersBreakTimer", false)]
+    public GameObject timerVFX;
+    public bool RollingDestroysSafely;
+    public string RollingBreakAnim;
+    private float m_goopElapsed;
+    private DeadlyDeadlyGoopManager m_goopManager;
+    private RoomHandler m_room;
+    private bool m_isBouncingBack;
+    private bool m_timerIsActive;
+    [NonSerialized]
+    public bool AllowTopWallTraversal;
+    public IntVector2? m_lastDirectionKicked;
+    private bool m_shouldDisplayOutline;
+    private PlayerController m_lastInteractingPlayer;
+    private DungeonData.Direction m_lastOutlineDirection;
+    private int m_lastSpriteId;
+
+
+    public ChaosKickableObject() {
         rollSpeed = 6f;
         goopFrequency = 0.05f;
         goopRadius = 1f;
@@ -20,11 +54,11 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         RollingDestroysSafely = false;
         triggersBreakTimer = false;
         AllowTopWallTraversal = true;
+        explodesOnKick = true;
         RollingBreakAnim = "red_barrel_break";
         m_lastOutlineDirection = (DungeonData.Direction)(-1);
 	}
 
-	// Token: 0x06007895 RID: 30869 RVA: 0x002F1EC0 File Offset: 0x002F00C0
 	private void Start() {
             SpeculativeRigidbody specRigidbody = base.specRigidbody;
         try {
@@ -39,7 +73,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         }
     }
 
-	// Token: 0x06007896 RID: 30870 RVA: 0x002F1EEC File Offset: 0x002F00EC
 	public void Update()
 	{
 		if (m_shouldDisplayOutline) {
@@ -70,16 +103,13 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x06007897 RID: 30871 RVA: 0x002F20C5 File Offset: 0x002F02C5
 	public void ForceDeregister() {
 		if (m_room != null) { m_room.DeregisterInteractable(this); }
 		RoomHandler.unassignedInteractableObjects.Remove(this);
 	}
 
-	// Token: 0x06007898 RID: 30872 RVA: 0x001611C7 File Offset: 0x0015F3C7
 	protected override void OnDestroy() { base.OnDestroy(); }
 
-	// Token: 0x06007899 RID: 30873 RVA: 0x002F20EC File Offset: 0x002F02EC
 	public string GetAnimationState(PlayerController interactor, out bool shouldBeFlipped) {
 		shouldBeFlipped = false;
 		Vector2 inVec = interactor.CenterPosition - specRigidbody.UnitCenter;
@@ -99,14 +129,12 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x0600789A RID: 30874 RVA: 0x002F2164 File Offset: 0x002F0364
 	public void OnEnteredRange(PlayerController interactor) {
 		if (!this) { return; }
         m_lastInteractingPlayer = interactor;
         m_shouldDisplayOutline = true;
 	}
 
-	// Token: 0x0600789B RID: 30875 RVA: 0x002F2180 File Offset: 0x002F0380
 	public void OnExitRange(PlayerController interactor)
 	{
 		if (!this) { return; }
@@ -114,7 +142,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         m_shouldDisplayOutline = false;
 	}
 
-	// Token: 0x0600789C RID: 30876 RVA: 0x002F219C File Offset: 0x002F039C
 	public float GetDistanceToPoint(Vector2 point) {
         // Table Tech Rockets used on tables converted to kickableObjects can cause a softlock of player input not working
         // When this occurs, return a default value and destroy the object.
@@ -132,10 +159,8 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         }
 	}
 
-	// Token: 0x0600789D RID: 30877 RVA: 0x00028AFF File Offset: 0x00026CFF
 	public float GetOverrideMaxDistance() { return -1f; }
 
-	// Token: 0x0600789E RID: 30878 RVA: 0x002F2288 File Offset: 0x002F0488
 	public void Interact(PlayerController player) {
 		GameManager.Instance.Dungeon.GetRoomFromPosition(specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Round)).DeregisterInteractable(this);
 		RoomHandler.unassignedInteractableObjects.Remove(this);
@@ -146,7 +171,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		if (GameManager.Instance.InTutorial) { GameManager.BroadcastRoomTalkDoerFsmEvent("playerRolledBarrel"); }
 	}
 
-	// Token: 0x0600789F RID: 30879 RVA: 0x002F230C File Offset: 0x002F050C
 	private void NoPits(SpeculativeRigidbody specRigidbody, IntVector2 prevPixelOffset, IntVector2 pixelOffset, ref bool validLocation) {
 		if (!validLocation) { return; }
 		Func<IntVector2, bool> func = delegate(IntVector2 pixel) {
@@ -179,10 +203,8 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		if (!validLocation) { StopRolling(true); }
 	}
 
-	// Token: 0x060078A0 RID: 30880 RVA: 0x002F2533 File Offset: 0x002F0733
 	public void ConfigureOnPlacement(RoomHandler room) { m_room = room; }
 
-	// Token: 0x060078A1 RID: 30881 RVA: 0x002F253C File Offset: 0x002F073C
 	private void OnPlayerCollision(CollisionData rigidbodyCollision) {
 		PlayerController component = rigidbodyCollision.OtherRigidbody.GetComponent<PlayerController>();
 		if (RollingDestroysSafely && component != null && component.IsDodgeRolling) {
@@ -195,7 +217,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x060078A2 RID: 30882 RVA: 0x002F25B0 File Offset: 0x002F07B0
 	private void OnPreCollision(SpeculativeRigidbody myRigidbody, PixelCollider myPixelCollider, SpeculativeRigidbody otherRigidbody, PixelCollider otherPixelCollider) {
 		MinorBreakable component = otherRigidbody.GetComponent<MinorBreakable>();
 		if (component && !component.onlyVulnerableToGunfire && !component.IsBig) {
@@ -205,7 +226,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		if (otherRigidbody && otherRigidbody.aiActor && !otherRigidbody.aiActor.IsNormalEnemy) { PhysicsEngine.SkipCollision = true; }
 	}
 
-	// Token: 0x060078A3 RID: 30883 RVA: 0x002F2630 File Offset: 0x002F0830
 	private void OnCollision(CollisionData collision) {
 		if (collision.collisionType == CollisionData.CollisionType.Rigidbody && collision.OtherRigidbody.projectile != null) { return; }
 		if (((BraveMathCollege.ActualSign(specRigidbody.Velocity.x) != 0f && Mathf.Sign(collision.Normal.x) != Mathf.Sign(specRigidbody.Velocity.x)) || (BraveMathCollege.ActualSign(specRigidbody.Velocity.y) != 0f && Mathf.Sign(collision.Normal.y) != Mathf.Sign(specRigidbody.Velocity.y))) && ((BraveMathCollege.ActualSign(specRigidbody.Velocity.x) != 0f && Mathf.Sign(collision.Contact.x - specRigidbody.UnitCenter.x) == Mathf.Sign(specRigidbody.Velocity.x)) || (BraveMathCollege.ActualSign(specRigidbody.Velocity.y) != 0f && Mathf.Sign(collision.Contact.y - specRigidbody.UnitCenter.y) == Mathf.Sign(specRigidbody.Velocity.y)))) {
@@ -213,7 +233,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x060078A4 RID: 30884 RVA: 0x002F27BC File Offset: 0x002F09BC
 	private bool IsRollAnimation() {
 		for (int i = 0; i < rollAnimations.Length; i++) {
 			if (spriteAnimator.CurrentClip.name == rollAnimations[i]) { return true; }
@@ -221,7 +240,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		return false;
 	}
 
-	// Token: 0x060078A5 RID: 30885 RVA: 0x002F2808 File Offset: 0x002F0A08
 	private void StopRolling(bool bounceBack)
 	{
 		if (bounceBack && !m_isBouncingBack) {
@@ -245,7 +263,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x060078A6 RID: 30886 RVA: 0x002F2918 File Offset: 0x002F0B18
 	private IEnumerator HandleBounceback()
 	{
 		if (m_lastDirectionKicked != null) {
@@ -273,14 +290,12 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		yield break;
 	}
 
-	// Token: 0x060078A7 RID: 30887 RVA: 0x002F2933 File Offset: 0x002F0B33
 	private void ClearOutlines() {
         m_lastOutlineDirection = (DungeonData.Direction)(-1);
         m_lastSpriteId = -1;
 		SpriteOutlineManager.RemoveOutlineFromSprite(sprite, false);
 	}
 
-	// Token: 0x060078A8 RID: 30888 RVA: 0x002F2950 File Offset: 0x002F0B50
 	private IEnumerator HandleBreakTimer() {
         m_timerIsActive = true;
 		if (timerVFX != null) { timerVFX.SetActive(true); }
@@ -289,7 +304,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		yield break;
 	}
 
-	// Token: 0x060078A9 RID: 30889 RVA: 0x002F296C File Offset: 0x002F0B6C
 	private void RemoveFromRoomHierarchy() {
 		Transform hierarchyParent = base.transform.position.GetAbsoluteRoom().hierarchyParent;
 		Transform transform = base.transform;
@@ -302,13 +316,14 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
 		}
 	}
 
-	// Token: 0x060078AA RID: 30890 RVA: 0x002F29D0 File Offset: 0x002F0BD0
 	private void Kick(SpeculativeRigidbody kickerRigidbody) {
 
-        try { Invoke("SelfDestructOnKick", UnityEngine.Random.Range(0.25f, 3f)); } catch (Exception ex) {
-            if (ChaosConsole.DebugExceptions) {
-                ETGModConsole.Log("Exception Caught at [SelfDestructOnKick] in ChaosKickableObject class.", false);
-                ETGModConsole.Log(ex.Message + ex.Source + ex.StackTrace, false);
+        if (explodesOnKick) {
+            try { Invoke("SelfDestructOnKick", UnityEngine.Random.Range(0.25f, 3f)); } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [SelfDestructOnKick] in ChaosKickableObject class.", false);
+                    ETGModConsole.Log(ex.Message + ex.Source + ex.StackTrace, false);
+                }
             }
         }
 
@@ -358,7 +373,6 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         }
 	}
 
-	// Token: 0x060078AB RID: 30891 RVA: 0x002F2CD8 File Offset: 0x002F0ED8
 	public IntVector2 GetFlipDirection(SpeculativeRigidbody kickerRigidbody, out int quadrant) {
 		Vector2 inVec = specRigidbody.UnitCenter - kickerRigidbody.UnitCenter;
 		quadrant = BraveMathCollege.VectorToQuadrant(inVec);
@@ -389,81 +403,5 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
         return;
     }
 
-    // Token: 0x040079F8 RID: 31224
-    public float rollSpeed;
-
-	// Token: 0x040079F9 RID: 31225
-	[CheckAnimation(null)]
-	public string[] rollAnimations;
-
-	// Token: 0x040079FA RID: 31226
-	[CheckAnimation(null)]
-	public string[] impactAnimations;
-
-	// Token: 0x040079FB RID: 31227
-	public bool leavesGoopTrail;
-
-	// Token: 0x040079FC RID: 31228
-	[ShowInInspectorIf("leavesGoopTrail", false)]
-	public GoopDefinition goopType;
-
-	// Token: 0x040079FD RID: 31229
-	[ShowInInspectorIf("leavesGoopTrail", false)]
-	public float goopFrequency;
-
-	// Token: 0x040079FE RID: 31230
-	[ShowInInspectorIf("leavesGoopTrail", false)]
-	public float goopRadius;
-
-	// Token: 0x040079FF RID: 31231
-	public bool triggersBreakTimer;
-
-	// Token: 0x04007A00 RID: 31232
-	[ShowInInspectorIf("triggersBreakTimer", false)]
-	public float breakTimerLength;
-
-	// Token: 0x04007A01 RID: 31233
-	[ShowInInspectorIf("triggersBreakTimer", false)]
-	public GameObject timerVFX;
-
-	// Token: 0x04007A02 RID: 31234
-	public bool RollingDestroysSafely;
-
-	// Token: 0x04007A03 RID: 31235
-	public string RollingBreakAnim;
-
-	// Token: 0x04007A04 RID: 31236
-	private float m_goopElapsed;
-
-	// Token: 0x04007A05 RID: 31237
-	private DeadlyDeadlyGoopManager m_goopManager;
-
-	// Token: 0x04007A06 RID: 31238
-	private RoomHandler m_room;
-
-	// Token: 0x04007A07 RID: 31239
-	private bool m_isBouncingBack;
-
-	// Token: 0x04007A08 RID: 31240
-	private bool m_timerIsActive;
-
-	// Token: 0x04007A09 RID: 31241
-	[NonSerialized]
-	public bool AllowTopWallTraversal;
-
-	// Token: 0x04007A0A RID: 31242
-	public IntVector2? m_lastDirectionKicked;
-
-	// Token: 0x04007A0B RID: 31243
-	private bool m_shouldDisplayOutline;
-
-	// Token: 0x04007A0C RID: 31244
-	private PlayerController m_lastInteractingPlayer;
-
-	// Token: 0x04007A0D RID: 31245
-	private DungeonData.Direction m_lastOutlineDirection;
-
-	// Token: 0x04007A0E RID: 31246
-	private int m_lastSpriteId;
 }
 

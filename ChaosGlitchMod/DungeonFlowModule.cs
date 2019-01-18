@@ -8,7 +8,6 @@ namespace ChaosGlitchMod
 	// A slightly rewritten version of old Anywhere Mod by stellatedHexahedron
 	public class DungeonFlowModule : MonoBehaviour
 	{
-
         private string[] ReturnMatchesFrom(string matchThis, string[] inThis)
 		{
 			List<string> list = new List<string>();
@@ -79,14 +78,14 @@ namespace ChaosGlitchMod
 						bool flag4 = args.Length == 1;
 						if (flag4)
 						{
-							GameManager.Instance.LoadCustomFlowForDebug(text, "", "");
+                            GameManager.Instance.LoadCustomFlowForDebug(text, "", "");
 						}
 						else
 						{
 							bool flag5 = args.Length > 1;
 							if (flag5)
 							{
-								GameManager.Instance.LoadCustomFlowForDebug(text, "base_" + args[1], "tt_" + args[1]);
+                                GameManager.Instance.LoadCustomFlowForDebug(text, "base_" + args[1], "tt_" + args[1]);
 							}
 							else
 							{
@@ -98,7 +97,7 @@ namespace ChaosGlitchMod
 					{
 						ETGModConsole.Log("WHOOPS! Something went wrong! Most likely you tried to load a broken flow, or the tileset is incomplete and doesn't have the right tiles for the flow.");
 						ETGModConsole.Log("In order to get the game back into working order, the mod is now loading NPCParadise, with the castle tileset.");
-						GameManager.Instance.LoadCustomFlowForDebug("NPCParadise", "Base_Castle", "tt_castle");
+                        GameManager.Instance.LoadCustomFlowForDebug("NPCParadise", "Base_Castle", "tt_castle");
 					}
 				}
 			}

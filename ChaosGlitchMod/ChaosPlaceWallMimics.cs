@@ -131,7 +131,6 @@ namespace ChaosGlitchMod
             int currentCoolness = PlayerStats.GetTotalCoolness();
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
-
             // Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
             SetStats(currentFloor, currentCurse, currentCoolness);
 
@@ -165,7 +164,8 @@ namespace ChaosGlitchMod
             }
 
             if (ChaosConsole.isUltraMode) {
-                try { ChaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
+                ChaosObjectRandomizer chaosObjectRandomizer = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosObjectRandomizer>();
+                try { chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
                     if (ChaosConsole.debugMimicFlag) {
                         ETGModConsole.Log("[DEBUG] Exception Caught while placing objects:", false);
                         ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);

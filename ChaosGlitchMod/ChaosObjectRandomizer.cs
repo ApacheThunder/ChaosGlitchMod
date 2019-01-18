@@ -15,6 +15,9 @@ namespace ChaosGlitchMod
         private static GameObject YellowDrum = assetBundle2.LoadAsset("Yellow Drum") as GameObject;
         private static GameObject WaterDrum = assetBundle2.LoadAsset("Blue Drum") as GameObject;
         private static GameObject IceBomb = assetBundle2.LoadAsset("Ice Cube Bomb") as GameObject;
+        private static KickableObject RedDrumObject = RedDrum.AddComponent<KickableObject>();
+        private static KickableObject YellowDrumObject = YellowDrum.AddComponent<KickableObject>();
+        private static KickableObject WaterDrumObject = WaterDrum.AddComponent<KickableObject>();
 
         private static GameObject TableHorizontal = assetBundle.LoadAsset("Table_Horizontal") as GameObject;
         private static GameObject TableVertical = assetBundle.LoadAsset("Table_Vertical") as GameObject;
@@ -29,7 +32,6 @@ namespace ChaosGlitchMod
         private static GameObject ChestMirror = assetBundle.LoadAsset("Shrine_Mirror") as GameObject;
         private static GameObject ChestRandomizer = assetBundle2.LoadAsset("HighDragunfire_ChestPlacer") as GameObject;
         */
-
         private static GameObject ChestBrownTwoItems = assetBundle.LoadAsset("Chest_Wood_Two_Items") as GameObject;
         private static GameObject ChestTruth = assetBundle.LoadAsset("TruthChest") as GameObject;
         private static GameObject ChestRat = assetBundle.LoadAsset("Chest_Rat") as GameObject;
@@ -51,7 +53,7 @@ namespace ChaosGlitchMod
         private static GameObject SpaceFog = assetBundle3.LoadAsset("Space Fog") as GameObject;
         private static GameObject LockedDoor = assetBundle2.LoadAsset("SimpleLockedDoor") as GameObject;
         // private static GameObject LockedJailDoor = assetBundle2.LoadAsset("JailDoor") as GameObject;
-        private static GameObject SellPit = assetBundle2.LoadAsset("SellPit") as GameObject;
+        // private static GameObject SellPit = assetBundle2.LoadAsset("SellPit") as GameObject;
         private static GameObject SpikeTrap = assetBundle.LoadAsset("trap_spike_gungeon_2x2") as GameObject;
         private static GameObject FlameTrap = assetBundle2.LoadAsset("trap_flame_poofy_gungeon_1x1") as GameObject;
         private static GameObject FakeTrap = assetBundle.LoadAsset("trap_pit_gungeon_trigger_2x2") as GameObject;
@@ -69,88 +71,104 @@ namespace ChaosGlitchMod
         private static GameObject DoorsHorizontal = assetBundle2.LoadAsset("GungeonShopDoor_Horizontal") as GameObject;
         private static GameObject BigDoorsHorizontal = assetBundle2.LoadAsset("IronWoodDoor_Horizontal_Gungeon") as GameObject;
         private static GameObject BigDoorsVertical = assetBundle2.LoadAsset("IronWoodDoor_Vertical_Gungeon") as GameObject;
+
+        private static GameObject CultistBaldBowBackLeft = assetBundle2.LoadAsset("CultistBaldBowBackLeft_cutout") as GameObject;
+        private static GameObject CultistBaldBowBackRight = assetBundle2.LoadAsset("CultistBaldBowBackRight_cutout") as GameObject;
+        private static GameObject CultistBaldBowBack = assetBundle2.LoadAsset("CultistBaldBowBack_cutout") as GameObject;
+        private static GameObject CultistBaldBowLeft = assetBundle2.LoadAsset("CultistBaldBowLeft_cutout") as GameObject;
+        private static GameObject CultistHoodBowBack = assetBundle2.LoadAsset("CultistHoodBowBack_cutout") as GameObject;
+        private static GameObject CultistHoodBowLeft = assetBundle2.LoadAsset("CultistHoodBowLeft_cutout") as GameObject;
+        private static GameObject CultistHoodBowRight = assetBundle2.LoadAsset("CultistHoodBowRight_cutout") as GameObject;
         // private static GameObject MineCartTurret = assetBundle2.LoadAsset("MineCart_Turret") as GameObject;
-        
+
         private static GameObject ForgeHammer = assetBundle.LoadAsset("Forge_Hammer") as GameObject;
 
 
         // private static DungeonPlaceableBehaviour RedBarrel_Placable = RedBarrel.AddComponent<TrapController>();
-        private static DungeonPlaceableBehaviour RedDrum_Placable = RedDrum.AddComponent<KickableObject>();
-        private static DungeonPlaceableBehaviour YellowDrum_Placable = YellowDrum.AddComponent<KickableObject>();
-        private static DungeonPlaceableBehaviour WaterDrum_Placable = WaterDrum.AddComponent<KickableObject>();
+        private DungeonPlaceableBehaviour RedDrum_Placable = RedDrumObject;
+        private DungeonPlaceableBehaviour YellowDrum_Placable = YellowDrumObject;
+        private DungeonPlaceableBehaviour WaterDrum_Placable = WaterDrumObject;
         
-
-        private static DungeonPlaceableBehaviour TableHorizontal_Placable = TableHorizontal.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour TableVerticall_Placable = TableVertical.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour TableHorizontalStone_Placable = TableHorizontalStone.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour TableVerticallStone_Placable = TableVerticalStone.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour TableHorizontal_Placable = TableHorizontal.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour TableVerticall_Placable = TableVertical.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour TableHorizontalStone_Placable = TableHorizontalStone.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour TableVerticallStone_Placable = TableVerticalStone.AddComponent<ChaosKickableObject>();
         // private static DungeonPlaceableBehaviour CoffinHorizontal_Placable = CoffinHorizontal.AddComponent<ChaosKickableObject>();
         // private static DungeonPlaceableBehaviour CoffinVertical_Placable = CoffinVertical.AddComponent<ChaosKickableObject>();
-
-
-        private static Chest BrownChest = GameManager.Instance.RewardManager.D_Chest;
-        private static Chest BlueChest = GameManager.Instance.RewardManager.C_Chest;
-        private static Chest GreenChest = GameManager.Instance.RewardManager.B_Chest;
-        private static Chest RedChest = GameManager.Instance.RewardManager.A_Chest;
-        private static Chest BlackChest = GameManager.Instance.RewardManager.S_Chest;
-        private static Chest SynergyChest = GameManager.Instance.RewardManager.Synergy_Chest;
-        private static Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
-        private static Chest BrownChestTwoItems = ChestBrownTwoItems.AddComponent<Chest>();
-        private static Chest TruthChest = ChestTruth.AddComponent<Chest>();
-        private static Chest RatChest = ChestRat.AddComponent<Chest>();
-        // private static DungeonPlaceableBehaviour ChestMirror_Placable = ChestMirror.AddComponent<KickableObject>();
-
-        private static DungeonPlaceableBehaviour NPCOldMan_Placable = NPCOldMan.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCEvilMuncher_Placable = NPCEvilMuncher.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCGunMuncher_Placable = NPCGunMuncher.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCLunk_Placable = NPCLunk.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCMonsterManuel_Placable = NPCMonsterManuel.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCVampire_Placable = NPCVampire.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCGuardLeft_Placable = NPCGuardLeft.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCGuardRight_Placable = NPCGuardRight.AddComponent<TalkDoerLite>();
-        private static DungeonPlaceableBehaviour NPCTruthKnower_Placable = NPCTruthKnower.AddComponent<TalkDoerLite>();
         
-        private static DungeonPlaceableBehaviour AmygdalaNorth_Placable = AmygdalaNorth.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour AmygdalaSouth_Placable = AmygdalaSouth.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour AmygdalaWest_Placable = AmygdalaWest.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour AmygdalaEast_Placable = AmygdalaEast.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour SpaceFog_Placable = SpaceFog.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour LockedDoor_Placable = LockedDoor.AddComponent<ChaosKickableObject>();
-        // private static DungeonPlaceableBehaviour LockedJailDoor_Placable = LockedJailDoor.AddComponent<ChaosKickableObject>(); 
-        private static DungeonPlaceableBehaviour SellPit_Placable = SellPit.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour PlayerCorpse_Placable = PlayerCorpse.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour TimefallCorpse_Placable = TimefallCorpse.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour ShootingStarsVFX_Placable = ShootingStarsVFX.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour GlitterStars_Placable = GlitterStars.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour EndTimesVFX_Placable = EndTimesVFX.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour ThoughtBubble_Placable = ThoughtBubble.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour CastleLight_Placable = CastleLight.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour HangingPot_Placable = HangingPot.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour DoorsVertical_Placable = DoorsVertical.AddComponent<InteractableDoorController>();
-        private static DungeonPlaceableBehaviour DoorsHorizontal_Placable = DoorsHorizontal.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour BigDoorsVertical_Placable = BigDoorsVertical.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour BigDoorsHorizontal_Placable = BigDoorsHorizontal.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour IceBomb_Placable = IceBomb.AddComponent<ChaosKickableObject>();
-        private static DungeonPlaceableBehaviour SpikeTrap_Placable = SpikeTrap.AddComponent<TrapController>();
-        private static DungeonPlaceableBehaviour FlameTrap_Placable = FlameTrap.AddComponent<TrapController>();
-        private static DungeonPlaceableBehaviour FakeTrap_Placable = FakeTrap.AddComponent<TrapController>();
+        private Chest BrownChest = GameManager.Instance.RewardManager.D_Chest;
+        private Chest BlueChest = GameManager.Instance.RewardManager.C_Chest;
+        private Chest GreenChest = GameManager.Instance.RewardManager.B_Chest;
+        private Chest RedChest = GameManager.Instance.RewardManager.A_Chest;
+        private Chest BlackChest = GameManager.Instance.RewardManager.S_Chest;
+        private Chest SynergyChest = GameManager.Instance.RewardManager.Synergy_Chest;
+        private Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
+        private Chest ChestBrownTwoItemsObject = ChestBrownTwoItems.AddComponent<Chest>();
+        private Chest ChestTruthObject = ChestTruth.AddComponent<Chest>();
+        private Chest ChestRatObject = ChestRat.AddComponent<Chest>();
+        // private Chest BrownChestTwoItems = ChestBrownTwoItems.AddComponent<Chest>();
+        // private Chest TruthChest = ChestTruth.AddComponent<Chest>();
+        // private Chest RatChest = ChestRat.AddComponent<Chest>();
+        // private DungeonPlaceableBehaviour ChestMirror_Placable = ChestMirror.AddComponent<KickableObject>();
+
+        private DungeonPlaceableBehaviour NPCOldMan_Placable = NPCOldMan.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCEvilMuncher_Placable = NPCEvilMuncher.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCGunMuncher_Placable = NPCGunMuncher.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCLunk_Placable = NPCLunk.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCMonsterManuel_Placable = NPCMonsterManuel.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCVampire_Placable = NPCVampire.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCGuardLeft_Placable = NPCGuardLeft.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCGuardRight_Placable = NPCGuardRight.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour NPCTruthKnower_Placable = NPCTruthKnower.AddComponent<TalkDoerLite>();
+
+        private DungeonPlaceableBehaviour AmygdalaNorth_Placable = AmygdalaNorth.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour AmygdalaSouth_Placable = AmygdalaSouth.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour AmygdalaWest_Placable = AmygdalaWest.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour AmygdalaEast_Placable = AmygdalaEast.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour SpaceFog_Placable = SpaceFog.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour LockedDoor_Placable = LockedDoor.AddComponent<ChaosKickableObject>();
+        // private DungeonPlaceableBehaviour LockedJailDoor_Placable = LockedJailDoor.AddComponent<ChaosKickableObject>(); 
+        // private DungeonPlaceableBehaviour SellPit_Placable = SellPit.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour PlayerCorpse_Placable = PlayerCorpse.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour TimefallCorpse_Placable = TimefallCorpse.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour ShootingStarsVFX_Placable = ShootingStarsVFX.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour GlitterStars_Placable = GlitterStars.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour EndTimesVFX_Placable = EndTimesVFX.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour ThoughtBubble_Placable = ThoughtBubble.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour CastleLight_Placable = CastleLight.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour HangingPot_Placable = HangingPot.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour DoorsVertical_Placable = DoorsVertical.AddComponent<InteractableDoorController>();
+        private DungeonPlaceableBehaviour DoorsHorizontal_Placable = DoorsHorizontal.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour BigDoorsVertical_Placable = BigDoorsVertical.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour BigDoorsHorizontal_Placable = BigDoorsHorizontal.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour IceBomb_Placable = IceBomb.AddComponent<ChaosKickableObject>();
+        private DungeonPlaceableBehaviour SpikeTrap_Placable = SpikeTrap.AddComponent<TrapController>();
+        private DungeonPlaceableBehaviour FlameTrap_Placable = FlameTrap.AddComponent<TrapController>();
+        private DungeonPlaceableBehaviour FakeTrap_Placable = FakeTrap.AddComponent<TrapController>();
         // private static DungeonPlaceableBehaviour MineCartTurret_Placable = MineCartTurret.AddComponent<MineCartController>();
 
-        private static DungeonPlaceableBehaviour ForgeHammer_Placable = ForgeHammer.AddComponent<ForgeHammerController>();
+        private DungeonPlaceableBehaviour CultistBaldBowBackLeft_Placable = CultistBaldBowBackLeft.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistBaldBowBackRight_Placable = CultistBaldBowBackRight.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistBaldBowBack_Placable = CultistBaldBowBack.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistBaldBowLeft_Placable = CultistBaldBowLeft.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistHoodBowBack_Placable = CultistHoodBowBack.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistHoodBowLeft_Placable = CultistHoodBowLeft.AddComponent<TalkDoerLite>();
+        private DungeonPlaceableBehaviour CultistHoodBowRight_Placable = CultistHoodBowRight.AddComponent<TalkDoerLite>();
 
+        private DungeonPlaceableBehaviour ForgeHammer_Placable = ForgeHammer.AddComponent<ForgeHammerController>();
         // private static TallGrassPatch TallGrassStrip_Special = TallGrassStrip.AddComponent<TallGrassPatch>();
-        private static AIActor DummyActor = EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5");
 
-        private static string[] BannedCellsRoomList = {
+        private AIActor DummyActor = EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5");
+
+        private string[] BannedCellsRoomList = {
             "NPC_SmashTent_Room",
             "Blacksmith_TestRoom",
             "EndTimes_Chamber",
             "ElevatorMaintenanceRoom"
         };
 
-        public static void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
+        public void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
             PlayerController player = GameManager.Instance.PrimaryPlayer;
-            
             // bool hammerPlaced = false;
             bool VFXObjectPlaced = false;
             int RandomObjectsPlaced = 0;
@@ -158,6 +176,10 @@ namespace ChaosGlitchMod
             int MaxRandomObjectsPerRoom = Random.Range(2, 5);
             int MaxRandomObjects = 50;
             if (currentFloor <= 3 | currentFloor == -1) { MaxRandomObjects = Random.Range(50, 75); } else { MaxRandomObjects = Random.Range(65, 100); }
+
+            RedDrumObject.RollingDestroysSafely = false;
+            YellowDrumObject.RollingDestroysSafely = false;
+            WaterDrumObject.RollingDestroysSafely = false;
 
             List<DungeonPlaceableBehaviour> TableObjects = new List<DungeonPlaceableBehaviour>();
             List<DungeonPlaceableBehaviour> KickableDrumObjects = new List<DungeonPlaceableBehaviour>();
@@ -187,9 +209,9 @@ namespace ChaosGlitchMod
             InteractableChests.Add(BlackChest);
             InteractableChests.Add(SynergyChest);
             InteractableChests.Add(RainbowChest);
-            if (currentFloor > 3) { InteractableChests.Add(RatChest); }
-            InteractableChests.Add(BrownChestTwoItems);
-            InteractableChests.Add(TruthChest);
+            if (currentFloor > 3) { InteractableChests.Add(ChestRatObject); }
+            InteractableChests.Add(ChestBrownTwoItemsObject);
+            InteractableChests.Add(ChestTruthObject);
             InteractableNPCs.Add(NPCOldMan_Placable);
             InteractableNPCs.Add(NPCLunk_Placable);
             InteractableNPCs.Add(NPCGunMuncher_Placable);
@@ -198,16 +220,15 @@ namespace ChaosGlitchMod
             InteractableNPCs.Add(NPCVampire_Placable);
             InteractableNPCs.Add(NPCGuardLeft_Placable);
             InteractableNPCs.Add(NPCGuardRight_Placable);
-            InteractableNPCs.Add(NPCTruthKnower_Placable); 
-            // NonInteractableObjects.Add(RedBarrel_Placable);
+            InteractableNPCs.Add(NPCTruthKnower_Placable);
+            InteractableNPCs.Add(CultistBaldBowLeft_Placable);
             NonInteractableObjects.Add(AmygdalaNorth_Placable);
             NonInteractableObjects.Add(AmygdalaSouth_Placable);
             NonInteractableObjects.Add(AmygdalaWest_Placable);
             NonInteractableObjects.Add(AmygdalaEast_Placable);
             NonInteractableObjects.Add(SpaceFog_Placable);
             NonInteractableObjects.Add(LockedDoor_Placable);
-            // NonInteractableObjects.Add(LockedJailDoor_Placable);
-            NonInteractableObjects.Add(SellPit_Placable);
+            // NonInteractableObjects.Add(SellPit_Placable);
             NonInteractableObjects.Add(SpikeTrap_Placable);
             NonInteractableObjects.Add(FlameTrap_Placable);
             NonInteractableObjects.Add(FakeTrap_Placable);
@@ -217,11 +238,16 @@ namespace ChaosGlitchMod
             NonInteractableObjects.Add(CastleLight_Placable);
             NonInteractableObjects.Add(HangingPot_Placable);
             NonInteractableObjects.Add(IceBomb_Placable);
-            // NonInteractableObjects.Add(MineCartTurret_Placable);
             NonInteractableObjects.Add(DoorsVertical_Placable);
             NonInteractableObjects.Add(DoorsHorizontal_Placable);
             NonInteractableObjects.Add(BigDoorsVertical_Placable);
             NonInteractableObjects.Add(BigDoorsHorizontal_Placable);
+            NonInteractableObjects.Add(CultistBaldBowBackLeft_Placable);
+            NonInteractableObjects.Add(CultistBaldBowBackRight_Placable);
+            NonInteractableObjects.Add(CultistBaldBowBack_Placable);
+            NonInteractableObjects.Add(CultistHoodBowBack_Placable);
+            NonInteractableObjects.Add(CultistHoodBowLeft_Placable);
+            NonInteractableObjects.Add(CultistHoodBowRight_Placable);
             VFXObjects.Add(GlitterStars_Placable);
             VFXObjects.Add(ShootingStarsVFX_Placable);
             VFXObjects.Add(EndTimesVFX_Placable);
@@ -248,30 +274,35 @@ namespace ChaosGlitchMod
                             NonInteractableObjects = NonInteractableObjects.Shuffle();
                             VFXObjects = VFXObjects.Shuffle();
                             roomList = roomList.Shuffle();
+                            // hammerPlaced = false;
                             for (int loopCount = 0; loopCount < MaxRandomObjectsPerRoom; ++loopCount) {
                                 if (RandomObjectsPlaced + RandomObjectsSkipped >= MaxRandomObjects) { break; }
 
-                                IntVector2 RandomChestVector = ChaosUtility.GetRandomAvailableCellForObject(dungeon, currentRoom, false).ToIntVector2();
+                                Vector2 RandomHammerVector2 = ChaosUtility.GetRandomAvailableCellForObject(dungeon, currentRoom, false);
+                                // IntVector2 RandomHammerIntVector2 = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom, true);
+                                IntVector2 RandomChestVector = ChaosUtility.GetRandomAvailableCellForChest(dungeon, currentRoom, false);
                                 IntVector2 RandomRoomVector = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom);
                                 IntVector2 RandomRoomVector2 = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom);
                                 IntVector2 RandomRoomVector3 = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom);
                                 IntVector2 RandomRoomVector4 = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom);
                                 IntVector2 RandomRoomVector5 = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom, true);
 
-                                if (Random.value <= 0.1f && currentFloor != 5 && RandomRoomVector != new IntVector2(0, 0)) {
-                                    // if (BraveUtility.RandomBool()) {
-                                        /*IntVector2 RandomHammerVector = ChaosUtility.GetRandomAvailableCellForPlacable(dungeon, currentRoom, true);
+                                /*if (!hammerPlaced && Random.value <= 0.1f && currentFloor != 5 && RandomHammerVector2 != Vector2.zero && RandomHammerIntVector2 != IntVector2.Zero) {
+                                    if (BraveUtility.RandomBool()) {
                                         ForgeHammerController hammerComponent = ForgeHammer.GetComponent<ForgeHammerController>();
                                         hammerComponent.DamageToEnemies = 100f;
                                         hammerComponent.MinTimeBetweenAttacks = 5f;
                                         hammerComponent.MaxTimeBetweenAttacks = 5f;
                                         hammerComponent.ConfigureOnPlacement(currentRoom);
-                                        ForgeHammer_Placable.InstantiateObject(currentRoom, RandomHammerVector, false);*/
-                                    // } else {
-                                        Vector2 RandomHammerVector = ChaosUtility.GetRandomAvailableCellForObject(dungeon, currentRoom, true);
-                                        GameObject hammerObject = Instantiate(ForgeHammer.gameObject, RandomHammerVector, Quaternion.identity).GetComponent<GameObject>();
-                                    // }
-                                    // hammerPlaced = true;
+                                        ForgeHammer_Placable.InstantiateObject(currentRoom, RandomHammerIntVector2, false);
+                                    } else {
+                                        GameObject hammerObject = Instantiate(ForgeHammer.gameObject, RandomHammerVector2, Quaternion.identity).GetComponent<GameObject>();
+                                    }
+                                    hammerPlaced = true;
+                                }*/
+
+                                if (Random.value <= 0.1f && currentFloor != 5) {
+                                    GameObject hammerObject = Instantiate(ForgeHammer.gameObject, RandomHammerVector2, Quaternion.identity).GetComponent<GameObject>();
                                 }
 
                                 if (!VFXObjectPlaced && BraveUtility.RandomBool() && BraveUtility.RandomBool()) {
@@ -280,7 +311,7 @@ namespace ChaosGlitchMod
                                     VFXObjectPlaced = true;
                                 }
 
-                                if (RandomChestVector != new IntVector2(0, 0)) {
+                                if (RandomChestVector != IntVector2.Zero) {
                                     if (Random.value <= 0.02) {
                                         WeightedGameObject wChestObject = new WeightedGameObject();
                                         wChestObject.rawGameObject = (BraveUtility.RandomElement(InteractableChests)).gameObject;
@@ -291,7 +322,7 @@ namespace ChaosGlitchMod
                                     }
                                 }
 
-                                if (RandomRoomVector2 != new IntVector2(0, 0)) {
+                                if (RandomRoomVector2 != IntVector2.Zero) {
                                     if (Random.value <= 0.03) {
                                         TalkDoerLite Random_InteractableNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable((BraveUtility.RandomElement(InteractableNPCs)).gameObject, currentRoom, RandomRoomVector2, false).GetComponent<TalkDoerLite>();
                                         Random_InteractableNPC.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(Random_InteractableNPC);
@@ -302,13 +333,17 @@ namespace ChaosGlitchMod
                                     }
                                 } else { RandomObjectsSkipped++; }
 
-                                if (RandomRoomVector3 != new IntVector2(0, 0)) {
+                                if (RandomRoomVector3 != IntVector2.Zero) {
                                     if (BraveUtility.RandomBool()) {
                                         ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable((BraveUtility.RandomElement(TableObjects)).gameObject, currentRoom, RandomRoomVector3, false).GetComponent<ChaosKickableObject>();
-                                        RandomTable.ConfigureOnPlacement(currentRoom);
                                         if (RandomTable) {
-                                            IPlayerInteractable[] interfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
-                                            for (int i = 0; i < interfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(interfacesInChildren[i])) { currentRoom.RegisterInteractable(interfacesInChildren[i]); } }
+                                            IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
+                                            for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
+                                            SpeculativeRigidbody TableComponentInChildren = RandomTable.GetComponentInChildren<SpeculativeRigidbody>();
+                                            RandomTable.ConfigureOnPlacement(RandomTable.transform.position.XY().GetAbsoluteRoom());
+                                            // RandomTable.ConfigureOnPlacement(currentRoom);
+                                            TableComponentInChildren.Initialize();
+                                            PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(TableComponentInChildren, null, false);
                                             RandomObjectsPlaced++;
                                         } else { RandomObjectsSkipped++; }
                                     } else {
@@ -325,22 +360,24 @@ namespace ChaosGlitchMod
                                     }
                                 } else { RandomObjectsSkipped++; }
 
-                                if (RandomRoomVector4 != new IntVector2(0, 0)) {
+                                if (RandomRoomVector4 != IntVector2.Zero) {
                                     if (BraveUtility.RandomBool() && RandomRoomVector4 != new IntVector2(0, 0)) {
                                         KickableObject RandomDrumObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable((BraveUtility.RandomElement(KickableDrumObjects)).gameObject, currentRoom, RandomRoomVector4, false).GetComponent<KickableObject>();
-                                        RandomDrumObject.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(RandomDrumObject);
-                                        SpeculativeRigidbody InteractableRigidDrum = RandomDrumObject.GetComponentInChildren<SpeculativeRigidbody>();
-                                        RandomDrumObject.ConfigureOnPlacement(RandomDrumObject.transform.position.XY().GetAbsoluteRoom());
-                                        InteractableRigidDrum.Initialize();
-                                        PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidDrum, null, false);
-                                        RandomObjectsPlaced++;
+                                        if (RandomDrumObject) {
+                                            RandomDrumObject.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(RandomDrumObject);
+                                            RandomDrumObject.ConfigureOnPlacement(RandomDrumObject.transform.position.XY().GetAbsoluteRoom());
+                                            SpeculativeRigidbody InteractableRigidDrum = RandomDrumObject.GetComponentInChildren<SpeculativeRigidbody>();
+                                            InteractableRigidDrum.Initialize();
+                                            PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidDrum, null, false);
+                                            RandomObjectsPlaced++;
+                                        } else { RandomObjectsSkipped++; }
                                     }
                                 } else { RandomObjectsSkipped++; }
 
-                                if (RandomRoomVector5 != new IntVector2(0,0)) {
+                                if (RandomRoomVector5 != IntVector2.Zero) {
                                     DungeonPlaceableBehaviour SelectedNonInteractable = BraveUtility.RandomElement(NonInteractableObjects);
                                     SelectedNonInteractable.InstantiateObject(currentRoom, RandomRoomVector5, false);
-                                    if (SelectedNonInteractable == SellPit_Placable) { NonInteractableObjects.Remove(SellPit_Placable); }
+                                    // if (SelectedNonInteractable == SellPit_Placable) { NonInteractableObjects.Remove(SellPit_Placable); }
                                     RandomObjectsPlaced++;
                                 } else { RandomObjectsSkipped++; }
                             }

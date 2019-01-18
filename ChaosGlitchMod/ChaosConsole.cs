@@ -1,8 +1,6 @@
 using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using Dungeonator;
-using System.Collections.Generic;
 
 namespace ChaosGlitchMod
 {

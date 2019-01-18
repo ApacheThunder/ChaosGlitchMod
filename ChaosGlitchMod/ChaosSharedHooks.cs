@@ -382,10 +382,10 @@ namespace ChaosGlitchMod
                 if (currentFloor != -1 && currentFloor > 5) { ChallengeTimeChances = 0f; }
                 if (currentFloor == -1) { ChallengeTimeChances = 0.06f; }
 
-                if (isUltraMode && ChaosConsole.preventTeleportingThisFloor && currentFloor != 6 && UnityEngine.Random.value <= ChallengeTimeChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
+                /*if (isUltraMode && ChaosConsole.preventTeleportingThisFloor && currentFloor != 6 && UnityEngine.Random.value <= ChallengeTimeChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
                     ChallengeManager.ChallengeModeType = ChallengeModeType.GunslingKingTemporary;
                     ChallengeManager.Instance.GunslingTargetRoom = player.CurrentRoom;
-                } 
+                }*/ 
                 
                 /*else {
                     if (isUltraMode && UnityEngine.Random.value <= 0.15 && !ChaosConsole.hasBeenHammered && !BonusEnemiesBannedRooms.Contains(currentRoom.GetRoomName())) {

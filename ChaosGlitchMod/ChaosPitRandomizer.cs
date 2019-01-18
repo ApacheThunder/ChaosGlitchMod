@@ -12,6 +12,7 @@ namespace ChaosGlitchMod
             // "Forge_Joe_Cool_Room_004",
             // "Forge_Joe_Cool_Room_003",
             // "Forge_Joe_Square_024",
+            "Connector_SpookyCatacomb_003",
             "NPC_SmashTent_Room",
             "Blacksmith_TestRoom",
             "EndTimes_Chamber",
