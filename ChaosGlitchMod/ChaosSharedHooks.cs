@@ -8,13 +8,13 @@ using System.Collections.Generic;
 
 namespace ChaosGlitchMod
 {
-
     class ChaosSharedHooks : MonoBehaviour
     {
         public static Hook minorbreakablehook;
         public static Hook wallmimichook;
         public static Hook aiActorhook;
         // public static Hook aiActorDeathhook;
+        public static Hook doExplodeHook;
         public static Hook enterRoomHook;
         public static Hook onRoomClearedhook;
         public static Hook exitElevatorhook;
@@ -44,7 +44,7 @@ namespace ChaosGlitchMod
         };
 
         public static bool IsHooksInstalled = false;
-
+        
         public static void InstallPrimaryHooks(bool InstallHooks = true)
         {
             bool roomFlag = enterRoomHook != null;
@@ -53,19 +53,19 @@ namespace ChaosGlitchMod
             bool onRoomClearedFlag = onRoomClearedhook != null;
             bool exitFlag = exitElevatorhook != null;
 
+
             if (InstallHooks) {
                 if (!aiHookFlag) {
                     aiActorhook = new Hook(typeof(AIActor).GetMethod("Awake"), typeof(ChaosSharedHooks).GetMethod("AwakeHookCustom"));
                 }
-                /*
-                if (!aiDeathHookFlag)
-                {
+                
+                /*if (!aiDeathHookFlag) {
                     aiActorDeathhook = new Hook(
                         typeof(AIActor).GetMethod("Die", BindingFlags.NonPublic | BindingFlags.Instance),
-                        typeof(SharedHooks).GetMethod("DieHook")
+                        typeof(ChaosSharedHooks).GetMethod("DieHook", BindingFlags.Public | BindingFlags.CreateInstance)
                         );
-                }
-                */
+                }*/
+                
 
                 if (!onRoomClearedFlag) {
                     onRoomClearedhook = new Hook(
@@ -261,21 +261,18 @@ namespace ChaosGlitchMod
                 }
             }
         }
-
-        /*
-        public static void DieHook(Action<AIActor, Vector2> orig, AIActor self, Vector2 finalDamageDirection) {
+        
+        /*public void DieHook(Action<AIActor, Vector2> orig, AIActor self, Vector2 finalDamageDirection) {
             orig(self, finalDamageDirection);
             if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
             // self.ForceDeath(finalDamageDirection, true);
         }
 
-        public static void ForceDeathHook(Action<AIActor, Vector2, bool> orig, AIActor self, Vector2 finalDamageDirection, bool allowCorpse)
+        public void ForceDeathHook(Action<AIActor, Vector2, bool> orig, AIActor self, Vector2 finalDamageDirection, bool allowCorpse)
         {
             orig(self, finalDamageDirection, allowCorpse = self.aiActor);
             if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
-
-        }
-        */
+        }*/
 
         private static void PotsTelefragRoom(RoomHandler currentRoom)
         { try

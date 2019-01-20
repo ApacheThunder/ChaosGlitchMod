@@ -17,7 +17,7 @@ MonoMod.RuntimeDetour.dll
 MonoMod.Utils.dll
 UnityEngine.Base.mm.dll
 UnityEngine.CoreModule.dll
-
+UnityEngine.ParticleSystemModule.dll
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)

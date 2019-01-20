@@ -54,8 +54,12 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\Dependencies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>..\Dependencies\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChaosExploder.cs" />
     <Compile Include="ChaosLoadPrefab.cs" />
     <Compile Include="ChaosConsole.cs" />
     <Compile Include="ChaosEnemyLists.cs" />

@@ -10,6 +10,9 @@ namespace ChaosGlitchMod
         private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
         private static AssetBundle assetBundle2 = ResourceManager.LoadAssetBundle("shared_auto_002");
         private static AssetBundle assetBundle3 = ResourceManager.LoadAssetBundle("brave_resources_001");
+        private static AssetBundle assetBundle4 = ResourceManager.LoadAssetBundle("shared_base_001");
+        // private static AssetBundle assetBundle5 = ResourceManager.LoadAssetBundle("enemies_base_001");
+
 
         private static GameObject RedDrum = assetBundle.LoadAsset("Red Drum") as GameObject;
         private static GameObject YellowDrum = assetBundle2.LoadAsset("Yellow Drum") as GameObject;
@@ -71,6 +74,7 @@ namespace ChaosGlitchMod
         private static GameObject DoorsHorizontal = assetBundle2.LoadAsset("GungeonShopDoor_Horizontal") as GameObject;
         private static GameObject BigDoorsHorizontal = assetBundle2.LoadAsset("IronWoodDoor_Horizontal_Gungeon") as GameObject;
         private static GameObject BigDoorsVertical = assetBundle2.LoadAsset("IronWoodDoor_Vertical_Gungeon") as GameObject;
+        private static GameObject RatTrapDoorIcon = assetBundle3.LoadAsset("RatTrapdoorMinimapIcon") as GameObject;
 
         private static GameObject CultistBaldBowBackLeft = assetBundle2.LoadAsset("CultistBaldBowBackLeft_cutout") as GameObject;
         private static GameObject CultistBaldBowBackRight = assetBundle2.LoadAsset("CultistBaldBowBackRight_cutout") as GameObject;
@@ -120,7 +124,7 @@ namespace ChaosGlitchMod
         private DungeonPlaceableBehaviour NPCGuardLeft_Placable = NPCGuardLeft.AddComponent<TalkDoerLite>();
         private DungeonPlaceableBehaviour NPCGuardRight_Placable = NPCGuardRight.AddComponent<TalkDoerLite>();
         private DungeonPlaceableBehaviour NPCTruthKnower_Placable = NPCTruthKnower.AddComponent<TalkDoerLite>();
-
+        
         private DungeonPlaceableBehaviour AmygdalaNorth_Placable = AmygdalaNorth.AddComponent<ChaosKickableObject>();
         private DungeonPlaceableBehaviour AmygdalaSouth_Placable = AmygdalaSouth.AddComponent<ChaosKickableObject>();
         private DungeonPlaceableBehaviour AmygdalaWest_Placable = AmygdalaWest.AddComponent<ChaosKickableObject>();
@@ -145,6 +149,8 @@ namespace ChaosGlitchMod
         private DungeonPlaceableBehaviour SpikeTrap_Placable = SpikeTrap.AddComponent<TrapController>();
         private DungeonPlaceableBehaviour FlameTrap_Placable = FlameTrap.AddComponent<TrapController>();
         private DungeonPlaceableBehaviour FakeTrap_Placable = FakeTrap.AddComponent<TrapController>();
+        private DungeonPlaceableBehaviour RatTrapDoorIcon_Placable = RatTrapDoorIcon.AddComponent<ChaosKickableObject>();
+
         // private static DungeonPlaceableBehaviour MineCartTurret_Placable = MineCartTurret.AddComponent<MineCartController>();
 
         private DungeonPlaceableBehaviour CultistBaldBowBackLeft_Placable = CultistBaldBowBackLeft.AddComponent<TalkDoerLite>();
@@ -188,7 +194,7 @@ namespace ChaosGlitchMod
             List<DungeonPlaceableBehaviour> NonInteractableObjects = new List<DungeonPlaceableBehaviour>();
             List<DungeonPlaceableBehaviour> VFXObjects = new List<DungeonPlaceableBehaviour>();
             List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
-
+            
             TableObjects.Clear();
             KickableDrumObjects.Clear();
             InteractableChests.Clear();
@@ -251,6 +257,8 @@ namespace ChaosGlitchMod
             VFXObjects.Add(GlitterStars_Placable);
             VFXObjects.Add(ShootingStarsVFX_Placable);
             VFXObjects.Add(EndTimesVFX_Placable);
+
+            // ChaosPlaceRatGrate(dungeon);
 
             if (roomHandler != null) { roomList = new List<int>(new int[] { dungeon.data.rooms.IndexOf(roomHandler) }); }
 
@@ -335,7 +343,7 @@ namespace ChaosGlitchMod
 
                                 if (RandomRoomVector3 != IntVector2.Zero) {
                                     if (BraveUtility.RandomBool()) {
-                                        ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable((BraveUtility.RandomElement(TableObjects)).gameObject, currentRoom, RandomRoomVector3, false).GetComponent<ChaosKickableObject>();
+                                         ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable((BraveUtility.RandomElement(TableObjects)).gameObject, currentRoom, RandomRoomVector3, false).GetComponent<ChaosKickableObject>();
                                         if (RandomTable) {
                                             IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
                                             for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
@@ -393,6 +401,57 @@ namespace ChaosGlitchMod
             if (RandomObjectsPlaced <= 0) { ETGModConsole.Log("[DEBUG] Error: No Objects have been placed.", false); }
             }
         }
+        /*
+        private void ChaosPlaceRatGrate(Dungeon dungeon) {
+            List<IntVector2> list = new List<IntVector2>();
+            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
+                RoomHandler roomHandler = dungeon.data.rooms[i];
+                if (!roomHandler.area.IsProceduralRoom && roomHandler.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.NORMAL && !roomHandler.OptionalDoorTopDecorable) {
+                    for (int j = roomHandler.area.basePosition.x; j < roomHandler.area.basePosition.x + roomHandler.area.dimensions.x; j++) {
+                        for (int k = roomHandler.area.basePosition.y; k < roomHandler.area.basePosition.y + roomHandler.area.dimensions.y; k++) {
+                            if (ChaosClearForRatGrate(dungeon, j, k)) { list.Add(new IntVector2(j, k)); }
+                        }
+                    }
+                }
+            }
+            if (list.Count > 0) {
+                IntVector2 a = list[BraveRandom.GenerationRandomRange(0, list.Count)];
+                DungeonPlaceableBehaviour ratTrapDoor_Placable = RatTrapDoor.AddComponent<ChaosKickableObject>();
+                // DungeonPlaceableBehaviour component = dungeon.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
+                DungeonPlaceableBehaviour component = ratTrapDoor_Placable.GetComponent<DungeonPlaceableBehaviour>();
+                RoomHandler absoluteRoom = a.ToVector2().GetAbsoluteRoom();
+                GameObject gObj = component.InstantiateObject(absoluteRoom, a - absoluteRoom.area.basePosition, false);
+                IPlayerInteractable[] interfacesInChildren = gObj.GetInterfacesInChildren<IPlayerInteractable>();
+                foreach (IPlayerInteractable ixable in interfacesInChildren) { absoluteRoom.RegisterInteractable(ixable); }
+                for (int m = 0; m < 4; m++) {
+                    for (int n = 0; n < 4; n++) {
+                        IntVector2 intVector = a + new IntVector2(m, n);
+                        if (dungeon.data.CheckInBoundsAndValid(intVector)) { dungeon.data[intVector].cellVisualData.floorTileOverridden = true; }
+                    }
+                }
+            }
+        }
+
+        // Token: 0x06004F63 RID: 20323 RVA: 0x001AEBAC File Offset: 0x001ACDAC
+        private bool ChaosClearForRatGrate(Dungeon dungeon, int bpx, int bpy) {
+            int num = -1;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    IntVector2 intVector = new IntVector2(bpx + i, bpy + j);
+                    if (!dungeon.data.CheckInBoundsAndValid(intVector)) { return false; }
+                    CellData cellData = dungeon.data[intVector];
+                    if (num == -1) {
+                        num = cellData.cellVisualData.roomVisualTypeIndex;
+                        if (num != 0 && num != 1) { return false; }
+                    }
+                    if (cellData.parentRoom == null || cellData.parentRoom.IsMaintenanceRoom() || cellData.type != CellType.FLOOR || cellData.isOccupied || !cellData.IsPassable || cellData.containsTrap || cellData.IsTrapZone) { return false; }
+                    if (cellData.cellVisualData.roomVisualTypeIndex != num || cellData.HasPitNeighbor(dungeon.data) || cellData.PreventRewardSpawn || cellData.cellVisualData.isPattern || cellData.cellVisualData.IsPhantomCarpet) { return false; }
+                    if (cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Water || cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Carpet || cellData.cellVisualData.floorTileOverridden) { return false; }
+                    if (cellData.doesDamage || cellData.cellVisualData.preventFloorStamping || cellData.cellVisualData.hasStampedPath || cellData.forceDisallowGoop) { return false; }
+                }
+            }
+            return true;
+        }*/
     }
 }
 

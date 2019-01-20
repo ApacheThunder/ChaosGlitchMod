@@ -7,3 +7,5 @@ MonoMod.Utils.dll
 UnityEngine.Base.mm.dll
 UnityEngine.CoreModule.dll
 UnityEngine.ImageConversionModule.dll
+UnityEngine.ParticleSystemModule.dll
+

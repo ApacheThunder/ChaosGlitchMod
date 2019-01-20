@@ -1,6 +1,8 @@
 using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using Dungeonator;
+using System;
 
 namespace ChaosGlitchMod
 {
@@ -21,8 +23,8 @@ namespace ChaosGlitchMod
         public static float TentacleTimeRandomRoomChances = 0.1f;
         public static float ChallengeTimeChances = 0f;
 
-
         public static bool autoUltra = false;
+        public static bool isExplosionHookActive = false;
 
         public static bool GlitchEverything = false;
         public static bool GlitchRandomized = true;
@@ -269,6 +271,27 @@ namespace ChaosGlitchMod
                 ETGModConsole.Log("Prepare to have an ultra bad time! :D", false);
             });
 
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("fixexplosions", delegate (string[] e) {
+                bool explodeHookFlag = ChaosSharedHooks.doExplodeHook != null;
+                if (!isExplosionHookActive) {
+                    if (!explodeHookFlag) {
+                        ChaosSharedHooks.doExplodeHook = new Hook(
+                            typeof(Exploder).GetMethod("Explode", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static),
+                            typeof(ChaosExploder).GetMethod("Explode"));
+                    }
+                    isExplosionHookActive = true;
+                    ETGModConsole.Log("The Explosion Nerf is dead!", false);
+                } else {
+                    if (isExplosionHookActive) {
+                        if (explodeHookFlag) { ChaosSharedHooks.doExplodeHook.Dispose(); ChaosSharedHooks.doExplodeHook = null; }
+                        isExplosionHookActive = false;
+                        ETGModConsole.Log("The Explosion Nerf is back!", false);
+                    }
+                }
+            });
+
+
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawnbulletkin", delegate (string[] e) {
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
@@ -286,7 +309,7 @@ namespace ChaosGlitchMod
                 GenericLootTable lootTableGuns = itemReward.GunsLootTable;
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                if(Random.value <= 0.5f) {
+                if(UnityEngine.Random.value <= 0.5f) {
                     lootCrate.SpawnAirDrop(RoomVector, lootTableItems, usePlayerPosition: true);
                 } else {
                     lootCrate.SpawnAirDrop(RoomVector, lootTableGuns, usePlayerPosition: true);
@@ -307,7 +330,7 @@ namespace ChaosGlitchMod
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tentacletime", delegate (string[] e) {
                 ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
-                if (Random.value <= 0.6f) { tentacle.TentacleTimeRandomRoom(); } else { tentacle.TentacleTime(); }
+                if (UnityEngine.Random.value <= 0.6f) { tentacle.TentacleTimeRandomRoom(); } else { tentacle.TentacleTime(); }
                 ETGModConsole.Log("Time for a suprise teleport!", false);
                 return;
             });
@@ -404,7 +427,10 @@ namespace ChaosGlitchMod
                 if (potFlag) { ChaosSharedHooks.minorbreakablehook.Dispose(); ChaosSharedHooks.minorbreakablehook = null; }
                 bool hammerFlag = ChaosGlitchHooks.hammerhookGlitch != null;
                 if (hammerFlag) { ChaosGlitchHooks.hammerhookGlitch.Dispose(); ChaosGlitchHooks.hammerhookGlitch = null; }
+                bool explodeHookFlag = ChaosSharedHooks.doExplodeHook != null;
+                if (explodeHookFlag) { ChaosSharedHooks.doExplodeHook.Dispose(); ChaosSharedHooks.doExplodeHook = null; }
 
+                isExplosionHookActive = false;
                 GlitchRandomized = true;
                 GlitchEverything = false;
                 randomEnemySizeEnabled = false;
