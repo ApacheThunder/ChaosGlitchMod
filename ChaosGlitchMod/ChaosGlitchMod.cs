@@ -9,6 +9,7 @@
             ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosConsole>();
             // Modified version of Anywhere mod
             ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
+
             ChaosSharedHooks.InstallPlaceWallMimicsHook();
         }
 

@@ -127,12 +127,10 @@ namespace ChaosGlitchMod
         public static void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler)
         {
             int currentFloor = GameManager.Instance.CurrentFloor;
-            int currentCurse = PlayerStats.GetTotalCurse();
-            int currentCoolness = PlayerStats.GetTotalCoolness();
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
             // Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
-            SetStats(currentFloor, currentCurse, currentCoolness);
+            SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
 
             if (ChaosConsole.debugMimicFlag) {
                 ETGModConsole.Log("[DEBUG] Current Floor: " + currentFloor, false);

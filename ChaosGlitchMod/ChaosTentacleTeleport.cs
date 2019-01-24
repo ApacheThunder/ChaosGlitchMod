@@ -22,16 +22,14 @@ namespace ChaosGlitchMod
             Invoke("Teleport", 1f);
         }
 
-        public void TentacleTimeRandomRoom()
-        {
+        public void TentacleTimeRandomRoom() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             primaryPlayer.ForceStopDodgeRoll();
             Tentacle();
             Invoke("TentacleHidePlayer", 0.7f);
             if (UnityEngine.Random.value <= 0.2) {
                 Invoke("TeleportToCreepyroom", 1f);
-            }
-            else {
+            } else {
                 Invoke("TeleportToRandomRoom", 1f);
             }
         }
@@ -48,6 +46,17 @@ namespace ChaosGlitchMod
             return;
         }
 
+        public void Unfreeze() {
+            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+            primaryPlayer.ClearAllInputOverrides();
+        }
+
+        public void UnfreezeClearChallenge() {
+            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+            primaryPlayer.ClearAllInputOverrides();
+            if (ChallengeManager.Instance.ActiveChallenges.Count > 0 &&primaryPlayer.IsInCombat) { ChallengeManager.Instance.ForceStop(); }
+        }
+        
         public void Tentacle() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
@@ -114,18 +123,15 @@ namespace ChaosGlitchMod
             return;
         }
 
-        public void TeleportToRandomRoom()
-        {
+        public void TeleportToRandomRoom() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
             RoomHandler SelectedRoom = null;
             List<int> list2 = Enumerable.Range(0, GameManager.Instance.Dungeon.data.rooms.Count).ToList().Shuffle();
-            for (int k = 0; k < GameManager.Instance.Dungeon.data.rooms.Count; k++)
-            {
+            for (int k = 0; k < GameManager.Instance.Dungeon.data.rooms.Count; k++) {
                 RoomHandler randomRoom = GameManager.Instance.Dungeon.data.rooms[list2[k]];
-                if ((randomRoom.area.PrototypeRoomNormalSubcategory != PrototypeDungeonRoom.RoomNormalSubCategory.TRAP && randomRoom.IsStandardRoom && randomRoom.EverHadEnemies) || randomRoom.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.REWARD || randomRoom.IsShop)
-                {
+                if ((randomRoom.area.PrototypeRoomNormalSubcategory != PrototypeDungeonRoom.RoomNormalSubCategory.TRAP && randomRoom.IsStandardRoom && randomRoom.EverHadEnemies) || randomRoom.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.REWARD || randomRoom.IsShop) {
                     SelectedRoom = randomRoom;
                     break;
                 }
@@ -142,19 +148,13 @@ namespace ChaosGlitchMod
                 StunEnemiesForTeleport(currentRoom, 2.1f);
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
-                Invoke("Unfreeze", 2f);
+                Invoke("UnfreezeClearChallenge", 2f);
             } else {
                 StunEnemiesForTeleport(currentRoom, 2.1f);
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
-                Invoke("Unfreeze", 2f);
+                Invoke("UnfreezeClearChallenge", 2f);
             }
-        }
-
-
-        public void Unfreeze() {
-            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
-            primaryPlayer.ClearAllInputOverrides();
         }
 
         protected void TeleportStunEnemy(AIActor target, float StunDuration = 0.5f) {
@@ -163,8 +163,7 @@ namespace ChaosGlitchMod
             }
         }
         
-        private void StunEnemiesForTeleport(RoomHandler targetRoom, float StunDuration = 0.5f)
-        {
+        private void StunEnemiesForTeleport(RoomHandler targetRoom, float StunDuration = 0.5f) {
             List<AIActor> activeEnemies = targetRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All);
             for (int i = 0; i < activeEnemies.Count; i++) {
                 if (activeEnemies[i].IsNormalEnemy && activeEnemies[i].healthHaver && !activeEnemies[i].healthHaver.IsBoss) {

@@ -232,13 +232,22 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
             StopRolling(collision.collisionType == CollisionData.CollisionType.TileMap);
 		}
 	}
-
+    /*
 	private bool IsRollAnimation() {
-		for (int i = 0; i < rollAnimations.Length; i++) {
-			if (spriteAnimator.CurrentClip.name == rollAnimations[i]) { return true; }
-		}
+        try {
+            for (int i = 0; i < rollAnimations.Length; i++) {
+                if (spriteAnimator.CurrentClip.name == rollAnimations[i]) { return true; }
+            }
+        } catch (Exception ex) {
+            if (ChaosConsole.DebugExceptions) {
+                ETGModConsole.Log("Exception Caught at [IsRollAnimation] in ChaosKickableObject class.", false);
+                ETGModConsole.Log(ex.Message, false);
+                ETGModConsole.Log(ex.StackTrace + ex.Source, false);
+            }
+            return false;
+        }
 		return false;
-	}
+	}*/
 
 	private void StopRolling(bool bounceBack)
 	{
@@ -246,12 +255,12 @@ public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractabl
             StartCoroutine(HandleBounceback());
 		} else {
 			spriteAnimator.Stop();
-			if (IsRollAnimation()) {
+            /*if (IsRollAnimation()) {
 				tk2dSpriteAnimationClip currentClip = spriteAnimator.CurrentClip;
 				spriteAnimator.Stop();
 				spriteAnimator.Sprite.SetSprite(currentClip.frames[currentClip.frames.Length - 1].spriteId);
-			}
-			base.specRigidbody.Velocity = Vector2.zero;
+			}*/
+            base.specRigidbody.Velocity = Vector2.zero;
 			MinorBreakable component = GetComponent<MinorBreakable>();
 			if (component != null) { component.onlyVulnerableToGunfire = false; }
 			SpeculativeRigidbody specRigidbody = base.specRigidbody;

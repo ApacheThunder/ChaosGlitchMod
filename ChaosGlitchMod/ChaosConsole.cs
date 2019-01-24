@@ -1,13 +1,13 @@
 using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using Dungeonator;
-using System;
 
 namespace ChaosGlitchMod
 {
     class ChaosConsole : MonoBehaviour
     {
+        public static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
+
         public static float GlitchRandomActors = 0.3f;
         public static float GlitchRandomAll = 0.1f;
         public static float RandomResizedEnemies = 0.3f;
@@ -330,13 +330,13 @@ namespace ChaosGlitchMod
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tentacletime", delegate (string[] e) {
                 ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
-                if (UnityEngine.Random.value <= 0.6f) { tentacle.TentacleTimeRandomRoom(); } else { tentacle.TentacleTime(); }
+                if (Random.value <= 0.6f) { tentacle.TentacleTimeRandomRoom(); } else { tentacle.TentacleTime(); }
                 ETGModConsole.Log("Time for a suprise teleport!", false);
                 return;
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_test", delegate (string[] e) {
-                foreach (BraveBehaviour s in FindObjectsOfType<BraveBehaviour>()) { ChaosGlitchHooks.BecomeGlitchedTest(s); }
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { chaosGlitchHooks.BecomeGlitchedTest(gameObject); }
                 ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
             });
 
@@ -418,7 +418,7 @@ namespace ChaosGlitchMod
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_test", delegate (string[] e) {
-                foreach (BraveBehaviour s in FindObjectsOfType<BraveBehaviour>()) { ChaosGlitchHooks.BecomeGlitchedTest(s); }
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { chaosGlitchHooks.BecomeGlitchedTest(gameObject); }
                 ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
             });
 
