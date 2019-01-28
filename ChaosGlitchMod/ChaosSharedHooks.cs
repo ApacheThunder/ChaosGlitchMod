@@ -50,7 +50,7 @@ namespace ChaosGlitchMod
             bool roomFlag = enterRoomHook != null;
             bool aiHookFlag = aiActorhook != null;
             // bool aiDeathHookFlag = aiActorDeathhook != null;
-            bool onRoomClearedFlag = onRoomClearedhook != null;
+            // bool onRoomClearedFlag = onRoomClearedhook != null;
             bool exitFlag = exitElevatorhook != null;
 
 
@@ -67,12 +67,12 @@ namespace ChaosGlitchMod
                 }*/
                 
 
-                if (!onRoomClearedFlag) {
+                /*if (!onRoomClearedFlag) {
                     onRoomClearedhook = new Hook(
                         typeof(PlayerController).GetMethod("OnRoomCleared", BindingFlags.Public | BindingFlags.Instance),
                         typeof(ChaosSharedHooks).GetMethod("OnRoomClearedHook")
                         );
-                }
+                }*/
 
                 if (!roomFlag) {
                     enterRoomHook = new Hook(
@@ -93,7 +93,7 @@ namespace ChaosGlitchMod
             } else {
                 if (aiHookFlag) { aiActorhook.Dispose(); aiActorhook = null; }
                 // if (aiDeathHookFlag) { aiActorDeathhook.Dispose(); aiActorDeathhook = null; }
-                if (onRoomClearedFlag) { onRoomClearedhook.Dispose(); onRoomClearedhook = null; }
+                // if (onRoomClearedFlag) { onRoomClearedhook.Dispose(); onRoomClearedhook = null; }
                 if (roomFlag) { enterRoomHook.Dispose(); enterRoomHook = null; }
                 if (exitFlag) { exitElevatorhook.Dispose(); exitElevatorhook = null; }
                 IsHooksInstalled = false;
@@ -115,6 +115,7 @@ namespace ChaosGlitchMod
         public static void AwakeHookCustom(Action<AIActor> orig, AIActor self)
         {
             orig(self);
+
             HealthHaver healthHaver = self.healthHaver;
              // if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
 
@@ -122,27 +123,30 @@ namespace ChaosGlitchMod
             // if (ChaosEnemyLists.SafeEnemyGUIDList.Contains(self.EnemyGuid)) { self.IgnoreForRoomClear = true; }
 
             // Fix Susket Head to die from contact like the blobuliods/poisbuloids.
-            if (ChaosEnemyLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid)) {
+            if (ChaosLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid)) {
                 self.DiesOnCollison = true;
                 self.EnemyScale = new Vector2(1.25f, 1.25f);
                 self.procedurallyOutlined = false;
                 self.IgnoreForRoomClear = true;
             }
-            
-            if (ChaosConsole.isHardMode && ChaosConsole.GlitchEnemies) {
-                if (UnityEngine.Random.value <= 0.1f) {
-                    if (BraveUtility.RandomBool()) { ChaosGlitchHooks.SetGalaxyShader(self.sprite); } else { ChaosGlitchHooks.SetSpaceShader(self.sprite); }
-                }
+
+            if (ChaosLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
+
+            if (ChaosLists.CritterGUIDList.Contains(self.EnemyGuid)) { try {
+                    self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                    self.specRigidbody.PrimaryPixelCollider.Enabled = false;
+                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                        self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    }
+                } catch (Exception) { }
             }
 
-            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode && ChaosEnemyLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
-
-            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode && ChaosEnemyLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) {
-                self.PreventBlackPhantom = true;
-                if (ChaosEnemyLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
+            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
+                if (ChaosLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) { self.PreventBlackPhantom = true; }
+                if (ChaosLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
             }
 
-            if (ChaosConsole.GlitchEnemies && !ChaosEnemyLists.DontGlitchMeList.Contains(self.EnemyGuid)) {
+            if (ChaosConsole.GlitchEnemies && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid)) {
                 if (UnityEngine.Random.value < ChaosConsole.GlitchRandomActors) {
                     float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
                     float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
@@ -150,19 +154,47 @@ namespace ChaosGlitchMod
                     float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
                     float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
 
+                    int RandomShaderType = UnityEngine.Random.Range(0, 4);
+
                     if (!self.sprite.usesOverrideMaterial) {
-                        chaosGlitchHooks.SetGlitchShader(self.sprite, Shader.Find("Brave/Internal/Glitch"), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
+                        ChaosGlitchHooks.ApplyOverrideShader(self, self.sprite, RandomShaderType, BraveUtility.RandomBool(), false, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
                     }
 
                     self.procedurallyOutlined = false;
 
-                    if (!ChaosConsole.randomEnemySizeEnabled) {
+                    if (!ChaosConsole.randomEnemySizeEnabled && RandomShaderType == 1) {
                         self.BaseMovementSpeed *= 1.1f;
                         self.MovementSpeed *= 1.1f;
-                        if (healthHaver != null) { healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() / 1.5f, null, false); }
+                        if (healthHaver != null) {
+                            if (!healthHaver.IsBoss) {
+                                healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() / 1.5f, null, false);
+                            } else {
+                                healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() / 1.25f, null, false);
+                            }
+                        }
+                    } else {
+                        if (!ChaosConsole.randomEnemySizeEnabled && RandomShaderType == 0) {
+                            if (!healthHaver.IsBoss) {
+                                self.BaseMovementSpeed *= 1.2f;
+                                self.MovementSpeed *= 1.2f;
+                                if (healthHaver != null) { healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() / 1.5f, null, false); }
+                            } else {
+                                self.BaseMovementSpeed *= 1.1f;
+                                self.MovementSpeed *= 1.1f;
+                                if (healthHaver != null) { healthHaver.SetHealthMaximum(healthHaver.GetMaxHealth() / 1.25f, null, false); }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (ChaosConsole.isUltraMode) {
+                    if (UnityEngine.Random.value <= 0.1f) {
+                        ChaosGlitchHooks.ApplyOverrideShader(self, self.sprite, 2, BraveUtility.RandomBool(), false);
                     }
                 }
             }
+
+
 
             if (ChaosConsole.randomEnemySizeEnabled)
             {
@@ -182,7 +214,7 @@ namespace ChaosGlitchMod
                 }
                 // Don't resize cursed bois. It can be a bit much to get hurt by tiny bois that are cursed. :P 
                 if (UnityEngine.Random.value <= ChaosConsole.RandomResizedEnemies) {
-                    if (!ChaosEnemyLists.BannedEnemyGUIDList.Contains(self.EnemyGuid)) {
+                    if (!ChaosLists.BannedEnemyGUIDList.Contains(self.EnemyGuid)) {
                         int placeWidth = self.placeableWidth;
                         int placeHeight = self.placeableHeight;
 
@@ -190,7 +222,7 @@ namespace ChaosGlitchMod
                             // Make them tiny bois :P
                             self.EnemyScale = new Vector2(0.5f, 0.5f);
 
-                            if (!healthHaver.IsBoss && !ChaosEnemyLists.DontDieOnCollisionWhenTinyGUIDList.Contains(self.EnemyGuid)) {
+                            if (!healthHaver.IsBoss && !ChaosLists.DontDieOnCollisionWhenTinyGUIDList.Contains(self.EnemyGuid)) {
                                 self.DiesOnCollison = true;
                                 self.EnemySwitchState = "Blobulin";
                             }
@@ -217,7 +249,7 @@ namespace ChaosGlitchMod
                             self.CollisionKnockbackStrength = self.CollisionKnockbackStrength + 1f;
                             self.placeableWidth = placeWidth + 3;
                             self.placeableHeight = placeHeight + 3;
-                            if (!self.IsFlying && !healthHaver.IsBoss && !ChaosEnemyLists.OverrideFallIntoPitsList.Contains(self.EnemyGuid)) {
+                            if (!self.IsFlying && !healthHaver.IsBoss && !ChaosLists.OverrideFallIntoPitsList.Contains(self.EnemyGuid)) {
                                 self.PreventFallingInPitsEver = true;
                             }
                             if (healthHaver.IsBoss) {
@@ -259,12 +291,13 @@ namespace ChaosGlitchMod
             if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
         }*/
 
-        private static void PotsTelefragRoom(RoomHandler currentRoom)
+        private static void PotsTelefragRoom(/*RoomHandler currentRoom*/)
         { try
             {
+                RoomHandler currentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
                 List<AIActor> activeEnemies = currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All);
                 for (int i = 0; i < activeEnemies.Count; i++) {
-                    if (ChaosEnemyLists.KillOnRoomClearList.Contains(activeEnemies[i].EnemyGuid) && activeEnemies[i].IsNormalEnemy && activeEnemies[i].healthHaver && !activeEnemies[i].healthHaver.IsBoss)
+                    if (ChaosLists.KillOnRoomClearList.Contains(activeEnemies[i].EnemyGuid) && activeEnemies[i].IsNormalEnemy && activeEnemies[i].healthHaver && !activeEnemies[i].healthHaver.IsBoss)
                     {
                         Vector2 vector = (!activeEnemies[i].specRigidbody) ? activeEnemies[i].sprite.WorldBottomLeft : activeEnemies[i].specRigidbody.UnitBottomLeft;
                         Vector2 vector2 = (!activeEnemies[i].specRigidbody) ? activeEnemies[i].sprite.WorldTopRight : activeEnemies[i].specRigidbody.UnitTopRight;
@@ -280,12 +313,12 @@ namespace ChaosGlitchMod
             return;
         }
 
-        public static void OnRoomClearedHook(Action<PlayerController> orig, PlayerController self) {
+        /*public static void OnRoomClearedHook(Action<PlayerController> orig, PlayerController self) {
             orig(self);
             RoomHandler currentRoom = self.CurrentRoom;
             bool PotsEnabled = minorbreakablehook != null;
             if (PotsEnabled) { PotsTelefragRoom(currentRoom); }
-        }
+        }*/
 
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
             orig(self, player);
@@ -296,17 +329,28 @@ namespace ChaosGlitchMod
                 if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
                     foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll) chaosGlitchHooks.BecomeGlitched(gameObject); }
                 }
+            } else {
+                if (ChaosConsole.isUltraMode) {
+                    if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
+                        foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
+                            if (UnityEngine.Random.value < 0.005f) { chaosGlitchHooks.BecomeHologram(gameObject); }
+                        }
+                    }
+                }
             }
 
+            if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && minorbreakablehook != null) { player.CurrentRoom.OnEnemiesCleared += PotsTelefragRoom; }
+
+
             if (player.CurrentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && UnityEngine.Random.value <= ChaosConsole.TentacleTimeChances && ChaosConsole.isUltraMode && !ChaosConsole.hasBeenTentacled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
-                if (/*!ChaosConsole.preventTeleportingThisFloor &&*/GameManager.Instance.CurrentFloor != 6 && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
+                if (GameManager.Instance.CurrentFloor != 6 && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
                     tentacle.TentacleTime();
                     ChaosConsole.hasBeenTentacled = true;
                 } else { if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Teleporting not allowed on this floor...", false); } }
             }
 
             if (ChaosConsole.isUltraMode && player.CurrentRoom.CanBeEscaped() && UnityEngine.Random.value <= ChaosConsole.TentacleTimeRandomRoomChances && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && !ChaosConsole.hasBeenTentacledToAnotherRoom && !player.CurrentRoom.IsGunslingKingChallengeRoom && player.CurrentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS) {
-                if (/*!ChaosConsole.preventTeleportingThisFloor &&*/GameManager.Instance.CurrentFloor != 6 && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
+                if (GameManager.Instance.CurrentFloor != 6 && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
                     // self.OnEnemiesCleared = new Action(tentacle.TentacleTimeRandomRoom);
                     tentacle.TentacleTimeRandomRoom();
                     ChaosConsole.hasBeenTentacledToAnotherRoom = true;
@@ -320,11 +364,11 @@ namespace ChaosGlitchMod
                 var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
 
 
-                string SelectedEnemy = ChaosEnemyLists.RoomEnemyGUIDList.RandomEnemy();
+                string SelectedEnemy = ChaosLists.RoomEnemyGUIDList.RandomEnemy();
                 AIActor SelectedActor = EnemyDatabase.GetOrLoadByGuid(SelectedEnemy);
-                IntVector2 RoomVector;
-
-                RoomVector = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, SelectedActor, 2, 2, true);
+                
+                IntVector2 RoomVector = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, 2, true);
+                IntVector2 RoomVectorForEnemy = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, 2, false);
 
                 int currentCurse = PlayerStats.GetTotalCurse();
                 int currentCoolness = PlayerStats.GetTotalCoolness();
@@ -353,7 +397,7 @@ namespace ChaosGlitchMod
                 if (currentFloor != -1 && currentFloor > 5) { ChallengeTimeChances = 0f; }
                 if (currentFloor == -1) { ChallengeTimeChances = 0.06f; }
 
-                if (ChaosConsole.isUltraMode && ChaosConsole.preventTeleportingThisFloor && currentFloor != 6 && UnityEngine.Random.value <= ChallengeTimeChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
+                if (ChaosConsole.isUltraMode && currentFloor != 6 && UnityEngine.Random.value <= ChallengeTimeChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
                     ChallengeManager.ChallengeModeType = ChallengeModeType.GunslingKingTemporary;
                     ChallengeManager.Instance.GunslingTargetRoom = player.CurrentRoom;
                 } 
@@ -403,12 +447,11 @@ namespace ChaosGlitchMod
                     }
                 }
 
-                if (UnityEngine.Random.value <= BonusEnemyChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom)
-                {
+                if (UnityEngine.Random.value <= BonusEnemyChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom && RoomVectorForEnemy != IntVector2.Zero) {
                     if (self.GetRoomName().StartsWith("BulletBrosRoom") && UnityEngine.Random.value <= 0.2) {
-                        lootCrate.SpawnAirDrop(RoomVector, null, 1f, 0f, false, false, ChaosEnemyLists.TriggerTwinsGUIDList.RandomEnemy());
+                        lootCrate.SpawnAirDrop(RoomVectorForEnemy, null, 1f, 0f, false, false, ChaosLists.TriggerTwinsGUIDList.RandomEnemy());
                     } else {
-                        lootCrate.SpawnAirDrop(RoomVector, null, 1f, EnemyCrateExplodeChances, false, false, ChaosEnemyLists.RoomEnemyGUIDList.RandomEnemy());
+                        lootCrate.SpawnAirDrop(RoomVectorForEnemy, null, 1f, EnemyCrateExplodeChances, false, false, ChaosLists.RoomEnemyGUIDList.RandomEnemy());
                     }
                 }
             }
@@ -425,14 +468,14 @@ namespace ChaosGlitchMod
             if (ChaosConsole.potDebug) ETGModConsole.Log("A [ " + self.name + " ] has been broken", false);
 
 
-            AIActor PotEnemyList = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.PotEnemyGUIDList.RandomEnemy());
-            AIActor PotEnemyListNoFairies = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.PotEnemyGUIDListNoFairies.RandomEnemy());
-            AIActor CritterList = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.CritterGUIDList.RandomEnemy());
-            AIActor PestList = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.PestGUIDList.RandomEnemy());
-            AIActor Tombstoners = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.tombstonerEnemyGUID);
-            AIActor SkusketHeads = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.skusketHeadEnemyGUID);
-            AIActor Poisbuloids = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.poisbuloidEnemyGUID);
-            AIActor Funguns = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.fungunEnemyGUID);
+            AIActor PotEnemyList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.PotEnemyGUIDList.RandomEnemy());
+            AIActor PotEnemyListNoFairies = EnemyDatabase.GetOrLoadByGuid(ChaosLists.PotEnemyGUIDListNoFairies.RandomEnemy());
+            AIActor CritterList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.CritterGUIDList.RandomEnemy());
+            AIActor PestList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.PestGUIDList.RandomEnemy());
+            AIActor Tombstoners = EnemyDatabase.GetOrLoadByGuid(ChaosLists.tombstonerEnemyGUID);
+            AIActor SkusketHeads = EnemyDatabase.GetOrLoadByGuid(ChaosLists.skusketHeadEnemyGUID);
+            AIActor Poisbuloids = EnemyDatabase.GetOrLoadByGuid(ChaosLists.poisbuloidEnemyGUID);
+            AIActor Funguns = EnemyDatabase.GetOrLoadByGuid(ChaosLists.fungunEnemyGUID);
             
             // Special Enemy Pools
             bool flagTombstone = !self.name.ToLower().Contains("tombstone");
@@ -481,7 +524,7 @@ namespace ChaosGlitchMod
                         SelectedPotEnemyNoFairies.PreventBlackPhantom = true;
                         SelectedPotEnemyNoFairies.IgnoreForRoomClear = true;
                         AIActor.Spawn(SelectedPotEnemyNoFairies, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
-                        if (!ChaosEnemyLists.CritterGUIDList.Contains(SelectedPotEnemyNoFairies.EnemyGuid) && !ChaosEnemyLists.PestGUIDList.Contains(SelectedPotEnemyNoFairies.EnemyGuid)) {
+                        if (!ChaosLists.CritterGUIDList.Contains(SelectedPotEnemyNoFairies.EnemyGuid) && !ChaosLists.PestGUIDList.Contains(SelectedPotEnemyNoFairies.EnemyGuid)) {
                             PotEnemyListNoFairies.IgnoreForRoomClear = false;
                         }
                         PotEnemyListNoFairies.PreventBlackPhantom = false;
@@ -493,7 +536,7 @@ namespace ChaosGlitchMod
                         SelectedPotEnemy.PreventBlackPhantom = true;
                         SelectedPotEnemy.IgnoreForRoomClear = true;
                         AIActor.Spawn(SelectedPotEnemy, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
-                        if (!ChaosEnemyLists.AlreadyIgnoredForRoomClearList.Contains(SelectedPotEnemy.EnemyGuid)) {
+                        if (!ChaosLists.AlreadyIgnoredForRoomClearList.Contains(SelectedPotEnemy.EnemyGuid)) {
                             SelectedPotEnemy.IgnoreForRoomClear = false;
                         }
                         SelectedPotEnemy.PreventBlackPhantom = false;
@@ -547,7 +590,7 @@ namespace ChaosGlitchMod
             if (ChaosConsole.addRandomEnemy && ChaosConsole.allowRandomBulletKinReplacement) {
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, usePlayerPosition: true, playSoundFX: false, EnemyGUID: ChaosEnemyLists.ReplacementEnemyGUIDList.RandomEnemy());
+                lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, usePlayerPosition: true, playSoundFX: false, EnemyGUID: ChaosLists.ReplacementEnemyGUIDList.RandomEnemy());
             } else {
                 if (ChaosConsole.addRandomEnemy) {
                     LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();

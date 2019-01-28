@@ -8,6 +8,9 @@ namespace ChaosGlitchMod
 {
     class ChaosPlaceWallMimic : MonoBehaviour
     {
+
+        private static ChaosObjectRandomizer chaosObjectRandomizer = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosObjectRandomizer>();
+
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
             "EndTimes_Chamber",
@@ -16,28 +19,26 @@ namespace ChaosGlitchMod
             "ElevatorMaintenanceRoom"
         };
 
-        private static void SetStats(int currentFloor, int currentCurse, int currentCoolness)
-        {
+        private static void SetStats(int currentFloor, int currentCurse, int currentCoolness) {
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
             ChaosConsole.hasBeenHammered = false;
-            ChaosConsole.preventTeleportingThisFloor = BraveUtility.RandomBool();
 
             if (currentFloor == -1) {
-                ChaosConsole.RandomPits = UnityEngine.Random.Range(50, 75);
-                ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(5, 8);
+                ChaosConsole.RandomPits = UnityEngine.Random.Range(40, 60);
+                ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(3, 5);
             } else {
                 if (currentFloor == 2 | currentFloor == 3) {
                     ChaosConsole.RandomPits = UnityEngine.Random.Range(60, 85);
-                    ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(6, 9);
+                    ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(5, 8);
                 } else {
                     if (currentFloor == 4) {
-                        ChaosConsole.RandomPits = UnityEngine.Random.Range(75, 95);
-                        ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(8, 12);
+                        ChaosConsole.RandomPits = UnityEngine.Random.Range(70, 90);
+                        ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(8, 10);
                     } else {
                         if (currentFloor > 5) {
-                            ChaosConsole.RandomPits = UnityEngine.Random.Range(125, 200);
-                            ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(15, 20);
+                            ChaosConsole.RandomPits = UnityEngine.Random.Range(100, 190);
+                            ChaosConsole.RandomPitsPerRoom = UnityEngine.Random.Range(10, 18);
                         }
                     }
                 }
@@ -124,8 +125,7 @@ namespace ChaosGlitchMod
             return;
         }
 
-        public static void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler)
-        {
+        public static void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler) {
             int currentFloor = GameManager.Instance.CurrentFloor;
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
@@ -161,15 +161,7 @@ namespace ChaosGlitchMod
                 }
             }
 
-            if (ChaosConsole.isUltraMode) {
-                ChaosObjectRandomizer chaosObjectRandomizer = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosObjectRandomizer>();
-                try { chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
-                    if (ChaosConsole.debugMimicFlag) {
-                        ETGModConsole.Log("[DEBUG] Exception Caught while placing objects:", false);
-                        ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);
-                    }
-                }
-            }
+            if (ChaosConsole.isUltraMode) { chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); }
 
             if (!ChaosConsole.WallMimicsUseRewardManager && levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
                 if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] The Resourceful Rat Maze has been excluded from having wall mimics.", false); }

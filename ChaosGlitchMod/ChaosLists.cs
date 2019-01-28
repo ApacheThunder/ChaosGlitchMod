@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace ChaosGlitchMod
@@ -12,8 +13,8 @@ namespace ChaosGlitchMod
         }
     }
 
-    class ChaosEnemyLists : MonoBehaviour
-    {
+    class ChaosLists : MonoBehaviour {
+
         public static string SafeEnemyGUIDList = "eeb33c3a5a8e4eaaaaf39a743e8767bc";  // candle_guy
         // {
         // "4538456236f64ea79f483784370bc62f", // fusebot
@@ -67,7 +68,6 @@ namespace ChaosGlitchMod
             "39dca963ae2b4688b016089d926308ab", // cannon
             "db97e486ef02425280129e1e27c33118", // shadow_agunim
             // Normal Enemies
-            // "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton
             // "eed5addcc15148179f300cc0d9ee7f94", // spogre
             // "062b9b64371e46e195de17b6f10e47c8", // bloodbulon
             // "249db525a9464e5282d02162c88e0357", // spent
@@ -80,11 +80,12 @@ namespace ChaosGlitchMod
             // "1898f6fe1ee0408e886aaf05c23cc216", // horizontal_det
             // "abd816b0bcbf4035b95837ca931169df", // vertical_x_det
             // "07d06d2b23cc48fe9f95454c839cb361", // horizontal_x_det
-            // "1bc2a07ef87741be90c37096910843ab", // chancebulon
             // "0239c0680f9f467dbe5c4aab7dd1eca6", // blobulon
             // "e61cab252cfb435db9172adc96ded75f", // poisbulon
             // "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
             // "fe3fe59d867347839824d5d9ae87f244", // poisbuloid
+            "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton
+            "1bc2a07ef87741be90c37096910843ab", // chancebulon
             "57255ed50ee24794b7aac1ac3cfb8a95", // gun_cultist
             "4db03291a12144d69fe940d5a01de376", // hollowpoint
             "206405acad4d4c33aac6717d184dc8d4", // apprentice_gunjurer
@@ -416,6 +417,7 @@ namespace ChaosGlitchMod
         };
 
         public static string[] OverrideFallIntoPitsList = {
+            "ed37fa13e0fa4fcf8239643957c51293", // gigi
             "6b7ef9e5d05b4f96b04f05ef4a0d1b18", // rubber_kin
             "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
             "2feb50a6a40f4f50982e89fd276f6f15", // bullat
@@ -542,7 +544,7 @@ namespace ChaosGlitchMod
         public static string skusketHeadEnemyGUID = "c2f902b7cbe745efb3db4399927eab34";
         public static string fungunEnemyGUID = "f905765488874846b7ff257ff81d6d0c";
         // public static string chancekinEnemyGUID = "a446c626b56d4166915a4e29869737fd";
-        // public static string snakeGUID = "1386da0f42fb4bcabc5be8feb16a7c38";
+        public static string snakeGUID = "1386da0f42fb4bcabc5be8feb16a7c38";
         // public static string wallmongerGUID = "f3b04a067a65492f8b279130323b41f0";
 
         public static AIActor BulletKinGUID = EnemyDatabase.GetOrLoadByGuid(BulletKinEnemyGUID);

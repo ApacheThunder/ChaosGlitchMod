@@ -12,9 +12,7 @@ namespace ChaosGlitchMod
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
             try { StunEnemiesForTeleport(currentRoom, 2.7f); } catch (Exception ex) {
-                if (ChaosConsole.debugMimicFlag) {
-                    ETGModConsole.Log(ex.Message + "\n" + ex.StackTrace + "\nThere are no enemies in this room to stun!", false);
-                }
+                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log(ex.Message + "\n" + ex.Message + ex.StackTrace + ex.Source + "\n\nThere are no enemies in this room to stun!", false); }
             }
             primaryPlayer.ForceStopDodgeRoll();
             Tentacle();
@@ -24,7 +22,9 @@ namespace ChaosGlitchMod
 
         public void TentacleTimeRandomRoom() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+            RoomHandler currentRoom = primaryPlayer.CurrentRoom;
             primaryPlayer.ForceStopDodgeRoll();
+            try { StunEnemiesForTeleport(currentRoom, 2.7f); } catch (Exception) { }
             Tentacle();
             Invoke("TentacleHidePlayer", 0.7f);
             if (UnityEngine.Random.value <= 0.2) {
@@ -48,18 +48,22 @@ namespace ChaosGlitchMod
 
         public void Unfreeze() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+            primaryPlayer.healthHaver.IsVulnerable = true;
             primaryPlayer.ClearAllInputOverrides();
         }
 
         public void UnfreezeClearChallenge() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             primaryPlayer.ClearAllInputOverrides();
-            if (ChallengeManager.Instance.ActiveChallenges.Count > 0 &&primaryPlayer.IsInCombat) { ChallengeManager.Instance.ForceStop(); }
+            try {
+                if (ChallengeManager.Instance.ActiveChallenges.Count > 0 && primaryPlayer.IsInCombat) { ChallengeManager.Instance.ForceStop(); }
+            } catch (Exception) { }
         }
         
         public void Tentacle() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
+            primaryPlayer.healthHaver.IsVulnerable = false;
             GameObject gameObject = (GameObject)ResourceCache.Acquire("Global VFX/VFX_Tentacleport");
             primaryPlayer.SetInputOverride("It's tentacle time");
             if (gameObject != null) {
@@ -72,13 +76,11 @@ namespace ChaosGlitchMod
             return;
         }
 
-        public void TentacleRelease()
-        {
+        public void TentacleRelease() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
             GameObject gameObject = (GameObject)ResourceCache.Acquire("Global VFX/VFX_Tentacleport");
-            if (gameObject != null)
-            {
+            if (gameObject != null) {
                 GameObject gameObject2 = Instantiate(gameObject);
                 gameObject2.GetComponent<tk2dBaseSprite>().PlaceAtLocalPositionByAnchor(primaryPlayer.specRigidbody.UnitBottomCenter + new Vector2(0f, -1f), tk2dBaseSprite.Anchor.LowerCenter);
                 gameObject2.transform.position = gameObject2.transform.position.Quantize(0.0625f);
@@ -90,10 +92,10 @@ namespace ChaosGlitchMod
         public void Teleport() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             ChaosUtility chaosUtility = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosUtility>();
-            AIActor DummyEnemy = EnemyDatabase.GetOrLoadByGuid(ChaosEnemyLists.BulletKinEnemyGUID);
+            AIActor DummyEnemy = EnemyDatabase.GetOrLoadByGuid(ChaosLists.BulletKinEnemyGUID);
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-            IntVector2 newPos = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, primaryPlayer, DummyEnemy, 5, 5, false);
-            if (newPos == new IntVector2(0,0)) {
+            IntVector2 newPos = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, primaryPlayer, 5, false);
+            if (newPos == IntVector2.Zero) {
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("Unfreeze", 2f);
@@ -145,12 +147,11 @@ namespace ChaosGlitchMod
                 if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
                     GameManager.Instance.GetOtherPlayer(secondaryPlayer).ReuniteWithOtherPlayer(primaryPlayer, false);
                 }
-                StunEnemiesForTeleport(currentRoom, 2.1f);
+                try { StunEnemiesForTeleport(SelectedRoom, 1.5f); } catch (Exception) { }
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("UnfreezeClearChallenge", 2f);
             } else {
-                StunEnemiesForTeleport(currentRoom, 2.1f);
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("UnfreezeClearChallenge", 2f);

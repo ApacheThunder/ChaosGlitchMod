@@ -42,7 +42,6 @@ namespace ChaosGlitchMod
         public static bool hasBeenTentacledToAnotherRoom = false;
         public static bool hasBeenHammered = false;
         public static bool allowRandomBulletKinReplacement = false;
-        public static bool preventTeleportingThisFloor = true;
 
         public static int MaxWallMimicsPerRoom = 1;
         public static int MaxWallMimicsForFloor = 2;
@@ -135,9 +134,9 @@ namespace ChaosGlitchMod
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls_disabled", delegate (string[] e) {
-                if (WallMimicsUseRewardManager) { ETGModConsole.Log("Wall Mimics are already disabled! Use 'chaos reset' to reset!", false); }
+                if (WallMimicsUseRewardManager) { ETGModConsole.Log("Extra Wall Mimics are already disabled! Use 'chaos reset' to reset!", false); }
                 WallMimicsUseRewardManager = true;
-                ETGModConsole.Log("Wall Mimics have been disabled and won't appear at all...", false);
+                ETGModConsole.Log("Extra Wall Mimics have been disabled. Only Wall Mimics assigned by Reward Manager may appear.", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tinybigmode", delegate (string[] e) {
@@ -324,13 +323,20 @@ namespace ChaosGlitchMod
                 GenericLootTable lootTable2 = supplydrop.synergyItemTableToUse02;
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                lootCrate.SpawnAirDrop(RoomVector, lootTable2, 0.3f, 0.15f, true, true, ChaosEnemyLists.ReplacementEnemyGUIDList.RandomEnemy());
+                lootCrate.SpawnAirDrop(RoomVector, lootTable2, 0.3f, 0.15f, true, true, ChaosLists.ReplacementEnemyGUIDList.RandomEnemy());
                 ETGModConsole.Log("Here comes a loot crate drop. What surprise awaits?! Might have an enemy!", false);
+            });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("supertentacletime", delegate (string[] e) {
+                ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
+                tentacle.TentacleTimeRandomRoom();
+                ETGModConsole.Log("Time for a suprise teleport!", false);
+                return;
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tentacletime", delegate (string[] e) {
                 ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
-                if (Random.value <= 0.6f) { tentacle.TentacleTimeRandomRoom(); } else { tentacle.TentacleTime(); }
+                tentacle.TentacleTime();
                 ETGModConsole.Log("Time for a suprise teleport!", false);
                 return;
             });
@@ -446,7 +452,6 @@ namespace ChaosGlitchMod
                 hasBeenTentacledToAnotherRoom = false;
                 hasBeenHammered = false;
                 allowRandomBulletKinReplacement = true;
-                preventTeleportingThisFloor = true;
                 GlitchRandomActors = 0.3f;
                 GlitchRandomAll = 0.2f;
                 RandomResizedEnemies = 0.3f;

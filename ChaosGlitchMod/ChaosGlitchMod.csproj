@@ -62,7 +62,7 @@
     <Compile Include="ChaosExploder.cs" />
     <Compile Include="ChaosLoadPrefab.cs" />
     <Compile Include="ChaosConsole.cs" />
-    <Compile Include="ChaosEnemyLists.cs" />
+    <Compile Include="ChaosLists.cs" />
     <Compile Include="DungeonFlowModule.cs" />
     <Compile Include="ChaosGlitchMod.cs" />
     <Compile Include="ChaosGlitchHooks.cs" />

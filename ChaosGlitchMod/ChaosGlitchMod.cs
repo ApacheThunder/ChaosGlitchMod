@@ -11,6 +11,7 @@
             ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
 
             ChaosSharedHooks.InstallPlaceWallMimicsHook();
+
         }
 
         public override void Exit() { }
