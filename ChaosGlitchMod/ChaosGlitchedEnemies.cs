@@ -4380,7 +4380,7 @@ namespace ChaosGlitchMod {
             SpecialSourceEnemies.Add(IceCubeGuyPrefab);
             SpecialSourceEnemies.Add(GrenadeGuyPrefab);
             // SpecialSourceEnemies.Add(SunburstPrefab);
-            ValidSourceEnemies.Add(PowderSkullBlackPrefab);
+            SpecialSourceEnemies.Add(PowderSkullBlackPrefab);
 
             SpecialSourceEnemies = SpecialSourceEnemies.Shuffle();
             ValidSourceEnemies = ValidSourceEnemies.Shuffle();
@@ -4452,7 +4452,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
-            CachedGlitchEnemyActor = DungeonPlaceableUtility.InstantiateDungeonPlaceable(CachedGlitchEnemyActor.gameObject, CurrentRoom, position, false, AwakenAnimationType.Awaken, autoEngage).GetComponent<AIActor>();
+            DungeonPlaceableUtility.InstantiateDungeonPlaceable(CachedGlitchEnemyActor.gameObject, CurrentRoom, position, false, AwakenAnimationType.Awaken, autoEngage).GetComponent<AIActor>();
 
             CachedGlitchEnemyActor.EnemyScale = new Vector2(1, 1);
             CachedGlitchEnemyActor.IgnoreForRoomClear = false;

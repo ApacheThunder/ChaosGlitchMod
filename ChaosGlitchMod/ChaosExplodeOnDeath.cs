@@ -27,7 +27,7 @@ namespace ChaosGlitchMod {
             if (enabled) {
                 if (useDefaultExplosion) {
                     Exploder.DoDefaultExplosion(specRigidbody.GetUnitCenter(ColliderType.HitBox), Vector2.zero, null, true, CoreDamageTypes.None);
-                    Exploder.DoRadialDamage(120f, specRigidbody.GetUnitCenter(ColliderType.HitBox), 4.5f, true, true, false);
+                    Exploder.DoRadialDamage(120f, specRigidbody.GetUnitCenter(ColliderType.HitBox), 4.2f, true, true, false);
                 } else {
                     Exploder.Explode(specRigidbody.GetUnitCenter(ColliderType.HitBox), explosionData, Vector2.zero, null, false, CoreDamageTypes.None, false);
                 }
