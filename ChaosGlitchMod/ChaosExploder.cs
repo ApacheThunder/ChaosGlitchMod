@@ -38,8 +38,7 @@ namespace ChaosGlitchMod {
         }
     }
     
-    public class ChaosExploder : MonoBehaviour
-    {
+    public class ChaosExploder : MonoBehaviour {
         public static Action OnExplosionTriggered;
         private static bool ExplosionIsExtant;
     

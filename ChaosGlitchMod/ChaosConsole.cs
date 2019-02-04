@@ -55,21 +55,23 @@ namespace ChaosGlitchMod {
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
+                isExplosionHookActive = true;
                 allowRandomBulletKinReplacement = true;
                 NormalWallMimicMode = false;
                 WallMimicsUseRewardManager = false;
                 ChaosSharedHooks.InstallPrimaryHooks();
-
                 ChaosSharedHooks.minorbreakablehook = new Hook(
                         typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
                         typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
                 );
-
                 ChaosGlitchHooks.hammerhookGlitch = new Hook(
                     typeof(ForgeHammerController).GetMethod("Activate"),
                     typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch")
                 );
-
+                ChaosSharedHooks.doExplodeHook = new Hook(
+                    typeof(Exploder).GetMethod("Explode", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static),
+                    typeof(ChaosExploder).GetMethod("Explode")
+                );
                 autoUltra = false;
             }
 
