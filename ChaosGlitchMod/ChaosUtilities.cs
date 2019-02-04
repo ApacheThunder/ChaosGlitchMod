@@ -4,7 +4,7 @@ using Pathfinding;
 
 namespace ChaosGlitchMod {
 
-	public class ChaosUtility : MonoBehaviour {
+    public class ChaosUtility : MonoBehaviour {
 
         public static IntVector2 GetRandomAvailableCellSmart(RoomHandler CurrentRoom, PlayerController PrimaryPlayer, int MinClearence = 2, bool usePlayerVectorAsFallback = false) {
             Vector2 PlayerVector2 = PrimaryPlayer.CenterPosition;

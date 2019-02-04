@@ -1,21 +1,26 @@
 ﻿using MonoMod.RuntimeDetour;
 using System;
-using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod
-{
+namespace ChaosGlitchMod {
     
-    class ChaosGlitchHooks : MonoBehaviour
-    {
+    class ChaosGlitchHooks : MonoBehaviour {
         public static Hook hammerhookGlitch;
 
-        private static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
+        public static ChaosGlitchHooks Instance {
+            get {
+                if (!m_instance) { m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>(); }
+                return m_instance;
+            }
+        }
+
+        private static ChaosGlitchHooks m_instance;
+
 
         // Hook HammerController to apply GlitchShader.
         public static void HammerHookGlitch(Action<ForgeHammerController> orig, ForgeHammerController self) {
             orig(self);
-            chaosGlitchHooks.SetGlitchShader(self.sprite, Shader.Find("Brave/Internal/Glitch"), true);
+            SetGlitchShader(self.sprite, true);
         }
 
         /*public static Material SetSpaceShader(tk2dBaseSprite sprite, float Zoom = 0.8f, float Tile = 0.85f, float Speed = 0.01f) {
@@ -26,10 +31,10 @@ namespace ChaosGlitchMod
             m_cachedSpaceMaterial.SetFloat("_Speed", Speed);
             sprite.renderer.material = m_cachedSpaceMaterial;
             return m_cachedSpaceMaterial;
-        }
+        }*/
 
-        public Material SetGalaxyShader(tk2dBaseSprite sprite) {
-            Material m_cachedGalaxyMaterial = new Material(Shader.Find("Brave/Effects/SimplicityDerivativeShader"));
+        public static Material SetGalaxyShader(tk2dBaseSprite sprite) {
+            Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Effects/SimplicityDerivativeShader"));
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
@@ -39,10 +44,10 @@ namespace ChaosGlitchMod
             spriteComponent.sharedMaterials = sharedMaterials;
             sprite.usesOverrideMaterial = m_cachedGalaxyMaterial;
             return m_cachedGalaxyMaterial;
-        }*/
+        }
 
-        public Material SetGlitchShader(tk2dBaseSprite sprite, Shader overrideShader, bool usesOverrideMaterial = true, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) {
-            Material m_cachedGlitchMaterial = new Material(overrideShader);
+        public static Material SetGlitchShader(tk2dBaseSprite sprite, bool usesOverrideMaterial = true, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) {
+            Material m_cachedGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
             m_cachedGlitchMaterial.SetFloat("_GlitchInterval", GlitchInterval);
             m_cachedGlitchMaterial.SetFloat("_DispProbability", DispProbability);
             m_cachedGlitchMaterial.SetFloat("_DispIntensity", DispIntensity);
@@ -59,43 +64,7 @@ namespace ChaosGlitchMod
             return m_cachedGlitchMaterial;
         }
 
-        public void BecomeGlitchedTest(BraveBehaviour gameObject) {
-            tk2dBaseSprite sprite = null;
-            try {
-                if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                sprite = gameObject.sprite;
-            } catch { };
-
-            SetGlitchShader(sprite, Shader.Find("Brave/Internal/Glitch"), true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-        }
-
-        // Glitch Everything Function (mostly written by Abeclancy with a dash of code from old Rainbow mod)
-        // Used for applying Glitch shader to random objects.
-        // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
-        public void BecomeGlitched(BraveBehaviour gameObject) { try {
-                tk2dBaseSprite sprite = null;
-                try {
-                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                    sprite = gameObject.sprite;
-                } catch { };
-
-                if (gameObject == null) return;
-
-                if (gameObject.GetComponent<AIActor>() != null | sprite.usesOverrideMaterial) { return; }
-
-                SetGlitchShader(sprite, Shader.Find("Brave/Internal/Glitch"), true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-            } catch (Exception ex) {
-                if (ChaosConsole.DebugExceptions) {
-                    ETGModConsole.Log("Exception Caught at [BecomeGlitched] in ChaosGlitchHooks class.", false);
-                    ETGModConsole.Log(ex.Message + ex.Source, false);
-                    ETGModConsole.Log(ex.StackTrace, false);
-                }
-                return;
-            }
-        }
-
-
-        public void SetHologramShader(tk2dBaseSprite sprite, bool isGreen = false, bool usesOverrideMaterial = true) {
+        public static Material SetHologramShader(tk2dBaseSprite sprite, bool isGreen = false, bool usesOverrideMaterial = true) {
             Shader m_cachedShader = Shader.Find("Brave/Internal/HologramShader");
             Material m_cachedMaterial = new Material(Shader.Find("Brave/Internal/HologramShader"));
             Material m_cachedSharedMaterial = m_cachedMaterial;
@@ -110,12 +79,36 @@ namespace ChaosGlitchMod
             sprite.renderer.material = m_cachedMaterial;
             sprite.renderer.sharedMaterial = m_cachedSharedMaterial;
             sprite.usesOverrideMaterial = usesOverrideMaterial;
+            return m_cachedMaterial;
         }
+        // Glitch Everything Function (mostly written by Abeclancy with a dash of code from old Rainbow mod)
+        // Used for applying Glitch shader to random objects.
+        // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
+        public void BecomeGlitched(BraveBehaviour gameObject) { try {
+                tk2dBaseSprite sprite = null;
+                try {
+                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                    sprite = gameObject.sprite;
+                } catch { };
 
+                if (gameObject == null) return;
+
+                if (gameObject.GetComponent<AIActor>() != null | sprite.usesOverrideMaterial) { return; }
+
+                SetGlitchShader(sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [BecomeGlitched] in ChaosGlitchHooks class.", false);
+                    ETGModConsole.Log(ex.Message + ex.Source, false);
+                    ETGModConsole.Log(ex.StackTrace, false);
+                }
+                return;
+            }
+        }
+        
         // Used for applying Hologram shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
         public void BecomeHologram(BraveBehaviour gameObject, bool usesOverrideMaterial = true) { try {
-
                 tk2dBaseSprite sprite = null;
                 try {
                     if (!(gameObject.sprite is tk2dBaseSprite)) return;
@@ -127,7 +120,12 @@ namespace ChaosGlitchMod
 
                 if (gameObject.name.ToLower().StartsWith("boss") | gameObject.name.ToLower().StartsWith("door") |
                     gameObject.name.ToLower().StartsWith("shellcasing") | gameObject.name.ToLower().StartsWith("5") |
-                    gameObject.name.ToLower().StartsWith("50") | gameObject.GetComponent<AIActor>() != null | 
+                    gameObject.name.ToLower().StartsWith("50") | gameObject.name.ToLower().StartsWith("minimap") |
+                    gameObject.name.ToLower().StartsWith("outline") | gameObject.name.ToLower().StartsWith("braveoutline") |
+                    gameObject.name.ToLower().StartsWith("defaultshadow") | gameObject.name.ToLower().StartsWith("shadow") |
+                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)") |
+                    gameObject.name.ToLower().EndsWith("stone(clone)") | gameObject.name.ToLower().EndsWith("horizontal(clone)") | 
+                    gameObject.name.ToLower().EndsWith("vertical(clone)") | gameObject.GetComponent<AIActor>() != null | 
                     sprite.usesOverrideMaterial) {
                     // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object was skipped: " + gameObject.name.ToLower(), false);
                     return;
@@ -152,21 +150,38 @@ namespace ChaosGlitchMod
             }
         }
 
-        public static void ApplyOverrideShader(AIActor aiActor, tk2dBaseSprite sprite, int ShaderType, bool HologramShaderGreenToggle = false, bool HologramsHaveCollision = false, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) {
-            Shader OverrideShader = Shader.Find("Brave/Internal/RainbowChestShader");
+        public void BecomeGlitchedTest(BraveBehaviour gameObject) {
+            tk2dBaseSprite sprite = null;
+            try {
+                if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                sprite = gameObject.sprite;
+            } catch { };
 
-            if (ShaderType == 0) { OverrideShader = Shader.Find("Brave/Internal/RainbowChestShader"); } // Rainbow Shader
-            if (ShaderType == 1) {
-                OverrideShader = Shader.Find("Brave/Internal/Glitch"); // Glitch Shader
-                // String[] array containing GUID strings for enemies you don't want glitch shader applied to.
-                // Currently used to prevent applying glitch shader to dynamite kin, shotgun kin (the red/blue ones), and veteran bullet kins.
-                if (!ChaosLists.DontGlitchMeList.Contains(aiActor.EnemyGuid)) { return; }
-            } 
-            if (ShaderType == 2) { OverrideShader = Shader.Find("Brave/Internal/HologramShader"); } // Hologram/Ghost Shader
-            if (ShaderType == 3) { OverrideShader = Shader.Find("Brave/Internal/StarNest_Derivative"); }
-            if (ShaderType == 4) { OverrideShader = Shader.Find("Brave/Effects/SimplicityDerivativeShader"); } // Galaxy Shader
+            SetGlitchShader(sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+        }
 
+        public void ApplyOverrideShader(AIActor aiActor, tk2dBaseSprite sprite, int ShaderType = 0, bool randomShaderType = false, bool HologramShaderGreenToggle = false, bool HologramsHaveCollision = false, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) {
+            Shader OverrideShader = new Shader();
 
+            if (randomShaderType) { if (BraveUtility.RandomBool()) { ShaderType = 0; } else { ShaderType = 1; } }
+
+            if (ShaderType == 0) { OverrideShader = ShaderCache.Acquire("Brave/Internal/RainbowChestShader"); } // Rainbow Shader
+            if (ShaderType == 1) { OverrideShader = ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"); }
+            
+            if (OverrideShader == null) { return; }
+
+            if (!ChaosConsole.randomEnemySizeEnabled && ShaderType == 0) {
+                if (!aiActor.healthHaver.IsBoss) {
+                    aiActor.BaseMovementSpeed *= 1.25f;
+                    aiActor.MovementSpeed *= 1.25f;
+                    if (aiActor.healthHaver != null) { aiActor.healthHaver.SetHealthMaximum(aiActor.healthHaver.GetMaxHealth() / 1.5f, null, false); }
+                } else {
+                    aiActor.BaseMovementSpeed *= 1.1f;
+                    aiActor.MovementSpeed *= 1.1f;
+                    if (aiActor.healthHaver != null) { aiActor.healthHaver.SetHealthMaximum(aiActor.healthHaver.GetMaxHealth() / 1.25f, null, false); }
+                }
+            }
+            
             try {
                 MeshRenderer aiActorSpriteComponent = sprite.GetComponent<MeshRenderer>();
 
@@ -188,50 +203,6 @@ namespace ChaosGlitchMod
                     AiActorSharedMaterialSingle.SetColor("_OverrideColor", new Color(0.5f, 0.5f, 1f));
                 }
 
-                if (ShaderType == 1) {
-                    AiActorMaterial.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorMaterial.SetFloat("_DispProbability", DispProbability);
-                    AiActorMaterial.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorMaterial.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorMaterial.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorMaterialSingle.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorMaterialSingle.SetFloat("_DispProbability", DispProbability);
-                    AiActorMaterialSingle.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorMaterialSingle.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorMaterialSingle.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorSharedMaterial.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorSharedMaterial.SetFloat("_DispProbability", DispProbability);
-                    AiActorSharedMaterial.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorSharedMaterial.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorSharedMaterial.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorSharedMaterialSingle.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorSharedMaterialSingle.SetFloat("_DispProbability", DispProbability);
-                    AiActorSharedMaterialSingle.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorSharedMaterialSingle.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorSharedMaterialSingle.SetFloat("_ColorIntensity", ColorIntensity);
-
-                }
-
-                if (ShaderType == 2 && HologramShaderGreenToggle) {
-                    AiActorMaterial.SetFloat("_IsGreen", 1f);
-                    AiActorMaterialSingle.SetFloat("_IsGreen", 1f);
-                    AiActorSharedMaterial.SetFloat("_IsGreen", 1f);
-                    AiActorSharedMaterialSingle.SetFloat("_IsGreen", 1f);
-                }
-
-                // Make Hologram enemies not collide with Players
-                if (ShaderType == 2 && !HologramsHaveCollision && !aiActor.healthHaver.IsBoss) {
-                    try {
-                        aiActor.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
-                        if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
-                            aiActor.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
-                        }
-                    } catch (Exception) { }
-                }
-
                 Material[] AiActorMaterials = aiActorSpriteComponent.materials;
                 Material[] AiActorSharedMaterials = aiActorSpriteComponent.sharedMaterials;
 
@@ -247,7 +218,7 @@ namespace ChaosGlitchMod
                 AiActorMaterials[AiActorMaterials.Length - 1] = AiActorMaterial;
                 AiActorSharedMaterials[AiActorSharedMaterials.Length - 1] = AiActorSharedMaterial;
 
-                if (ShaderType == 2) { aiActorSpriteComponent.material.shader = OverrideShader; }
+                aiActorSpriteComponent.material.shader = OverrideShader;
                 aiActorSpriteComponent.material = AiActorMaterialSingle;
                 aiActorSpriteComponent.materials = AiActorMaterials;
                 aiActorSpriteComponent.sharedMaterials = AiActorSharedMaterials;
@@ -274,33 +245,6 @@ namespace ChaosGlitchMod
                 Material AiActorGunSharedMaterial = new Material(OverrideShader);
                 Material AiActorGunSharedMaterialSingle = new Material(OverrideShader);
 
-                if (ShaderType == 1) {
-                    AiActorGunMaterial.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorGunMaterial.SetFloat("_DispProbability", DispProbability);
-                    AiActorGunMaterial.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorGunMaterial.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorGunMaterial.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorGunMaterialSingle.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorGunMaterialSingle.SetFloat("_DispProbability", DispProbability);
-                    AiActorGunMaterialSingle.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorGunMaterialSingle.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorGunMaterialSingle.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorGunSharedMaterial.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorGunSharedMaterial.SetFloat("_DispProbability", DispProbability);
-                    AiActorGunSharedMaterial.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorGunSharedMaterial.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorGunSharedMaterial.SetFloat("_ColorIntensity", ColorIntensity);
-
-                    AiActorGunSharedMaterialSingle.SetFloat("_GlitchInterval", GlitchInterval);
-                    AiActorGunSharedMaterialSingle.SetFloat("_DispProbability", DispProbability);
-                    AiActorGunSharedMaterialSingle.SetFloat("_DispIntensity", DispIntensity);
-                    AiActorGunSharedMaterialSingle.SetFloat("_ColorProbability", ColorProbability);
-                    AiActorGunSharedMaterialSingle.SetFloat("_ColorIntensity", ColorIntensity);
-
-                }
-
                 AiActorGunSharedMaterial.SetTexture("_MainTex", AiActorGunSharedMaterials[0].GetTexture("_MainTex"));
                 AiActorGunSharedMaterialSingle.SetTexture("_MainTex", aiActorGunSpriteComponent.sharedMaterial.GetTexture("_MainTex"));
 
@@ -310,7 +254,7 @@ namespace ChaosGlitchMod
                 AiActorGunMaterials[AiActorGunMaterials.Length - 1] = AiActorGunMaterial;
                 AiActorGunSharedMaterials[AiActorGunSharedMaterials.Length - 1] = AiActorGunSharedMaterial;
 
-                if (ShaderType == 2) { aiActorGunSpriteComponent.material.shader = OverrideShader; }
+                aiActorGunSpriteComponent.material.shader = OverrideShader;
                 aiActorGunSpriteComponent.sharedMaterial = AiActorGunSharedMaterialSingle;
                 aiActorGunSpriteComponent.sharedMaterials = AiActorGunSharedMaterials;
                 aiActorGunSpriteComponent.material = AiActorGunMaterialSingle;

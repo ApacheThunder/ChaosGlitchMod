@@ -15,6 +15,27 @@ namespace ChaosGlitchMod
 
     class ChaosLists : MonoBehaviour {
 
+        public static string[] ValidSourceEnemyGUIDList = {
+            "01972dee89fc4404a5c408d50007dad5",	// BulletMan
+            "57255ed50ee24794b7aac1ac3cfb8a95",	// Cultist
+	        "4db03291a12144d69fe940d5a01de376",	// Ghost
+	        "05891b158cd542b1a5f3df30fb67a7ff",	// ArrowheadMan
+	        "31a3ea0c54a745e182e22ea54844a82d",	// BulletRifleMan
+	        "c5b11bfc065d417b9c4d03a5e385fe2c",	// BulletRifleProfessional
+	        "1a78cfb776f54641b832e92c44021cf2",	// AshBulletMan
+	        "1bd8e49f93614e76b140077ff2e33f2b",	// AshBulletShotgunMan
+	        "8bb5578fba374e8aae8e10b754e61d62",	// BulletCardinal
+	        "db35531e66ce41cbb81d507a34366dfe",	// BulletMachineGunMan
+        	"5f3abc2d561b4b9c9e72b879c6f10c7e",	// BulletManDevil
+	        "e5cffcfabfae489da61062ea20539887",	// BulletManShroomed
+	        "95ec774b5a75467a9ab05fa230c0c143",	// BulletSkeletonHelmet
+	        "2752019b770f473193b08b4005dc781f",	// BulletShotgunMan_SawedOff <-- Veteran Shotgun Kin
+	        "7f665bd7151347e298e4d366f8818284",	// BulletShotgunMan_Mutant
+	        "d4a9836f8ab14f3fadd0f597438b1f1f",	// BulletMan_Mutant
+	        "044a9f39712f456597b9762893fbc19c"	// BulletShotgrubMan
+        };
+
+
         public static string SafeEnemyGUIDList = "eeb33c3a5a8e4eaaaaf39a743e8767bc";  // candle_guy
         // {
         // "4538456236f64ea79f483784370bc62f", // fusebot
@@ -84,6 +105,7 @@ namespace ChaosGlitchMod
             // "e61cab252cfb435db9172adc96ded75f", // poisbulon
             // "042edb1dfb614dc385d5ad1b010f2ee3", // blobuloid
             // "fe3fe59d867347839824d5d9ae87f244", // poisbuloid
+            "3cadf10c489b461f9fb8814abc1a09c1", // minelet
             "21dd14e5ca2a4a388adab5b11b69a1e1", // shelleton
             "1bc2a07ef87741be90c37096910843ab", // chancebulon
             "57255ed50ee24794b7aac1ac3cfb8a95", // gun_cultist
@@ -413,7 +435,8 @@ namespace ChaosGlitchMod
             "128db2f0781141bcb505d8f00f9e4d47", // red_shotgun_kin
             "b54d89f9e802455cbb2b8a96a31e8259", // blue_shotgun_kin
             "70216cae6c1346309d86d4a0b4603045", // veteran_bullet_kin
-            "2752019b770f473193b08b4005dc781f" // veteran_shotgun_kin
+            "2752019b770f473193b08b4005dc781f", // veteran_shotgun_kin
+            "45192ff6d6cb43ed8f1a874ab6bef316" // misfire_beast
         };
 
         public static string[] OverrideFallIntoPitsList = {

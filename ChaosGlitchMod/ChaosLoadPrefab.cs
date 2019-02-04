@@ -4,18 +4,15 @@ using UnityEngine;
 namespace ChaosGlitchMod {
 
     // More flexible version. Allows loading prefabs from different asset bundles. Must specify full path to prefab however. ;)
-    public class ChaosLoadPrefab
-    {
+    public class ChaosLoadPrefab {
         private static AssetBundle m_assetBundle;
 
-        public static UnityEngine.Object Load(string assetbundle, string path, string extension = ".prefab")
-        {
+        public static UnityEngine.Object Load(string assetbundle, string path, string extension = ".prefab") {
             if (m_assetBundle == null) { EnsureLoaded(assetbundle); }
             return m_assetBundle.LoadAsset<UnityEngine.Object>(path + extension);
         }
 
-        public static UnityEngine.Object Load(string assetbundle, string path, Type type, string extension = ".prefab")
-        {
+        public static UnityEngine.Object Load(string assetbundle, string path, Type type, string extension = ".prefab") {
             if (m_assetBundle == null) { EnsureLoaded(assetbundle); }
             return m_assetBundle.LoadAsset(path + extension, type);
         }

@@ -14,6 +14,17 @@ namespace ChaosGlitchMod {
         // private static AssetBundle assetBundle4 = ResourceManager.LoadAssetBundle("shared_base_001");
         // private static AssetBundle assetBundle5 = ResourceManager.LoadAssetBundle("enemies_base_001");
 
+        private static GameObject MetalGearRatPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/Bosses/MetalGearRat", ".prefab");
+        private static GameObject ResourcefulRatBossPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/Bosses/ResourcefulRat_Boss", ".prefab");
+
+        private static AIActor MetalGearRatActorPrefab = MetalGearRatPrefab.GetComponent<AIActor>();
+        private static AIActor ResourcefulRatBossActorPrefab = ResourcefulRatBossPrefab.GetComponent<AIActor>();
+        private static MetalGearRatDeathController MetalGearRatDeathPrefab = MetalGearRatActorPrefab.GetComponent<MetalGearRatDeathController>();
+
+        private PunchoutController PunchoutPrefab = MetalGearRatDeathPrefab.PunchoutMinigamePrefab.GetComponent<PunchoutController>();
+        private ResourcefulRatController resourcefulRatControllerPrefab = ResourcefulRatBossActorPrefab.GetComponent<ResourcefulRatController>();
+
+
         private GameObject RedDrum = assetBundle.LoadAsset("Red Drum") as GameObject;
         private GameObject YellowDrum = assetBundle2.LoadAsset("Yellow Drum") as GameObject;
         private GameObject WaterDrum = assetBundle2.LoadAsset("Blue Drum") as GameObject;
@@ -24,7 +35,7 @@ namespace ChaosGlitchMod {
         private GameObject TableHorizontalStone = assetBundle.LoadAsset("Table_Horizontal_Stone") as GameObject;
         private GameObject TableVerticalStone = assetBundle.LoadAsset("Table_Vertical_Stone") as GameObject;
 
-        private FoldingTableItem foldableTable = Instantiate(ETGMod.Databases.Items[644]).GetComponent<FoldingTableItem>();
+        private FoldingTableItem foldableTable = ETGMod.Databases.Items[644].GetComponent<FoldingTableItem>();
 
         private GameObject NPCOldMan = assetBundle.LoadAsset("NPC_Old_Man") as GameObject;
         private GameObject NPCSynergrace = assetBundle.LoadAsset("NPC_Synergrace") as GameObject;
@@ -88,6 +99,7 @@ namespace ChaosGlitchMod {
         private GameObject ChestTruth = assetBundle.LoadAsset("TruthChest") as GameObject;
         private GameObject ChestRat = assetBundle.LoadAsset("Chest_Rat") as GameObject;
 
+
         /*private GameObject ChestBrownMimic = assetBundle2.LoadAsset("AlmostDefinitelyAMimicChestPlacer") as GameObject;
           private GameObject ChestRandomizer = assetBundle2.LoadAsset("HighDragunfire_ChestPlacer") as GameObject;*/
  
@@ -101,14 +113,18 @@ namespace ChaosGlitchMod {
             "EndTimes_Chamber",
             "ElevatorMaintenanceRoom"
         };
-        
-
+ 
         public void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
+
+            if (!ChaosConsole.isUltraMode) { return; }
+
+
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             bool debugMode = false;
             bool hammerPlaced = false;
             bool cursedMirrorPlaced = false;
             bool VFXObjectPlaced = false;
+            bool RatCorpsePlaced = false;
             int RandomObjectsPlaced = 0;
             int RandomObjectsSkipped = 0;
             int MaxRandomObjectsPerRoom = UnityEngine.Random.Range(2, 5);
@@ -158,7 +174,7 @@ namespace ChaosGlitchMod {
             InteractableChests.Add(BlackChest);
             InteractableChests.Add(SynergyChest);
             InteractableChests.Add(RainbowChest);
-            if (currentFloor > 3) { InteractableChestsAlt.Add(ChestRat); }
+            InteractableChestsAlt.Add(ChestRat);
             InteractableChestsAlt.Add(ChestBrownTwoItems);
             InteractableChestsAlt.Add(ChestTruth);
             if (debugMode)ETGModConsole.Log("[DEBUG] Building NPC list...", true);
@@ -203,6 +219,9 @@ namespace ChaosGlitchMod {
             NonInteractableObjects.Add(TallGrassStrip);
             NonInteractableObjects.Add(RatTrapDoorIcon);
             NonInteractableObjects.Add(NPCHeartDispenser);
+            NonInteractableObjects.Add(resourcefulRatControllerPrefab.MouseTraps[0]);
+            NonInteractableObjects.Add(resourcefulRatControllerPrefab.MouseTraps[1]);
+            NonInteractableObjects.Add(PunchoutPrefab.PlayerLostNotePrefab.gameObject);
             if (debugMode)ETGModConsole.Log("[DEBUG] Building VFXObjects list...", true);
             VFXObjects.Add(GlitterStars);
             VFXObjects.Add(ShootingStarsVFX);
@@ -220,204 +239,245 @@ namespace ChaosGlitchMod {
                     if (!currentRoom.IsMaintenanceRoom() && !currentRoom.IsSecretRoom && !currentRoom.IsWinchesterArcadeRoom && !currentRoom.IsGunslingKingChallengeRoom && !currentRoom.GetRoomName().StartsWith("Boss Foyer") && !BannedCellsRoomList.Contains(currentRoom.GetRoomName())) {
                         if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
                             if (roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && roomCategory != PrototypeDungeonRoom.RoomCategory.ENTRANCE && roomCategory != PrototypeDungeonRoom.RoomCategory.REWARD && roomCategory != PrototypeDungeonRoom.RoomCategory.EXIT) {
-                                if (debugMode)ETGModConsole.Log("[DEBUG] Current Room is valid for random objects. Continuing...", true);
-                                if (debugMode)ETGModConsole.Log("[DEBUG] Preparing to check/place objects in room: " + currentRoom.GetRoomName(), false);
-                                /*if (debugMode)ETGModConsole.Log("[DEBUG] Shuffling Object lists...", true);
-                                KickableDrumObjects = KickableDrumObjects.Shuffle();
-                                TableObjects = TableObjects.Shuffle();
-                                InteractableChests = InteractableChests.Shuffle();
-                                InteractableChestsAlt = InteractableChestsAlt.Shuffle();
-                                InteractableNPCs = InteractableNPCs.Shuffle();
-                                NonInteractableObjects = NonInteractableObjects.Shuffle();
-                                VFXObjects = VFXObjects.Shuffle();*/
-                                roomList = roomList.Shuffle();
-                                hammerPlaced = BraveUtility.RandomBool();
-                                if (debugMode)ETGModConsole.Log("[DEBUG] Clearing cached object placement lists for new room...", true);
-                                NonCachedList.Clear();
-                                CachedNPCs.Clear();
-                                CachedChests.Clear();
-                                SharedCachedList.Clear();
-                                CachedVFXObjects.Clear();
-                                for (int loopCount = 0; loopCount < MaxRandomObjectsPerRoom; ++loopCount) {
-                                   if ((RandomObjectsPlaced + RandomObjectsSkipped) >= MaxRandomObjects) {
-                                       if (debugMode)ETGModConsole.Log("[DEBUG] Max Object Placement Reached. Ending object placement mode...", true);
-                                       break;
-                                   }
-                                   if (debugMode)ETGModConsole.Log("[DEBUG] Setting up random placement vectors for current room...", true);
-                                   IntVector2 RandomHammerIntVector2 = GetRandomAvailableCellForPlacable(dungeon, currentRoom, NonCachedList, false, false);
-                                   IntVector2 RandomChestVector = GetRandomAvailableCellForChest(dungeon, currentRoom, CachedChests);
-                                   IntVector2 RandomChestVectorAlt = GetRandomAvailableCellForPlacable(dungeon, currentRoom, CachedNPCs, true, false);
-                                   IntVector2 RandomVFXVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, NonCachedList, false, true);
-                                   IntVector2 RandomNPCVector = GetRandomAvailableCellForNPC(dungeon, currentRoom, CachedNPCs, true);
-                                   IntVector2 RandomTableVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, false, 2);
-                                   IntVector2 RandomDrumVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, false);
-                                   IntVector2 RandomMiscObjectVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, true, 2);
-                                   IntVector2 RandomCurseMirrorVector = GetRandomAvailableCellForNPC(dungeon, currentRoom, CachedNPCs, true);
-                     
-                                   if (!hammerPlaced && UnityEngine.Random.value <= 0.1f && currentFloor != 5 && RandomHammerIntVector2 != IntVector2.Zero) {
-                                       if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place a Forge Hammer...", true);
-                                       if (BraveUtility.RandomBool()) {
-                                           GameObject cachedActiveHammer = ForgeHammer.gameObject;
-                                           ForgeHammerController hammerComponent = cachedActiveHammer.GetComponent<ForgeHammerController>();
-                                           hammerComponent.DamageToEnemies = 100f;
-                                           if (BraveUtility.RandomBool()) {
-                                               hammerComponent.MinTimeBetweenAttacks = 2f;
-                                               hammerComponent.MaxTimeBetweenAttacks = 3f;
-                                               hammerComponent.TracksPlayer = false;
-                                           } else {
-                                               hammerComponent.MinTimeBetweenAttacks = 4f;
-                                               hammerComponent.MaxTimeBetweenAttacks = 4f;
-                                           }
-                                           DungeonPlaceableUtility.InstantiateDungeonPlaceable(hammerComponent.gameObject, currentRoom, RandomHammerIntVector2, false);
-                                           hammerPlaced = true;
-                                           if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                       }
-                                   }
-                                   
-                                   if (!VFXObjectPlaced && RandomVFXVector != IntVector2.Zero && BraveUtility.RandomBool() && BraveUtility.RandomBool()) {
-                                       GameObject SelectedVFXObject = BraveUtility.RandomElement(VFXObjects).gameObject;
-                                       if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedVFXObject, true);
-                                       DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedVFXObject, currentRoom, RandomVFXVector, false);
-                                       if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                       VFXObjectPlaced = true;
-                                   }
-                                   
-                                   if (RandomChestVector != IntVector2.Zero && RandomChestVectorAlt != IntVector2.Zero) {
-                                       if (UnityEngine.Random.value <= 0.02) {
-                                           GameObject SelectedChest = BraveUtility.RandomElement(InteractableChests).gameObject;
-                                           GameObject SelectedChestObjectAlt = BraveUtility.RandomElement(InteractableChestsAlt).gameObject;
-                                           if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest: " + SelectedChest, true);
-                                           if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest(alt): " + SelectedChestObjectAlt, true);
-                                           Chest SelectedChestAlt = SelectedChestObjectAlt.GetComponent<Chest>();
-                                           WeightedGameObject wChestObject = new WeightedGameObject();
-                                           if (BraveUtility.RandomBool()) { wChestObject.rawGameObject = SelectedChest; } else { wChestObject.rawGameObject = SelectedChestAlt.gameObject; }
-                                           WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
-                                           wChestObjectCollection.Add(wChestObject);
-                                           Chest PlacableChest = currentRoom.SpawnRoomRewardChest(wChestObjectCollection, RandomChestVector);
-                                           if (BraveUtility.RandomBool()) { PlacableChest.ChestType = Chest.GeneralChestType.ITEM; } else { PlacableChest.ChestType = Chest.GeneralChestType.WEAPON; }
-                                           PlacableChest.ForceUnlock();
-                                           if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                       }
-                                   }
-
-                                    if (RandomNPCVector != IntVector2.Zero) {
-                                        if (UnityEngine.Random.value <= 0.03) {
-                                            GameObject SelectedNPCObject = BraveUtility.RandomElement(InteractableNPCs).gameObject;
-                                            SpeculativeRigidbody SelectedNPCCollision = SelectedNPCObject.GetComponent<SpeculativeRigidbody>();
-                                            SelectedNPCCollision.PrimaryPixelCollider.Enabled = false;
-                                            SelectedNPCCollision.HitboxPixelCollider.Enabled = false;
-                                            SelectedNPCCollision.CollideWithOthers = false;
-                                            if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedNPCObject, true);
-                                            GameObject Random_InteractableNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedNPCObject, currentRoom, RandomNPCVector, false);
-                                            if (Random_InteractableNPC) {
-                                                TalkDoerLite RandomNPCComponent = Random_InteractableNPC.GetComponent<TalkDoerLite>();
-                                                RandomNPCComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(RandomNPCComponent);
-                                                SpeculativeRigidbody InteractableRigidNPC = RandomNPCComponent.GetComponentInChildren<SpeculativeRigidbody>();
-                                                InteractableRigidNPC.Initialize();
-                                                PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidNPC, null, false);
-                                                RandomObjectsPlaced++;
-                                                if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                            } else { RandomObjectsSkipped++; }
-                                        }
-                                   } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }                                
-                     
-                                   if (RandomTableVector != IntVector2.Zero) {
-                                       if (BraveUtility.RandomBool()) {
-                                           GameObject RandomTableObject = BraveUtility.RandomElement(TableObjects).gameObject;
-                                           if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + RandomTableObject, true);
-                                           ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(RandomTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
-                                           if (RandomTable) {
-                                               IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
-                                               for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
-                                               SpeculativeRigidbody TableComponentInChildren = RandomTable.GetComponentInChildren<SpeculativeRigidbody>();
-                                               RandomTable.ConfigureOnPlacement(RandomTable.transform.position.XY().GetAbsoluteRoom());
-                                               TableComponentInChildren.Initialize();
-                                               PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(TableComponentInChildren, null, false);
-                                               RandomObjectsPlaced++;
-                                               if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                           } else { RandomObjectsSkipped++; }
-                                       } else {
-                                           if (UnityEngine.Random.value <= 0.25) {
-                                               GameObject portableTableObject = foldableTable.TableToSpawn.gameObject;
-                                                if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + portableTableObject, true);
-                                               ChaosKickableObject portableTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(portableTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
-                                               IPlayerInteractable[] PortableTableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(portableTable.gameObject);
-                                               for (int i = 0; i < PortableTableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(PortableTableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(PortableTableInterfacesInChildren[i]); } }
-                                               SpeculativeRigidbody TableComponentInChildren = portableTable.GetComponentInChildren<SpeculativeRigidbody>();
-                                               portableTable.ConfigureOnPlacement(portableTable.transform.position.XY().GetAbsoluteRoom());
-                                               TableComponentInChildren.Initialize();
-                                                if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                               PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(TableComponentInChildren, null, false);
-                                           }
-                                       }
-                                   } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }
-                     
-                                    if (RandomDrumVector != IntVector2.Zero) {
-                                        if (BraveUtility.RandomBool() && RandomDrumVector != new IntVector2(0, 0)) {
-                                            GameObject SelectedDrumObject = BraveUtility.RandomElement(KickableDrumObjects).gameObject;
-                                            if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedDrumObject, true);
-                                            GameObject RandomDrumObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedDrumObject, currentRoom, RandomDrumVector, false);
-                                            if (RandomDrumObject) {
-                                                KickableObject DrumComponent = RandomDrumObject.GetComponent<KickableObject>();
-                                                DrumComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(DrumComponent);
-                                                DrumComponent.ConfigureOnPlacement(RandomDrumObject.transform.position.XY().GetAbsoluteRoom());
-                                                SpeculativeRigidbody InteractableRigidDrum = DrumComponent.GetComponentInChildren<SpeculativeRigidbody>();
-                                                InteractableRigidDrum.Initialize();
-                                                PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidDrum, null, false);
-                                                RandomObjectsPlaced++;
-                                                if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                            } else { RandomObjectsSkipped++; }
-                                        }
-                                    } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }
-                     
-                                    if (!cursedMirrorPlaced && PlayerStats.GetTotalCurse() < 6 && RandomCurseMirrorVector != IntVector2.Zero && UnityEngine.Random.value <= 0.02) {
-                                        GameObject CursedMirrorObject = ChestMirror.gameObject;
-                                        SpeculativeRigidbody CursedMirrorCollision = CursedMirrorObject.GetComponent<SpeculativeRigidbody>();
-                                        CursedMirrorCollision.PrimaryPixelCollider.Enabled = false;
-                                        if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + CursedMirrorObject, true);
-                                        GameObject PlacedCursedMirror = DungeonPlaceableUtility.InstantiateDungeonPlaceable(CursedMirrorObject, currentRoom, RandomCurseMirrorVector, false);
-                                        if (PlacedCursedMirror) {
-                                            ShrineController CursedMirrorComponent = PlacedCursedMirror.AddComponent<ShrineController>();
-                                            IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(CursedMirrorComponent.gameObject);
-                                            for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
-                                            SpeculativeRigidbody InteractableRigidMirror = CursedMirrorComponent.GetComponentInChildren<SpeculativeRigidbody>();
-                                            InteractableRigidMirror.Initialize();
-                                            PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidMirror, null, false);
-                                            cursedMirrorPlaced = true;
-                                            if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                        }
+                                if (currentRoom.connectedRooms != null) {
+                                    for (int j = 0; j < currentRoom.connectedRooms.Count; j++) {
+                                        if (currentRoom.connectedRooms[j] == null || currentRoom.connectedRooms[j].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
                                     }
-                                    
-                                    if (RandomMiscObjectVector != IntVector2.Zero) {
-                                        GameObject SelectedNonInteractable = BraveUtility.RandomElement(NonInteractableObjects).gameObject;
-                                        if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedNonInteractable, true);
-                                        try {
-                                            if (SelectedNonInteractable == CultistBaldBowBack | SelectedNonInteractable == CultistBaldBowBackLeft |
-                                                SelectedNonInteractable == CultistBaldBowBackRight | SelectedNonInteractable == CultistBaldBowBack |
-                                                SelectedNonInteractable == CultistHoodBowBack | SelectedNonInteractable == CultistHoodBowLeft |
-                                                SelectedNonInteractable == CultistHoodBowRight | SelectedNonInteractable == NPCHeartDispenser) {
+                                }
+                                if (roomHandler == null) {
+                                    if (debugMode) ETGModConsole.Log("[DEBUG] Current Room is valid for random objects. Continuing...", true);
+                                    if (debugMode) ETGModConsole.Log("[DEBUG] Preparing to check/place objects in room: " + currentRoom.GetRoomName(), false);
+                                    /*if (debugMode)ETGModConsole.Log("[DEBUG] Shuffling Object lists...", true);
+                                    KickableDrumObjects = KickableDrumObjects.Shuffle();
+                                    TableObjects = TableObjects.Shuffle();
+                                    InteractableChests = InteractableChests.Shuffle();
+                                    InteractableChestsAlt = InteractableChestsAlt.Shuffle();
+                                    InteractableNPCs = InteractableNPCs.Shuffle();
+                                    NonInteractableObjects = NonInteractableObjects.Shuffle();
+                                    VFXObjects = VFXObjects.Shuffle();*/
+                                    roomList = roomList.Shuffle();
+                                    hammerPlaced = BraveUtility.RandomBool();
+                                    RatCorpsePlaced = false;
+                                    if (debugMode)ETGModConsole.Log("[DEBUG] Clearing cached object placement lists for new room...", true);
+                                    NonCachedList.Clear();
+                                    CachedNPCs.Clear();
+                                    CachedChests.Clear();
+                                    SharedCachedList.Clear();
+                                    CachedVFXObjects.Clear();
+                                    for (int loopCount = 0; loopCount < MaxRandomObjectsPerRoom; ++loopCount) {
+                                        if ((RandomObjectsPlaced + RandomObjectsSkipped) >= MaxRandomObjects) {
+                                            if (debugMode)ETGModConsole.Log("[DEBUG] Max Object Placement Reached. Ending object placement mode...", true);
+                                            break;
+                                        }
+                                        if (debugMode)ETGModConsole.Log("[DEBUG] Setting up random placement vectors for current room...", true);
+                                        IntVector2 RandomHammerIntVector2 = GetRandomAvailableCellForPlacable(dungeon, currentRoom, NonCachedList, false, false);
+                                        IntVector2 RandomChestVector = GetRandomAvailableCellForChest(dungeon, currentRoom, CachedChests);
+                                        IntVector2 RandomChestVectorAlt = GetRandomAvailableCellForPlacable(dungeon, currentRoom, CachedNPCs, true, false);
+                                        IntVector2 RandomVFXVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, NonCachedList, false, true);
+                                        IntVector2 RandomNPCVector = GetRandomAvailableCellForNPC(dungeon, currentRoom, CachedNPCs, true);
+                                        IntVector2 RandomRatNPCVector = GetRandomAvailableCellForNPC(dungeon, currentRoom, CachedNPCs, true);
+                                        IntVector2 RandomTableVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, false, 2);
+                                        IntVector2 RandomDrumVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, false);
+                                        IntVector2 RandomMiscObjectVector = GetRandomAvailableCellForPlacable(dungeon, currentRoom, SharedCachedList, true, true, 2);
+                                        IntVector2 RandomCurseMirrorVector = GetRandomAvailableCellForNPC(dungeon, currentRoom, CachedNPCs, true);
 
-                                                SpeculativeRigidbody SelectedNonInteractableRigidBody = SelectedNonInteractable.GetComponent<SpeculativeRigidbody>();
-                                                SelectedNonInteractableRigidBody.PrimaryPixelCollider.Enabled = false;
-                                                if (SelectedNonInteractable == NPCHeartDispenser) {
-                                                    SelectedNonInteractableRigidBody.HitboxPixelCollider.Enabled = false;
-                                                    SelectedNonInteractableRigidBody.CollideWithOthers = false;
+                                        if (!hammerPlaced && UnityEngine.Random.value <= 0.1f && currentFloor != 5 && RandomHammerIntVector2 != IntVector2.Zero) {
+                                           if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place a Forge Hammer...", true);
+                                           if (BraveUtility.RandomBool()) {
+                                               GameObject cachedActiveHammer = ForgeHammer.gameObject;
+                                               ForgeHammerController hammerComponent = cachedActiveHammer.GetComponent<ForgeHammerController>();
+                                               hammerComponent.DamageToEnemies = 100f;
+                                               if (BraveUtility.RandomBool()) {
+                                                   hammerComponent.MinTimeBetweenAttacks = 2f;
+                                                   hammerComponent.MaxTimeBetweenAttacks = 3f;
+                                                   hammerComponent.TracksPlayer = false;
+                                               } else {
+                                                   hammerComponent.MinTimeBetweenAttacks = 4f;
+                                                   hammerComponent.MaxTimeBetweenAttacks = 4f;
+                                               }
+                                               DungeonPlaceableUtility.InstantiateDungeonPlaceable(hammerComponent.gameObject, currentRoom, RandomHammerIntVector2, false);
+                                               hammerPlaced = true;
+                                               if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                           }
+                                       }
+                                       
+                                       if (!VFXObjectPlaced && RandomVFXVector != IntVector2.Zero && BraveUtility.RandomBool() && BraveUtility.RandomBool()) {
+                                           GameObject SelectedVFXObject = BraveUtility.RandomElement(VFXObjects).gameObject;
+                                           if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedVFXObject, true);
+                                           DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedVFXObject, currentRoom, RandomVFXVector, false);
+                                           if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                           VFXObjectPlaced = true;
+                                       }
+                                       
+                                       if (RandomChestVector != IntVector2.Zero && RandomChestVectorAlt != IntVector2.Zero) {
+                                           if (UnityEngine.Random.value <= 0.02) {
+                                               GameObject SelectedChest = BraveUtility.RandomElement(InteractableChests).gameObject;
+                                               GameObject SelectedChestObjectAlt = BraveUtility.RandomElement(InteractableChestsAlt).gameObject;
+                                                if (SelectedChestObjectAlt == ChestRat) {
+                                                    SpeculativeRigidbody SelectedChestRigidBody = SelectedChestObjectAlt.GetComponent<SpeculativeRigidbody>();
+                                                    SelectedChestRigidBody.PrimaryPixelCollider.Enabled = false;
+                                                    SelectedChestRigidBody.HitboxPixelCollider.Enabled = false;
+                                                    SelectedChestRigidBody.CollideWithOthers = false;
+                                                }
+                                               if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest: " + SelectedChest, true);
+                                               if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest(alt): " + SelectedChestObjectAlt, true);
+                                               Chest SelectedChestAlt = SelectedChestObjectAlt.GetComponent<Chest>();
+                                               WeightedGameObject wChestObject = new WeightedGameObject();
+                                               if (BraveUtility.RandomBool()) { wChestObject.rawGameObject = SelectedChest; } else { wChestObject.rawGameObject = SelectedChestAlt.gameObject; }
+                                               WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
+                                               wChestObjectCollection.Add(wChestObject);
+                                               Chest PlacableChest = currentRoom.SpawnRoomRewardChest(wChestObjectCollection, RandomChestVector);
+                                               if (BraveUtility.RandomBool()) { PlacableChest.ChestType = Chest.GeneralChestType.ITEM; } else { PlacableChest.ChestType = Chest.GeneralChestType.WEAPON; }
+                                               PlacableChest.ForceUnlock();
+                                               if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                           }
+                                       }
+
+                                        if (RandomNPCVector != IntVector2.Zero) {
+                                            if (UnityEngine.Random.value <= 0.03) {
+                                                GameObject SelectedNPCObject = BraveUtility.RandomElement(InteractableNPCs).gameObject;
+                                                SpeculativeRigidbody SelectedNPCCollision = SelectedNPCObject.GetComponent<SpeculativeRigidbody>();
+                                                SelectedNPCCollision.PrimaryPixelCollider.Enabled = false;
+                                                SelectedNPCCollision.HitboxPixelCollider.Enabled = false;
+                                                SelectedNPCCollision.CollideWithOthers = false;
+                                                if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedNPCObject, true);
+                                                GameObject Random_InteractableNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedNPCObject, currentRoom, RandomNPCVector, false);
+                                                if (Random_InteractableNPC) {
+                                                    TalkDoerLite RandomNPCComponent = Random_InteractableNPC.GetComponent<TalkDoerLite>();
+                                                    RandomNPCComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(RandomNPCComponent);
+                                                    SpeculativeRigidbody InteractableRigidNPC = RandomNPCComponent.GetComponentInChildren<SpeculativeRigidbody>();
+                                                    InteractableRigidNPC.Initialize();
+                                                    PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidNPC, null, false);
+                                                    RandomObjectsPlaced++;
+                                                    if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                                } else { RandomObjectsSkipped++; }
+                                            }
+                                        } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }
+
+                                        if (!RatCorpsePlaced && RandomRatNPCVector != IntVector2.Zero) {
+                                            if (UnityEngine.Random.value <= 0.05) {
+                                                GameObject SelectedRatNPCObject = PunchoutPrefab.PlayerWonRatNPC.gameObject;
+                                                if (debugMode) ETGModConsole.Log("[DEBUG] Attempting to place rat object: " + SelectedRatNPCObject, true);
+                                                GameObject Random_InteractableRatNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedRatNPCObject, currentRoom, RandomRatNPCVector, false);
+                                                TalkDoerLite RatNPCComponent = Random_InteractableRatNPC.GetComponent<TalkDoerLite>();
+                                                if (RatNPCComponent) {
+                                                    IPlayerInteractable[] interfacesInChildren = RatNPCComponent.gameObject.GetInterfacesInChildren<IPlayerInteractable>();
+                                                    for (int i = 0; i < interfacesInChildren.Length; i++) { currentRoom.RegisterInteractable(interfacesInChildren[i]); }
+                                                }
+                                                RatCorpsePlaced = true;
+                                                RandomObjectsPlaced++;
+                                                if (debugMode) ETGModConsole.Log("[DEBUG] Success!", true);
+                                            }
+                                        } else { if (UnityEngine.Random.value <= 0.25) RandomObjectsSkipped++; }
+
+
+
+                                        if (RandomTableVector != IntVector2.Zero) {
+                                           if (BraveUtility.RandomBool()) {
+                                               GameObject RandomTableObject = BraveUtility.RandomElement(TableObjects).gameObject;
+                                               if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + RandomTableObject, true);
+                                               ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(RandomTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
+                                               if (RandomTable) {
+                                                   IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
+                                                   for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
+                                                   SpeculativeRigidbody TableComponentInChildren = RandomTable.GetComponentInChildren<SpeculativeRigidbody>();
+                                                   RandomTable.ConfigureOnPlacement(RandomTable.transform.position.XY().GetAbsoluteRoom());
+                                                   TableComponentInChildren.Initialize();
+                                                   PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(TableComponentInChildren, null, false);
+                                                   RandomObjectsPlaced++;
+                                                   if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                               } else { RandomObjectsSkipped++; }
+                                           } else {
+                                               if (UnityEngine.Random.value <= 0.25) {
+                                                   GameObject portableTableObject = foldableTable.TableToSpawn.gameObject;
+                                                    if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + portableTableObject, true);
+                                                   ChaosKickableObject portableTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(portableTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
+                                                   IPlayerInteractable[] PortableTableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(portableTable.gameObject);
+                                                   for (int i = 0; i < PortableTableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(PortableTableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(PortableTableInterfacesInChildren[i]); } }
+                                                   SpeculativeRigidbody TableComponentInChildren = portableTable.GetComponentInChildren<SpeculativeRigidbody>();
+                                                   portableTable.ConfigureOnPlacement(portableTable.transform.position.XY().GetAbsoluteRoom());
+                                                   TableComponentInChildren.Initialize();
+                                                    if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                                   PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(TableComponentInChildren, null, false);
+                                               }
+                                           }
+                                       } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }
+                     
+                                        if (RandomDrumVector != IntVector2.Zero) {
+                                            if (BraveUtility.RandomBool() && RandomDrumVector != new IntVector2(0, 0)) {
+                                                GameObject SelectedDrumObject = BraveUtility.RandomElement(KickableDrumObjects).gameObject;
+                                                if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedDrumObject, true);
+                                                GameObject RandomDrumObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedDrumObject, currentRoom, RandomDrumVector, false);
+                                                if (RandomDrumObject) {
+                                                    KickableObject DrumComponent = RandomDrumObject.GetComponent<KickableObject>();
+                                                    DrumComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(DrumComponent);
+                                                    DrumComponent.ConfigureOnPlacement(RandomDrumObject.transform.position.XY().GetAbsoluteRoom());
+                                                    SpeculativeRigidbody InteractableRigidDrum = DrumComponent.GetComponentInChildren<SpeculativeRigidbody>();
+                                                    InteractableRigidDrum.Initialize();
+                                                    PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidDrum, null, false);
+                                                    RandomObjectsPlaced++;
+                                                    if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                                } else { RandomObjectsSkipped++; }
+                                            }
+                                        } else { if (UnityEngine.Random.value <= 0.25)RandomObjectsSkipped++; }
+                     
+                                        if (!cursedMirrorPlaced && PlayerStats.GetTotalCurse() < 6 && RandomCurseMirrorVector != IntVector2.Zero && UnityEngine.Random.value <= 0.02) {
+                                            GameObject CursedMirrorObject = ChestMirror.gameObject;
+                                            SpeculativeRigidbody CursedMirrorCollision = CursedMirrorObject.GetComponent<SpeculativeRigidbody>();
+                                            CursedMirrorCollision.PrimaryPixelCollider.Enabled = false;
+                                            if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + CursedMirrorObject, true);
+                                            GameObject PlacedCursedMirror = DungeonPlaceableUtility.InstantiateDungeonPlaceable(CursedMirrorObject, currentRoom, RandomCurseMirrorVector, false);
+                                            if (PlacedCursedMirror) {
+                                                ShrineController CursedMirrorComponent = PlacedCursedMirror.AddComponent<ShrineController>();
+                                                IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(CursedMirrorComponent.gameObject);
+                                                for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
+                                                SpeculativeRigidbody InteractableRigidMirror = CursedMirrorComponent.GetComponentInChildren<SpeculativeRigidbody>();
+                                                InteractableRigidMirror.Initialize();
+                                                PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidMirror, null, false);
+                                                cursedMirrorPlaced = true;
+                                                if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                            }
+                                        }
+                                        
+                                        if (RandomMiscObjectVector != IntVector2.Zero) {
+                                            GameObject SelectedNonInteractable = BraveUtility.RandomElement(NonInteractableObjects).gameObject;
+                                            if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + SelectedNonInteractable, true);
+                                            try {
+                                                if (SelectedNonInteractable == CultistBaldBowBack | SelectedNonInteractable == CultistBaldBowBackLeft |
+                                                    SelectedNonInteractable == CultistBaldBowBackRight | SelectedNonInteractable == CultistBaldBowBack |
+                                                    SelectedNonInteractable == CultistHoodBowBack | SelectedNonInteractable == CultistHoodBowLeft |
+                                                    SelectedNonInteractable == CultistHoodBowRight | SelectedNonInteractable == NPCHeartDispenser) {
+
+                                                    SpeculativeRigidbody SelectedNonInteractableRigidBody = SelectedNonInteractable.GetComponent<SpeculativeRigidbody>();
+                                                    SelectedNonInteractableRigidBody.PrimaryPixelCollider.Enabled = false;
+                                                    if (SelectedNonInteractable == NPCHeartDispenser) {
+                                                        SelectedNonInteractableRigidBody.HitboxPixelCollider.Enabled = false;
+                                                        SelectedNonInteractableRigidBody.CollideWithOthers = false;
+                                                    }
+                                                }
+                                                if (SelectedNonInteractable == LockedDoor) {
+                                                    SpeculativeRigidbody SelectedDoorRigidBody = SelectedNonInteractable.GetComponent<SpeculativeRigidbody>();
+                                                    SelectedDoorRigidBody.CollideWithOthers = false;
+                                                }
+                                            } catch (Exception) { }
+                                            GameObject PlacedMiscObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedNonInteractable, currentRoom, RandomMiscObjectVector, false);
+                                            if (SelectedNonInteractable == NPCHeartDispenser) {
+                                                HeartDispenser HeatDispenserComponent = PlacedMiscObject.GetComponent<HeartDispenser>();
+                                                HeatDispenserComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(HeatDispenserComponent);
+                                            }
+
+                                            if (SelectedNonInteractable == (PunchoutPrefab.PlayerLostNotePrefab.gameObject)) {
+                                                // DungeonPlaceableBehaviour RatNotePlacableComponent = PlacedMiscObject.GetComponent<DungeonPlaceableBehaviour>();
+                                                if (PlacedMiscObject) { 
+                                                    IPlayerInteractable[] interfacesInChildren = PlacedMiscObject.GetInterfacesInChildren<IPlayerInteractable>();
+                                                    for (int i = 0; i < interfacesInChildren.Length; i++) { currentRoom.RegisterInteractable(interfacesInChildren[i]); }
                                                 }
                                             }
-                                            if (SelectedNonInteractable == LockedDoor) {
-                                                SpeculativeRigidbody SelectedDoorRigidBody = SelectedNonInteractable.GetComponent<SpeculativeRigidbody>();
-                                                SelectedDoorRigidBody.CollideWithOthers = false;
-                                            }
-                                        } catch (Exception) { }
-                                        GameObject PlacedMiscObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedNonInteractable, currentRoom, RandomMiscObjectVector, false);
-                                        if (SelectedNonInteractable == NPCHeartDispenser) {
-                                            HeartDispenser HeatDispenserComponent = PlacedMiscObject.GetComponent<HeartDispenser>();
-                                            HeatDispenserComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(HeatDispenserComponent);
-                                        }
-                                        if (SelectedNonInteractable == SellPit) { NonInteractableObjects.Remove(SellPit); }
-                                        if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
-                                        RandomObjectsPlaced++;
-                                    } else { RandomObjectsSkipped++; }
+                                            if (SelectedNonInteractable == SellPit) { NonInteractableObjects.Remove(SellPit); }
+                                            if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                            RandomObjectsPlaced++;
+                                        } else { RandomObjectsSkipped++; }
+                                    }
                                 }
                             }
                         }
@@ -448,8 +508,8 @@ namespace ChaosGlitchMod {
             InteractableNPCs.Clear();
             NonInteractableObjects.Clear();
             VFXObjects.Clear();
-            if (debugMode)ETGModConsole.Log("[DEBUG] Destroying FoldableTable Item prefab...", true);
-            Destroy(foldableTable);
+            // if (debugMode)ETGModConsole.Log("[DEBUG] Destroying FoldableTable Item prefab...", true);
+            // Destroy(foldableTable);
         }
 
 

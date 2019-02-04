@@ -129,6 +129,11 @@ namespace ChaosGlitchMod
             int currentFloor = GameManager.Instance.CurrentFloor;
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+
+            if (currentFloor < 3) ChaosConsole.ShaderPass = 0;
+            if (currentFloor > 3) ChaosConsole.ShaderPass = 18;
+            if (currentFloor == -1) ChaosConsole.ShaderPass = 10;
+
             // Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
             SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
 
@@ -142,14 +147,9 @@ namespace ChaosGlitchMod
                 ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
             }
 
-            if (levelOverrideState != GameManager.LevelOverrideState.NONE && levelOverrideState != GameManager.LevelOverrideState.TUTORIAL)
-            {
-                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
-                return;
-            }
-            
+
             if (ChaosConsole.isUltraMode) {
-                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) {
+                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState == GameManager.LevelOverrideState.NONE) {
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
                 } else {
                     try { ChaosPitRandomizer.PlaceRandomPits(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
@@ -161,8 +161,16 @@ namespace ChaosGlitchMod
                 }
             }
 
-            if (ChaosConsole.isUltraMode) { chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor); }
+            chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
 
+            ChaosGlitchedEnemyRandomizer.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
+
+            if (levelOverrideState != GameManager.LevelOverrideState.NONE && levelOverrideState != GameManager.LevelOverrideState.TUTORIAL)
+            {
+                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
+                return;
+            }
+            
             if (!ChaosConsole.WallMimicsUseRewardManager && levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
                 if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] The Resourceful Rat Maze has been excluded from having wall mimics.", false); }
                 return;

@@ -1,15 +1,14 @@
 using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using Dungeonator;
 
-namespace ChaosGlitchMod
-{
-    class ChaosConsole : MonoBehaviour
-    {
-        public static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
+namespace ChaosGlitchMod {
+    class ChaosConsole : MonoBehaviour {
+        // public static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
 
         public static float GlitchRandomActors = 0.3f;
-        public static float GlitchRandomAll = 0.1f;
+        public static float GlitchRandomAll = 0.01f;
         public static float RandomResizedEnemies = 0.3f;
         public static float RandomSizeChooser = 0.15f;
         public static float BonusEnemyChances = 0.5f;
@@ -24,6 +23,7 @@ namespace ChaosGlitchMod
         public static float ChallengeTimeChances = 0f;
 
         public static bool autoUltra = false;
+        public static bool debugMimicFlag = false;
         public static bool isExplosionHookActive = false;
 
         public static bool GlitchEverything = false;
@@ -34,7 +34,6 @@ namespace ChaosGlitchMod
         public static bool NormalWallMimicMode = false;
         public static bool WallMimicsUseRewardManager = true;
         public static bool addRandomEnemy = false;
-        public static bool debugMimicFlag = false;
         public static bool randomEnemySizeEnabled = false;
         public static bool isHardMode = false;
         public static bool isUltraMode = false;
@@ -47,6 +46,7 @@ namespace ChaosGlitchMod
         public static int MaxWallMimicsForFloor = 2;
         public static int RandomPits = 0;
         public static int RandomPitsPerRoom = 0;
+        public static int ShaderPass = 0;
 
         private void Start() {
             if (autoUltra) {
@@ -294,12 +294,12 @@ namespace ChaosGlitchMod
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawnbulletkin", delegate (string[] e) {
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, usePlayerPosition: true);
+                lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, playSoundFX: true);
                 ETGModConsole.Log("Bullet Kin to the rescue!.....Or maybe not? :P", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawnlootcrate", delegate (string[] e) {
-                SupplyDropItem supplydrop = Instantiate(ETGMod.Databases.Items[77]).GetComponent<SupplyDropItem>();
+                SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
                 RewardManager itemReward = GameManager.Instance.RewardManager;
                 GenericLootTable lootTable = supplydrop.synergyItemTableToUse01;
                 GenericLootTable lootTable2 = supplydrop.synergyItemTableToUse02;
@@ -308,24 +308,34 @@ namespace ChaosGlitchMod
                 GenericLootTable lootTableGuns = itemReward.GunsLootTable;
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                if(UnityEngine.Random.value <= 0.5f) {
-                    lootCrate.SpawnAirDrop(RoomVector, lootTableItems, usePlayerPosition: true);
+                if(Random.value <= 0.5f) {
+                    lootCrate.SpawnAirDrop(RoomVector, lootTableItems, playSoundFX: true, usePlayerPosition: true);
                 } else {
-                    lootCrate.SpawnAirDrop(RoomVector, lootTableGuns, usePlayerPosition: true);
+                    lootCrate.SpawnAirDrop(RoomVector, lootTableGuns, playSoundFX: true, usePlayerPosition: true);
                 }
                 
                 ETGModConsole.Log("Here comes a loot crate drop. What surprise awaits?!", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawnlootrandom", delegate (string[] e) {
-                SupplyDropItem supplydrop = Instantiate(ETGMod.Databases.Items[77]).GetComponent<SupplyDropItem>();
+                SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
                 RewardManager itemReward = GameManager.Instance.RewardManager;
                 GenericLootTable lootTable2 = supplydrop.synergyItemTableToUse02;
                 LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
+
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                lootCrate.SpawnAirDrop(RoomVector, lootTable2, 0.3f, 0.15f, true, true, ChaosLists.ReplacementEnemyGUIDList.RandomEnemy());
+                lootCrate.SpawnAirDrop(RoomVector, lootTable2, 0.3f, 0.15f, true, false, ChaosLists.ReplacementEnemyGUIDList.RandomEnemy());
                 ETGModConsole.Log("Here comes a loot crate drop. What surprise awaits?! Might have an enemy!", false);
             });
+
+            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("spwanglitchedenemy", delegate (string[] e) {
+                RoomHandler currentRoom = (GameManager.Instance.PrimaryPlayer.CurrentRoom);
+                PlayerController player = (GameManager.Instance.PrimaryPlayer);
+                IntVector2 RoomVector = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, 5, false);
+
+                if (RoomVector != IntVector2.Zero) ChaosGlitchedEnemies.SpawnGlitchedEnemy(currentRoom, player, RoomVector);
+                ETGModConsole.Log("Something a little weird is about to spawn....", false);
+            });*/
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("supertentacletime", delegate (string[] e) {
                 ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
@@ -342,7 +352,7 @@ namespace ChaosGlitchMod
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_test", delegate (string[] e) {
-                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { chaosGlitchHooks.BecomeGlitchedTest(gameObject); }
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { ChaosGlitchHooks.Instance.BecomeGlitchedTest(gameObject); }
                 ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
             });
 
@@ -424,7 +434,7 @@ namespace ChaosGlitchMod
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_test", delegate (string[] e) {
-                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { chaosGlitchHooks.BecomeGlitchedTest(gameObject); }
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { ChaosGlitchHooks.Instance.BecomeGlitchedTest(gameObject); }
                 ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
             });
 

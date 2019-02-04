@@ -59,7 +59,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChaosExplodeOnDeath.cs" />
+    <Compile Include="ChaosGlitchedEnemies.cs" />
     <Compile Include="ChaosExploder.cs" />
+    <Compile Include="ChaosGlitchedEnemyRandomizer.cs" />
     <Compile Include="ChaosLoadPrefab.cs" />
     <Compile Include="ChaosConsole.cs" />
     <Compile Include="ChaosLists.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="ChaosTentacleTeleport.cs" />
     <Compile Include="ChaosUtilities.cs" />
     <Compile Include="ChaosPlaceWallMimics.cs" />
+    <Compile Include="PunchoutAnytimeModule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
