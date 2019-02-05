@@ -19,7 +19,6 @@ namespace ChaosGlitchMod
         public static Hook exitElevatorhook;
         public static Hook wallmimichook;
 
-        // private static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
         private static LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
         private static ChaosTentacleTeleport tentacle = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
@@ -85,6 +84,7 @@ namespace ChaosGlitchMod
                         typeof(ChaosSharedHooks).GetMethod("DoDepartureHook")
                     );
                 }
+
                 IsHooksInstalled = true;
                 if (!ChaosConsole.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
                 return;
@@ -329,7 +329,7 @@ namespace ChaosGlitchMod
                                 continue;
                             }
                         }
-                        if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll) {
+                        if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && ChaosConsole.GlitchEverything) {
                             ChaosGlitchHooks.Instance.BecomeGlitched(gameObject);
                         }
                     }

@@ -115,8 +115,7 @@ namespace ChaosGlitchMod {
                     sprite = gameObject.sprite;
                 } catch { };
 
-                if (gameObject == null) return;
-
+                if (gameObject == null | gameObject.GetComponent<AIActor>() != null | gameObject.GetComponent<PickupObject>() != null | sprite.usesOverrideMaterial) { return; }
 
                 if (gameObject.name.ToLower().StartsWith("boss") | gameObject.name.ToLower().StartsWith("door") |
                     gameObject.name.ToLower().StartsWith("shellcasing") | gameObject.name.ToLower().StartsWith("5") |

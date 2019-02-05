@@ -4,6 +4,7 @@ using System.Reflection;
 using Dungeonator;
 
 namespace ChaosGlitchMod {
+
     class ChaosConsole : MonoBehaviour {
         // public static ChaosGlitchHooks chaosGlitchHooks = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchHooks>();
 
