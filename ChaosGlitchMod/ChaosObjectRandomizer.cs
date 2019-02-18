@@ -8,6 +8,17 @@ namespace ChaosGlitchMod {
 
     class ChaosObjectRandomizer : MonoBehaviour {
 
+        private static ChaosObjectRandomizer m_instance;
+
+        public static ChaosObjectRandomizer Instance {
+            get {
+                if (!m_instance) {
+                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosObjectRandomizer>();
+                }
+                return m_instance;
+            }
+        }
+
         private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
         private static AssetBundle assetBundle2 = ResourceManager.LoadAssetBundle("shared_auto_002");
         private static AssetBundle assetBundle3 = ResourceManager.LoadAssetBundle("brave_resources_001");
@@ -93,7 +104,7 @@ namespace ChaosGlitchMod {
         // private GameObject MineCartTurret = assetBundle2.LoadAsset("MineCart_Turret") as GameObject;
 
         private GameObject ForgeHammer = assetBundle.LoadAsset("Forge_Hammer") as GameObject;
- 
+
         private Chest BrownChest = GameManager.Instance.RewardManager.D_Chest;
         private Chest BlueChest = GameManager.Instance.RewardManager.C_Chest;
         private Chest GreenChest = GameManager.Instance.RewardManager.B_Chest;
@@ -136,7 +147,8 @@ namespace ChaosGlitchMod {
             int MaxRandomObjects = 100;
             if (currentFloor <= 3 | currentFloor == -1) { MaxRandomObjects = UnityEngine.Random.Range(150, 200); } else { MaxRandomObjects = UnityEngine.Random.Range(100, 150); }
 
-            if (currentFloor != 3) { try { PlaceRatGrate(dungeon); } catch (Exception) { } }
+            // if (currentFloor != 3) { try { PlaceRatGrate(dungeon); } catch (Exception) { } }
+            PlaceRatGrate(dungeon);
 
             List<Chest> InteractableChests = new List<Chest>();
             List<GameObject> InteractableChestsAlt = new List<GameObject>();
@@ -245,7 +257,7 @@ namespace ChaosGlitchMod {
                 if (debugMode)ETGModConsole.Log("[DEBUG] Preparing to check/place objects in room: " + currentRoom.GetRoomName(), true);
                 if (debugMode)ETGModConsole.Log("[DEBUG] Current Room Cetegory: " + roomCategory, true);
                 try {
-                    if (!currentRoom.IsMaintenanceRoom() && !currentRoom.IsSecretRoom && !currentRoom.IsWinchesterArcadeRoom && !currentRoom.IsGunslingKingChallengeRoom && !currentRoom.GetRoomName().StartsWith("Boss Foyer") && !BannedCellsRoomList.Contains(currentRoom.GetRoomName())) {
+                    if (!currentRoom.IsMaintenanceRoom() && !currentRoom.IsSecretRoom && !currentRoom.IsWinchesterArcadeRoom) {
                         if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
                             if (roomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && roomCategory != PrototypeDungeonRoom.RoomCategory.ENTRANCE && roomCategory != PrototypeDungeonRoom.RoomCategory.REWARD && roomCategory != PrototypeDungeonRoom.RoomCategory.EXIT) {
                                 if (currentRoom.connectedRooms != null) {
@@ -253,18 +265,17 @@ namespace ChaosGlitchMod {
                                         if (currentRoom.connectedRooms[j] == null || currentRoom.connectedRooms[j].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
                                     }
                                 }
-                                if (roomHandler == null) {
+                                if (roomHandler == null && !currentRoom.IsGunslingKingChallengeRoom && !currentRoom.GetRoomName().StartsWith("Boss Foyer") && !BannedCellsRoomList.Contains(currentRoom.GetRoomName())) {
                                     if (debugMode) ETGModConsole.Log("[DEBUG] Current Room is valid for random objects. Continuing...", true);
                                     if (debugMode) ETGModConsole.Log("[DEBUG] Preparing to check/place objects in room: " + currentRoom.GetRoomName(), false);
-                                    /*if (debugMode)ETGModConsole.Log("[DEBUG] Shuffling Object lists...", true);
+                                    if (debugMode)ETGModConsole.Log("[DEBUG] Shuffling Object lists...", true);
                                     KickableDrumObjects = KickableDrumObjects.Shuffle();
                                     TableObjects = TableObjects.Shuffle();
                                     InteractableChests = InteractableChests.Shuffle();
                                     InteractableChestsAlt = InteractableChestsAlt.Shuffle();
                                     InteractableNPCs = InteractableNPCs.Shuffle();
                                     NonInteractableObjects = NonInteractableObjects.Shuffle();
-                                    VFXObjects = VFXObjects.Shuffle();*/
-                                    roomList = roomList.Shuffle();
+                                    VFXObjects = VFXObjects.Shuffle();
                                     hammerPlaced = BraveUtility.RandomBool();
                                     RatCorpsePlaced = false;
                                     if (debugMode)ETGModConsole.Log("[DEBUG] Clearing cached object placement lists for new room...", true);
@@ -371,15 +382,18 @@ namespace ChaosGlitchMod {
                                                 TalkDoerLite RatNPCComponent = Random_InteractableRatNPC.GetComponent<TalkDoerLite>();
                                                 if (RatNPCComponent) {
                                                     IPlayerInteractable[] interfacesInChildren = RatNPCComponent.gameObject.GetInterfacesInChildren<IPlayerInteractable>();
-                                                    for (int i = 0; i < interfacesInChildren.Length; i++) { currentRoom.RegisterInteractable(interfacesInChildren[i]); }
+                                                    for (int i = 0; i < interfacesInChildren.Length; i++) {
+                                                        currentRoom.RegisterInteractable(interfacesInChildren[i]);
+                                                        currentRoom.TransferInteractableOwnershipToDungeon(interfacesInChildren[i]);
+                                                    }
+                                                    
                                                 }
                                                 RatCorpsePlaced = true;
                                                 RandomObjectsPlaced++;
                                                 if (debugMode) ETGModConsole.Log("[DEBUG] Success!", true);
                                             }
                                         } else { if (UnityEngine.Random.value <= 0.25) RandomObjectsSkipped++; }
-
-
+                                        
 
                                         if (RandomTableVector != IntVector2.Zero) {
                                            if (BraveUtility.RandomBool()) {
@@ -388,7 +402,10 @@ namespace ChaosGlitchMod {
                                                ChaosKickableObject RandomTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(RandomTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
                                                if (RandomTable) {
                                                    IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(RandomTable.gameObject);
-                                                   for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
+                                                   for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(TableInterfacesInChildren[i])) {
+                                                            currentRoom.RegisterInteractable(TableInterfacesInChildren[i]);
+                                                        }
+                                                    }
                                                    SpeculativeRigidbody TableComponentInChildren = RandomTable.GetComponentInChildren<SpeculativeRigidbody>();
                                                    RandomTable.ConfigureOnPlacement(RandomTable.transform.position.XY().GetAbsoluteRoom());
                                                    TableComponentInChildren.Initialize();
@@ -402,7 +419,10 @@ namespace ChaosGlitchMod {
                                                     if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place object: " + portableTableObject, true);
                                                    ChaosKickableObject portableTable = DungeonPlaceableUtility.InstantiateDungeonPlaceable(portableTableObject, currentRoom, RandomTableVector, false).AddComponent<ChaosKickableObject>();
                                                    IPlayerInteractable[] PortableTableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(portableTable.gameObject);
-                                                   for (int i = 0; i < PortableTableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(PortableTableInterfacesInChildren[i])) { currentRoom.RegisterInteractable(PortableTableInterfacesInChildren[i]); } }
+                                                   for (int i = 0; i < PortableTableInterfacesInChildren.Length; i++) { if (!currentRoom.IsRegistered(PortableTableInterfacesInChildren[i])) {
+                                                            currentRoom.RegisterInteractable(PortableTableInterfacesInChildren[i]);
+                                                        }
+                                                    }
                                                    SpeculativeRigidbody TableComponentInChildren = portableTable.GetComponentInChildren<SpeculativeRigidbody>();
                                                    portableTable.ConfigureOnPlacement(portableTable.transform.position.XY().GetAbsoluteRoom());
                                                    TableComponentInChildren.Initialize();
@@ -677,7 +697,8 @@ namespace ChaosGlitchMod {
                 trapDoorController.TargetMinecartRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
                 trapDoorController.FirstSecretRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
                 trapDoorController.SecondSecretRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
-                
+
+
                 IPlayerInteractable[] interfacesInChildren = gObj.GetInterfacesInChildren<IPlayerInteractable>();
                 foreach (IPlayerInteractable ixable in interfacesInChildren) { absoluteRoom.RegisterInteractable(ixable); }
                 for (int m = 0; m < 4; m++) {

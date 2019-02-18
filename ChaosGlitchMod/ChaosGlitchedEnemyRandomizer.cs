@@ -7,8 +7,19 @@ using Dungeonator;
 namespace ChaosGlitchMod {
 
     class ChaosGlitchedEnemyRandomizer : MonoBehaviour {
-        
-        public static void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
+
+        private static ChaosGlitchedEnemyRandomizer m_instance;
+
+        public static ChaosGlitchedEnemyRandomizer Instance {
+            get {
+                if (!m_instance) {
+                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchedEnemyRandomizer>();
+                }
+                return m_instance;
+            }
+        }
+
+        public void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
             if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             int RandomEnemiesPlaced = 0;
@@ -46,7 +57,8 @@ namespace ChaosGlitchMod {
                                     for (int height = -1; height <= currentRoom.area.dimensions.y; height++) {
                                         int X = currentRoom.area.basePosition.x + Width;
                                         int Y = currentRoom.area.basePosition.y + height;
-                                        if (!dungeon.data.isWall(X - 3, Y + 3) && !dungeon.data.isWall(X - 2, Y + 3) && !dungeon.data.isWall(X - 1, Y + 3) && !dungeon.data.isWall(X, Y + 3) && !dungeon.data.isWall(X + 1, Y + 3) && !dungeon.data.isWall(X + 2, Y + 3) && !dungeon.data.isWall(X + 3, Y + 3) &&
+                                        if (X % 2 == 0 && Y % 2 == 0) {
+                                            if (!dungeon.data.isWall(X - 3, Y + 3) && !dungeon.data.isWall(X - 2, Y + 3) && !dungeon.data.isWall(X - 1, Y + 3) && !dungeon.data.isWall(X, Y + 3) && !dungeon.data.isWall(X + 1, Y + 3) && !dungeon.data.isWall(X + 2, Y + 3) && !dungeon.data.isWall(X + 3, Y + 3) &&
                                             !dungeon.data.isWall(X - 3, Y + 2) && !dungeon.data.isWall(X - 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) && !dungeon.data.isWall(X + 3, Y + 2) &&
                                             !dungeon.data.isWall(X - 3, Y + 1) && !dungeon.data.isWall(X - 2, Y + 1) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) && !dungeon.data.isWall(X + 3, Y + 1) &&
                                             !dungeon.data.isWall(X - 3, Y) && !dungeon.data.isWall(X - 2, Y) && !dungeon.data.isWall(X - 1, Y) && !dungeon.data.isWall(X, Y) && !dungeon.data.isWall(X + 1, Y) && !dungeon.data.isWall(X + 2, Y) && !dungeon.data.isWall(X + 3, Y) &&
@@ -58,8 +70,9 @@ namespace ChaosGlitchMod {
                                             !dungeon.data.isPit(X - 2, Y) && !dungeon.data.isPit(X - 1, Y) && !dungeon.data.isPit(X, Y) && !dungeon.data.isPit(X + 1, Y) && !dungeon.data.isPit(X + 2, Y) &&
                                             !dungeon.data.isPit(X - 2, Y - 1) && !dungeon.data.isPit(X - 1, Y - 1) && !dungeon.data.isPit(X, Y - 1) && !dungeon.data.isPit(X + 1, Y - 1) && !dungeon.data.isPit(X + 2, Y - 1) &&
                                             !dungeon.data.isPit(X - 2, Y - 2) && !dungeon.data.isPit(X - 1, Y - 2) && !dungeon.data.isPit(X, Y - 2) && !dungeon.data.isPit(X + 1, Y - 2) && !dungeon.data.isPit(X + 2, Y - 2))
-                                        {
-                                            validCells.Add(new IntVector2(X, Y));
+                                            {
+                                                validCells.Add(new IntVector2(X, Y));
+                                            }
                                         }
                                     }
                                 }
@@ -68,23 +81,26 @@ namespace ChaosGlitchMod {
                                     IntVector2 RandomGlitchEnemyVector = (BraveUtility.RandomElement(validCells) - currentRoom.area.basePosition + IntVector2.One);
 
                                     if (RandomGlitchEnemyVector != IntVector2.Zero) {
-                                        ChaosGlitchedEnemies.Instance.SpawnRandomGlitchEnemy(currentRoom, RandomGlitchEnemyVector);
+                                        ChaosGlitchedEnemies.Instance.SpawnRandomGlitchEnemy(currentRoom, RandomGlitchEnemyVector, false, AIActor.AwakenAnimationType.Spawn);
+                                        validCells.Remove(RandomGlitchEnemyVector);
                                     } else { RandomEnemiesSkipped++; }
 
                                     if (UnityEngine.Random.value <= BonusGlitchEnemyOdds) {
                                         IntVector2 RandomGlitchEnemyVector2 = (BraveUtility.RandomElement(validCells) - currentRoom.area.basePosition + IntVector2.One);
                                         if (RandomGlitchEnemyVector2 != IntVector2.Zero) {
-                                            ChaosGlitchedEnemies.Instance.SpawnRandomGlitchEnemy(currentRoom, RandomGlitchEnemyVector);
+                                            ChaosGlitchedEnemies.Instance.SpawnRandomGlitchEnemy(currentRoom, RandomGlitchEnemyVector, false, AIActor.AwakenAnimationType.Spawn);
+                                            validCells.Remove(RandomGlitchEnemyVector2);
                                         }
                                     }
 
                                     if (UnityEngine.Random.value <= GlitchedBossOdds) {
                                         IntVector2 RandomGlitchBossVector = (BraveUtility.RandomElement(validCells) - currentRoom.area.basePosition + IntVector2.One);
                                         if (RandomGlitchBossVector != IntVector2.Zero) {
-                                            ChaosGlitchedEnemies.Instance.SpawnRandomGlitchBoss(currentRoom, RandomGlitchEnemyVector);
+                                            ChaosGlitchedEnemies.Instance.SpawnRandomGlitchBoss(currentRoom, RandomGlitchEnemyVector, false, AIActor.AwakenAnimationType.Spawn);
+                                            validCells.Remove(RandomGlitchBossVector);
                                         }
                                     }
-
+                                    
                                     RandomEnemiesPlaced++;
                                     if (RandomEnemiesPlaced + RandomEnemiesSkipped >= MaxEnemies) { break; }
                                 }

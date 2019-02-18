@@ -4,10 +4,28 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod
-{
-	internal class ChaosTentacleTeleport : MonoBehaviour
-	{
+namespace ChaosGlitchMod {
+
+	internal class ChaosTentacleTeleport : MonoBehaviour {
+
+        private static ChaosTentacleTeleport m_instance;
+
+        public static ChaosTentacleTeleport Instance {
+            get {
+                if (!m_instance) {
+                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
+                }
+                return m_instance;
+            }
+        }
+
+
+        private static GameObject TeleporterIcon = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset("Minimap_Teleporter_Icon") as GameObject;
+        private static GameObject GenericRoomIcon = ResourceManager.LoadAssetBundle("shared_auto_002").LoadAsset("Minimap_Maintenance_Icon") as GameObject;
+        
+        private Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
+
+
         public void TentacleTime() {
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
@@ -27,10 +45,10 @@ namespace ChaosGlitchMod
             try { StunEnemiesForTeleport(currentRoom, 2.7f); } catch (Exception) { }
             Tentacle();
             Invoke("TentacleHidePlayer", 0.7f);
-            if (UnityEngine.Random.value <= 0.2) {
-                Invoke("TeleportToCreepyroom", 1f);
+            if (UnityEngine.Random.value <= 0.5) {
+                Invoke("TeleportToGlitchRoom", 1f);
             } else {
-                Invoke("TeleportToRandomRoom", 1f);
+               Invoke("TeleportToRandomRoom", 1f);
             }
         }
 
@@ -72,7 +90,6 @@ namespace ChaosGlitchMod
                 gameObject2.transform.position = gameObject2.transform.position.Quantize(0.0625f);
                 gameObject2.GetComponent<tk2dBaseSprite>().UpdateZDepth();
             }
-            // Pixelator.Instance.FadeToBlack(1.4f, false, 0f);
             return;
         }
 
@@ -107,21 +124,50 @@ namespace ChaosGlitchMod
             Invoke("Unfreeze", 2f);
         }
 
-        public void TeleportToCreepyroom() {
-            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
-            PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
-            RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-            RoomHandler creepyRoom = GameManager.Instance.Dungeon.AddRuntimeRoom(new IntVector2(24, 24), (GameObject)BraveResources.Load("Global Prefabs/CreepyEye_Room", ".prefab"));
-            primaryPlayer.EscapeRoom(PlayerController.EscapeSealedRoomStyle.TELEPORTER, true, creepyRoom);
-            primaryPlayer.WarpToPoint((creepyRoom.area.basePosition + new IntVector2(12, 4)).ToVector2(), false, false);
-            primaryPlayer.WarpFollowersToPlayer();
-            // Pixelator.Instance.FadeToBlack(0.25f, true);
-            Invoke("TentacleRelease", 1f);
-            Invoke("TentacleShowPlayer", 1.45f);
-            Invoke("Unfreeze", 2f);
-            if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
-                GameManager.Instance.GetOtherPlayer(secondaryPlayer).ReuniteWithOtherPlayer(primaryPlayer, false);
-            }
+        public void TeleportToGlitchRoom() { try {
+                PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
+                PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
+                Dungeon dungeon = GameManager.Instance.Dungeon;
+                //RoomHandler CreepyRoom = GameManager.Instance.Dungeon.AddRuntimeRoom(new IntVector2(24, 24), (GameObject)BraveResources.Load("Global Prefabs/CreepyEye_Room", ".prefab"));
+                RoomHandler GlitchRoom = dungeon.AddRuntimeRoom(ChaosRoomRandomizer.Instance.RandomRoom(), null, DungeonData.LightGenerationStyle.STANDARD);
+                GlitchRoom.visibility = RoomHandler.VisibilityStatus.VISITED;
+
+                // Spawn Rainbow chest. This room doesn't spawn NPC it seems.(unless player hasn't unlocked it yet? Not likely. Most would have unlocked this one by now)
+                if (GlitchRoom.GetRoomName().ToLower().EndsWith("earlymetashopcell")) {
+                    IntVector2 SpecialChestLocation = new IntVector2(10, 14);
+                    WeightedGameObject wChestObject = new WeightedGameObject();
+                    wChestObject.rawGameObject = RainbowChest.gameObject;
+                    WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
+                    wChestObjectCollection.Add(wChestObject);
+                    Chest PlacableChest = GlitchRoom.SpawnRoomRewardChest(wChestObjectCollection, (SpecialChestLocation + GlitchRoom.area.basePosition));
+                }
+                
+                primaryPlayer.EscapeRoom(PlayerController.EscapeSealedRoomStyle.TELEPORTER, true, GlitchRoom);
+                primaryPlayer.WarpFollowersToPlayer();
+                Invoke("TentacleRelease", 1f);
+                Invoke("TentacleShowPlayer", 1.45f);
+                Invoke("Unfreeze", 2f);
+
+                if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                    GameManager.Instance.GetOtherPlayer(secondaryPlayer).ReuniteWithOtherPlayer(primaryPlayer, false);
+                }
+
+                /*
+                if (GlitchRoom.GetRoomName().ToLower().EndsWith("loadadventurernpc_room(clone)") | GlitchRoom.GetRoomName().ToLower().EndsWith("earlymetashopcell") | GlitchRoom.GetRoomName().ToLower().StartsWith("glitched shop")) {
+                    Minimap.Instance.RegisterRoomIcon(GlitchRoom, TeleporterIcon, true);
+                }
+                */
+                // Minimap.Instance.RevealMinimapRoom(GlitchRoom, true, true, true);
+                // Minimap.Instance.RegisterRoomIcon(GlitchRoom, GenericRoomIcon, true);
+                StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(GlitchRoom, true, true, true));
+
+                GlitchRoom.AddProceduralTeleporterToRoom();
+            } catch (Exception) {
+                Invoke("TentacleRelease", 1f);
+                Invoke("TentacleShowPlayer", 1.45f);
+                Invoke("Unfreeze", 2f);
+                return;
+            }           
             return;
         }
 

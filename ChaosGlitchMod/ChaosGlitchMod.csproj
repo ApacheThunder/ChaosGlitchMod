@@ -59,6 +59,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChaosEnemyResizer.cs" />
+    <Compile Include="ChaosResizeEnemyItem.cs" />
+    <Compile Include="ChaosRoomRandomizer.cs" />
+    <Compile Include="ChaosShaders.cs" />
+    <Compile Include="ChaosSpawnGlitchedEnemyOnDeath.cs" />
+    <Compile Include="Debug\AssetFinder.cs" />
     <Compile Include="ChaosExplodeOnDeath.cs" />
     <Compile Include="ChaosGlitchedEnemies.cs" />
     <Compile Include="ChaosExploder.cs" />

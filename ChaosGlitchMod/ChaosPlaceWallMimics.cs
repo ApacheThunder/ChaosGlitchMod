@@ -4,12 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod
-{
-    class ChaosPlaceWallMimic : MonoBehaviour
-    {
+namespace ChaosGlitchMod {
 
-        private static ChaosObjectRandomizer chaosObjectRandomizer = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosObjectRandomizer>();
+    class ChaosPlaceWallMimic : MonoBehaviour {
 
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
@@ -22,7 +19,6 @@ namespace ChaosGlitchMod
         private static void SetStats(int currentFloor, int currentCurse, int currentCoolness) {
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
-            ChaosConsole.hasBeenHammered = false;
 
             if (currentFloor == -1) {
                 ChaosConsole.RandomPits = UnityEngine.Random.Range(40, 60);
@@ -149,23 +145,28 @@ namespace ChaosGlitchMod
 
 
             if (ChaosConsole.isUltraMode) {
-                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState == GameManager.LevelOverrideState.NONE) {
+                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
                 } else {
-                    try { ChaosPitRandomizer.PlaceRandomPits(dungeon, roomHandler, currentFloor); } catch (Exception ex) {
-                        if (ChaosConsole.debugMimicFlag) {
-                            ETGModConsole.Log("[DEBUG] Exception Caught while placing pits:", false);
-                            ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false);
-                        }
-                    }
+                    ChaosPitRandomizer.Instance.PlaceRandomPits(dungeon, roomHandler, currentFloor);
                 }
             }
 
-            chaosObjectRandomizer.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
+            if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE)
+            {
+                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional objects.", false); }
+            } else {
+                ChaosObjectRandomizer.Instance.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
+            }                
 
-            ChaosGlitchedEnemyRandomizer.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
+            if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE)
+            {
+                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional glitch enemies.", false); }
+            } else {
+                ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
+            }
 
-            if (levelOverrideState != GameManager.LevelOverrideState.NONE && levelOverrideState != GameManager.LevelOverrideState.TUTORIAL)
+            if (levelOverrideState != GameManager.LevelOverrideState.NONE | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL)
             {
                 if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
                 return;
@@ -234,25 +235,52 @@ namespace ChaosGlitchMod
                                         int Y = currentRoom.area.basePosition.y + Height;
                                         if (dungeon.data.isWall(X, Y) && X % 4 == 0 && Y % 4 == 0) {
                                             int WallCount = 0;
-                                            if (!dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) && !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) && dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && dungeon.data.isWall(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isWall(X + 1, Y - 1) && dungeon.data.isWall(X + 2, Y - 1) && !dungeon.data.isPlainEmptyCell(X - 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 3))
+                                            if (!dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+                                                !dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+                                                 dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && 
+                                                 dungeon.data.isWall(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isWall(X + 1, Y - 1) && dungeon.data.isWall(X + 2, Y - 1) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 3))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.NORTH));
                                                 WallCount++;
                                                 SouthWallCount++;
-                                            }
-                                            else if (dungeon.data.isWall(X - 1, Y + 2) && dungeon.data.isWall(X, Y + 2) && dungeon.data.isWall(X + 1, Y + 2) && dungeon.data.isWall(X + 2, Y + 2) && dungeon.data.isWall(X - 1, Y + 1) && dungeon.data.isWall(X, Y + 1) && dungeon.data.isWall(X + 1, Y + 1) && dungeon.data.isWall(X + 2, Y + 1) && dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && !dungeon.data.isPlainEmptyCell(X, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 4))
+                                            } else if (dungeon.data.isWall(X - 1, Y + 2) && dungeon.data.isWall(X, Y + 2) && dungeon.data.isWall(X + 1, Y + 2) && dungeon.data.isWall(X + 2, Y + 2) &&
+                                                       dungeon.data.isWall(X - 1, Y + 1) && dungeon.data.isWall(X, Y + 1) && dungeon.data.isWall(X + 1, Y + 1) && dungeon.data.isWall(X + 2, Y + 1) && 
+                                                       dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) &&
+                                                       dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 4))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.SOUTH));
                                                 WallCount++;
                                                 NorthWallCount++;
-                                            }
-                                            else if (!dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && dungeon.data.isWall(X, Y + 2) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && dungeon.data.isWall(X, Y + 1) && !dungeon.data.isPlainEmptyCell(X - 2, Y) && dungeon.data.isWall(X - 1, Y) && dungeon.data.isPlainEmptyCell(X + 1, Y) && !dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && !dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isWall(X, Y - 2))
+                                            } else if (dungeon.data.isWall(X, Y + 2) &&
+                                                       dungeon.data.isWall(X, Y + 1) &&
+                                                       dungeon.data.isWall(X - 1, Y) &&
+                                                       dungeon.data.isWall(X, Y - 1) &&
+                                                       dungeon.data.isWall(X, Y - 2) &&
+                                                      !dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && 
+                                                      !dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && 
+                                                      !dungeon.data.isPlainEmptyCell(X - 2, Y) &&
+                                                       dungeon.data.isPlainEmptyCell(X + 1, Y) &&
+                                                       dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X - 2, Y - 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X - 2, Y - 2))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.EAST));
                                                 WallCount++;
                                                 WestWallCount++;
-                                            }
-                                            else if (dungeon.data.isWall(X, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 2) && dungeon.data.isWall(X, Y + 1) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 1) && dungeon.data.isPlainEmptyCell(X - 1, Y) && dungeon.data.isWall(X + 1, Y) && !dungeon.data.isPlainEmptyCell(X + 2, Y) && dungeon.data.isPlainEmptyCell(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 1) && dungeon.data.isWall(X, Y - 2) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 2))
+                                            } else if (dungeon.data.isWall(X, Y + 2) && 
+                                                       dungeon.data.isWall(X, Y + 1) &&
+                                                       dungeon.data.isWall(X + 1, Y) &&
+                                                       dungeon.data.isWall(X, Y - 1) &&
+                                                       dungeon.data.isWall(X, Y - 2) &&
+                                                      !dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
+                                                      !dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X + 2, Y) &&
+                                                       dungeon.data.isPlainEmptyCell(X - 1, Y) &&
+                                                       dungeon.data.isPlainEmptyCell(X - 1, Y - 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
+                                                      !dungeon.data.isPlainEmptyCell(X + 2, Y - 2))
                                             {
                                                 validWalls.Add(Tuple.Create(new IntVector2(X - 1, Y), DungeonData.Direction.WEST));
                                                 WallCount++;
@@ -287,7 +315,6 @@ namespace ChaosGlitchMod
                                     }
 
                                 }
-
                                 if (roomHandler == null) {
                                     for (int loopCount = 0; loopCount < ChaosConsole.MaxWallMimicsPerRoom; ++loopCount) {
                                         if (validWalls.Count > 0) {
