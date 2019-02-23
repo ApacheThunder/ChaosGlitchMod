@@ -5484,6 +5484,10 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.UseMovementAudio = CachedEnemyActor.UseMovementAudio;
             CachedGlitchEnemyActor.EnemySwitchState = CachedEnemyActor.EnemySwitchState;
 
+            if (CachedSourceEnemyObject == BulletKingsToadieObject | CachedSourceEnemyObject == WolfPrefab) {
+                CachedGlitchEnemyActor.DiesOnCollison = true;
+            }
+
             tk2dBaseSprite GlitchActorSprite = CachedGlitchEnemyActor.sprite.GetComponent<tk2dBaseSprite>();
             ChaosShaders.Instance.ApplySuperGlitchShader(GlitchActorSprite, CachedEnemyActor);
 
@@ -6181,9 +6185,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.ForceBlackPhantomParticles = true;
             
-            
 
-            CachedGlitchEnemyActor.BecomeBlackPhantom();
             // if (ChaosConsole.randomEnemySizeEnabled) { ChaosEnemyResizer.Instance.EnemyScale(CachedGlitchEnemyActor, Vector2.one); }
             CachedGlitchEnemyActor.IgnoreForRoomClear = false;
             CachedGlitchEnemyActor.CanTargetEnemies = false;
@@ -6223,6 +6225,9 @@ namespace ChaosGlitchMod {
             ChaosShaders.Instance.ApplyGlitchShader(CachedGlitchEnemyActor, GlitchActorSprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
 
             DungeonPlaceableUtility.InstantiateDungeonPlaceable(CachedGlitchEnemyActor.gameObject, CurrentRoom, position, false, awakenAnimType, autoEngage);
+
+            CachedGlitchEnemyActor.BecomeBlackPhantom();
+
             Destroy(CachedTargetEnemyObject);
             return;
         }
@@ -8400,7 +8405,6 @@ namespace ChaosGlitchMod {
         public void SpawnGlitchedBeholster(RoomHandler CurrentRoom, IntVector2 position, bool autoEngage = false, AIActor.AwakenAnimationType awakenAnimType = AIActor.AwakenAnimationType.Awaken) {
             List<GameObject> ValidSourceEnemies = new List<GameObject>();
             ValidSourceEnemies.Clear();
-            ValidSourceEnemies.Add(BeholsterPrefab);
             ValidSourceEnemies.Add(JamromancerPrefab);
             ValidSourceEnemies.Add(NecromancerPrefab);
             ValidSourceEnemies.Add(LeadWizardBluePrefab);

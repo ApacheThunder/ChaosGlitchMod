@@ -12,6 +12,27 @@ namespace ChaosGlitchMod {
 
     class ChaosLists : MonoBehaviour {
 
+        public static List<int> RatChestItems = new List<int>() {
+            626, // elimentaler
+            662, // partially_eaten_cheese
+            663, // resourceful_sack
+            667 // rat_boots
+        };
+
+        public static string[] ThoughtBubbleList = {
+            "Oh no!",
+            "Eat my shorts!",
+            "Die in a fire!",
+            "Have some bees!",
+            "Apache Thunder was here...",
+            "Those blue dogs suck...",
+            "Welcome to hell!",
+            "That Wall Mimic gives you my regards.",
+            "( ͡° ͜ʖ ͡°)",
+            "I'm just here to cover up space and make things hard for you. :D",
+            "Watch out! That Bullet Kin has a gun!",
+        };
+
         public static string[] NPCRooms = {
             "lostadventurernpc_room",
             "npc_monster_manuel_room",
@@ -813,6 +834,16 @@ namespace ChaosGlitchMod {
             "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
             "c2f902b7cbe745efb3db4399927eab34" // skusket_head
         };
+
+        public static string[] ContactOverrideGUIDList = {
+            "6ad1cafc268f4214a101dca7af61bc91", // rat
+            "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
+            "1386da0f42fb4bcabc5be8feb16a7c38", // snake
+            "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1
+            "42432592685e47c9941e339879379d3a", // robots_past_critter_2
+            "4254a93fc3c84c0dbe0a8f0dddf48a5a" // robots_past_critter_3
+        };
+
 
         public static string[] CritterGUIDList = {
             "6ad1cafc268f4214a101dca7af61bc91", // rat

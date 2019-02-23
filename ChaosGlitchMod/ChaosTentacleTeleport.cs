@@ -124,6 +124,14 @@ namespace ChaosGlitchMod {
             Invoke("Unfreeze", 2f);
         }
 
+
+        private static AssetBundle sharedauto = ResourceManager.LoadAssetBundle("shared_auto_001");
+        private static AssetBundle sharedauto2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+
+        private static PrototypeDungeonRoom HubRoom1 = sharedauto2.LoadAsset("gungeon_hub_001") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom GungeonRollTrap01 = sharedauto2.LoadAsset("normal_cubeworld_001") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom BasicSecretRoom12 = sharedauto2.LoadAsset("shop02") as PrototypeDungeonRoom;
+
         public void TeleportToGlitchRoom() { try {
                 PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
                 PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
@@ -159,10 +167,18 @@ namespace ChaosGlitchMod {
                 */
                 // Minimap.Instance.RevealMinimapRoom(GlitchRoom, true, true, true);
                 // Minimap.Instance.RegisterRoomIcon(GlitchRoom, GenericRoomIcon, true);
-                StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(GlitchRoom, true, true, true));
 
+                StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(GlitchRoom, true, true, true));
                 GlitchRoom.AddProceduralTeleporterToRoom();
-            } catch (Exception) {
+            } catch (Exception ex) {
+                if (ChaosConsole.debugMimicFlag) {
+                    ETGModConsole.Log("[DEBUG] Error! Exception occured while attempting to generate glitch room!", false);
+                    ETGModConsole.Log(ex.Message, false);
+                    ETGModConsole.Log(ex.Source, false);
+                    ETGModConsole.Log(ex.StackTrace, false);
+                    ETGModConsole.Log(ex.TargetSite.ToString(), false);
+
+                }
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
                 Invoke("Unfreeze", 2f);

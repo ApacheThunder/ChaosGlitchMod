@@ -42,26 +42,33 @@ namespace ChaosGlitchMod {
         // Used for applying Hologram shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
         public void BecomeHologram(BraveBehaviour gameObject, bool usesOverrideMaterial = true) { try {
-                tk2dBaseSprite sprite = null;
-                try {
-                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                    sprite = gameObject.sprite;
-                } catch { };
-
-                if (gameObject == null | gameObject.GetComponent<AIActor>() != null | gameObject.GetComponent<PickupObject>() != null | sprite.usesOverrideMaterial) { return; }
+                if (gameObject == null | gameObject.GetComponent<AIActor>() != null |
+                    gameObject.GetComponent<PickupObject>() != null | gameObject.GetComponent<PressurePlate>() != null |
+                    gameObject.GetComponent<AIActor>() != null) {
+                    return;
+                }
 
                 if (gameObject.name.ToLower().StartsWith("boss") | gameObject.name.ToLower().StartsWith("door") |
                     gameObject.name.ToLower().StartsWith("shellcasing") | gameObject.name.ToLower().StartsWith("5") |
                     gameObject.name.ToLower().StartsWith("50") | gameObject.name.ToLower().StartsWith("minimap") |
                     gameObject.name.ToLower().StartsWith("outline") | gameObject.name.ToLower().StartsWith("braveoutline") |
                     gameObject.name.ToLower().StartsWith("defaultshadow") | gameObject.name.ToLower().StartsWith("shadow") |
+                    gameObject.name.ToLower().StartsWith("elevator") | gameObject.name.ToLower().StartsWith("floor") |
                     gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)") |
-                    gameObject.name.ToLower().EndsWith("stone(clone)") | gameObject.name.ToLower().EndsWith("horizontal(clone)") | 
-                    gameObject.name.ToLower().EndsWith("vertical(clone)") | gameObject.GetComponent<AIActor>() != null | 
-                    sprite.usesOverrideMaterial) {
+                    gameObject.name.ToLower().EndsWith("stone(clone)") | gameObject.name.ToLower().EndsWith("horizontal(clone)") |
+                    gameObject.name.ToLower().EndsWith("vertical(clone)"))
+                {
                     // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object was skipped: " + gameObject.name.ToLower(), false);
                     return;
                 }
+
+                tk2dBaseSprite sprite = null;
+                try {
+                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                    sprite = gameObject.sprite;
+                } catch { };
+                
+                if (sprite.usesOverrideMaterial) { return; }
 
                 // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object is now a hologram: " + gameObject.name.ToLower(), false);
                 ApplyHologramShader(sprite, BraveUtility.RandomBool(), usesOverrideMaterial);

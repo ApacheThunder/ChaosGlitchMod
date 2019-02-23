@@ -13,8 +13,8 @@ namespace ChaosGlitchMod {
         public static Hook aiActorhook;
         public static Hook doExplodeHook;
         public static Hook enterRoomHook;
-        public static Hook exitElevatorhook;
         public static Hook wallmimichook;
+        public static Hook slidehook;
 
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
 
@@ -51,8 +51,6 @@ namespace ChaosGlitchMod {
         public static void InstallPrimaryHooks(bool InstallHooks = true) {
             bool roomFlag = enterRoomHook != null;
             bool aiHookFlag = aiActorhook != null;
-            
-            bool exitFlag = exitElevatorhook != null;
 
             if (InstallHooks) {
                 if (!aiHookFlag) {
@@ -68,12 +66,6 @@ namespace ChaosGlitchMod {
                         typeof(ChaosSharedHooks).GetMethod("EnteredNewRoomHook", BindingFlags.Public | BindingFlags.Static)
                     );
                 }
-                if (!exitFlag) {
-                    exitElevatorhook = new Hook(
-                        typeof(ElevatorDepartureController).GetMethod("DoDeparture", BindingFlags.Public | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("DoDepartureHook", BindingFlags.Public | BindingFlags.Static)
-                    );
-                }
 
                 IsHooksInstalled = true;
                 if (!ChaosConsole.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
@@ -81,7 +73,6 @@ namespace ChaosGlitchMod {
             } else {
                 if (aiHookFlag) { aiActorhook.Dispose(); aiActorhook = null; }
                 if (roomFlag) { enterRoomHook.Dispose(); enterRoomHook = null; }
-                if (exitFlag) { exitElevatorhook.Dispose(); exitElevatorhook = null; }
                 IsHooksInstalled = false;
                 ETGModConsole.Log("Primary hooks removed...", false);
                 return;
@@ -96,7 +87,12 @@ namespace ChaosGlitchMod {
             return;
         }
 
-
+         
+        public static void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) {
+            return;
+            // orig(self);
+        }
+        
         // Hook method for AIActor (enemies). Made with help from KyleTheScientist
         public static void AwakeHookCustom(Action<AIActor> orig, AIActor self) {
             try {
@@ -112,7 +108,7 @@ namespace ChaosGlitchMod {
 
             if (ChaosLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
 
-            if (ChaosLists.CritterGUIDList.Contains(self.EnemyGuid) && !self.ActorName.StartsWith("Glitched") && !self.name.StartsWith("Glitched")) { try {
+            if (ChaosLists.ContactOverrideGUIDList.Contains(self.EnemyGuid) && !self.ActorName.StartsWith("Glitched") && !self.name.StartsWith("Glitched")) { try {
                     self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
                     self.specRigidbody.PrimaryPixelCollider.Enabled = false;
                     if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
@@ -124,6 +120,7 @@ namespace ChaosGlitchMod {
             if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
                 if (ChaosLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) { self.PreventBlackPhantom = true; }
                 if (ChaosLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
+                if (self.EnemyGuid == "eeb33c3a5a8e4eaaaaf39a743e8767bc") { self.AlwaysShowOffscreenArrow = true; }
 
                 if (UnityEngine.Random.value <= 0.2f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
                     ChaosShaders.Instance.ApplyHologramShader(self.sprite, BraveUtility.RandomBool());
@@ -515,21 +512,6 @@ namespace ChaosGlitchMod {
                         AIActor.Spawn(SkusketHeads, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
                     }
                }     
-            }
-        }
-
-        public static void DoDepartureHook(Action<ElevatorDepartureController> orig, ElevatorDepartureController self) {
-            orig(self);
-            if (ChaosConsole.addRandomEnemy && ChaosConsole.allowRandomBulletKinReplacement) {
-                LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
-                IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, playSoundFX: false, EnemyGUID: ChaosLists.ReplacementEnemyGUIDList.RandomString());
-            } else {
-                if (ChaosConsole.addRandomEnemy) {
-                    LootCrate lootCrate = ETGModMainBehaviour.Instance.gameObject.AddComponent<LootCrate>();
-                    IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                    lootCrate.SpawnAirDrop(RoomVector, EnemyOdds: 1f, playSoundFX: false);
-                }
             }
         }
     }

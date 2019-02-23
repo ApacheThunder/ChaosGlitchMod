@@ -180,36 +180,41 @@ namespace ChaosGlitchMod {
     	}
     
     	private void NoPits(SpeculativeRigidbody specRigidbody, IntVector2 prevPixelOffset, IntVector2 pixelOffset, ref bool validLocation) {
-    		if (!validLocation) { return; }
-    		Func<IntVector2, bool> func = delegate(IntVector2 pixel) {
-    			Vector2 v = PhysicsEngine.PixelToUnitMidpoint(pixel);
-    			if (!GameManager.Instance.Dungeon.CellSupportsFalling(v)) { return false; }
-    			List<SpeculativeRigidbody> platformsAt = GameManager.Instance.Dungeon.GetPlatformsAt(v);
-    			if (platformsAt != null) {
-    				for (int i = 0; i < platformsAt.Count; i++) {
-    					if (platformsAt[i].PrimaryPixelCollider.ContainsPixel(pixel)) { return false; }
-    				}
-    			}
-    			return true;
-    		};
-    		PixelCollider primaryPixelCollider = specRigidbody.PrimaryPixelCollider;
-    		if (primaryPixelCollider != null) {
-    			IntVector2 a = pixelOffset - prevPixelOffset;
-    			if (a == IntVector2.Down && func(primaryPixelCollider.LowerLeft + pixelOffset) && func(primaryPixelCollider.LowerRight + pixelOffset) && (!func(primaryPixelCollider.UpperRight + prevPixelOffset) || !func(primaryPixelCollider.UpperLeft + prevPixelOffset))) {
-    				validLocation = false;
-    			}
-    			else if (a == IntVector2.Right && func(primaryPixelCollider.LowerRight + pixelOffset) && func(primaryPixelCollider.UpperRight + pixelOffset) && (!func(primaryPixelCollider.UpperLeft + prevPixelOffset) || !func(primaryPixelCollider.LowerLeft + prevPixelOffset))) {
-    				validLocation = false;
-    			}
-    			else if (a == IntVector2.Up && func(primaryPixelCollider.UpperRight + pixelOffset) && func(primaryPixelCollider.UpperLeft + pixelOffset) && (!func(primaryPixelCollider.LowerLeft + prevPixelOffset) || !func(primaryPixelCollider.LowerRight + prevPixelOffset))) {
-    				validLocation = false;
-    			}
-    			else if (a == IntVector2.Left && func(primaryPixelCollider.UpperLeft + pixelOffset) && func(primaryPixelCollider.LowerLeft + pixelOffset) && (!func(primaryPixelCollider.LowerRight + prevPixelOffset) || !func(primaryPixelCollider.UpperRight + prevPixelOffset))) {
-    				validLocation = false;
-    			}
-    		}
-    		if (!validLocation) { StopRolling(true); }
-    	}
+            try { 
+                if (!validLocation) { return; }
+    		    Func<IntVector2, bool> func = delegate(IntVector2 pixel) {
+    		    	Vector2 v = PhysicsEngine.PixelToUnitMidpoint(pixel);
+    		    	if (!GameManager.Instance.Dungeon.CellSupportsFalling(v)) { return false; }
+    		    	List<SpeculativeRigidbody> platformsAt = GameManager.Instance.Dungeon.GetPlatformsAt(v);
+    		    	if (platformsAt != null) {
+    		    		for (int i = 0; i < platformsAt.Count; i++) {
+    		    			if (platformsAt[i].PrimaryPixelCollider.ContainsPixel(pixel)) { return false; }
+    		    		}
+    		    	}
+    		    	return true;
+    		    };
+    		    PixelCollider primaryPixelCollider = specRigidbody.PrimaryPixelCollider;
+    		    if (primaryPixelCollider != null) {
+    		    	IntVector2 a = pixelOffset - prevPixelOffset;
+    		    	if (a == IntVector2.Down && func(primaryPixelCollider.LowerLeft + pixelOffset) && func(primaryPixelCollider.LowerRight + pixelOffset) && (!func(primaryPixelCollider.UpperRight + prevPixelOffset) || !func(primaryPixelCollider.UpperLeft + prevPixelOffset))) {
+    		    		validLocation = false;
+    		    	}
+    		    	else if (a == IntVector2.Right && func(primaryPixelCollider.LowerRight + pixelOffset) && func(primaryPixelCollider.UpperRight + pixelOffset) && (!func(primaryPixelCollider.UpperLeft + prevPixelOffset) || !func(primaryPixelCollider.LowerLeft + prevPixelOffset))) {
+    		    		validLocation = false;
+    		    	}
+    		    	else if (a == IntVector2.Up && func(primaryPixelCollider.UpperRight + pixelOffset) && func(primaryPixelCollider.UpperLeft + pixelOffset) && (!func(primaryPixelCollider.LowerLeft + prevPixelOffset) || !func(primaryPixelCollider.LowerRight + prevPixelOffset))) {
+    		    		validLocation = false;
+    		    	}
+    		    	else if (a == IntVector2.Left && func(primaryPixelCollider.UpperLeft + pixelOffset) && func(primaryPixelCollider.LowerLeft + pixelOffset) && (!func(primaryPixelCollider.LowerRight + prevPixelOffset) || !func(primaryPixelCollider.UpperRight + prevPixelOffset))) {
+    		    		validLocation = false;
+    		    	}
+    		    }
+    		    if (!validLocation) { StopRolling(true); }
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("Exception Caught at [NoPits] in ChaosKickableObject class." + ex.Message + ex.Source + ex.InnerException + ex.StackTrace + ex.TargetSite, false); }
+                return;
+            }
+        }
     
     	public void ConfigureOnPlacement(RoomHandler room) { m_room = room; }
     

@@ -1,10 +1,13 @@
 ﻿using Dungeonator;
+using Pathfinding;
+using System;
 using System.Collections.Generic;
+using tk2dRuntime.TileMap;
 using UnityEngine;
 
 namespace ChaosGlitchMod {
 
-    class ChaosRoomRandomizer : MonoBehaviour {
+    class ChaosRoomRandomizer : Dungeon {
 
         private static ChaosRoomRandomizer m_instance;
 
@@ -36,6 +39,8 @@ namespace ChaosGlitchMod {
             PrototypeDungeonRoom SelectedShrineRoom = sharedauto.LoadAsset(ChaosLists.ShrineRooms.RandomString()) as PrototypeDungeonRoom;
             // PrototypeDungeonRoom MinesCP01BrentVaultofGlassRoom = sharedauto.LoadAsset("mines_cp01_brent_vaultofglass") as PrototypeDungeonRoom; // Teleporting here causes player to fall into pit.
 
+
+            
             PrototypeDungeonRoom SelectedCombatRoom = sharedauto2.LoadAsset(ChaosLists.CombatRooms.RandomString()) as PrototypeDungeonRoom;
             PrototypeDungeonRoom NPCVampireRoom = sharedauto2.LoadAsset("npc_vampire_room") as PrototypeDungeonRoom;
             PrototypeDungeonRoom SelectedRewardRoom = sharedauto2.LoadAsset(ChaosLists.RewardRooms.RandomString()) as PrototypeDungeonRoom;
