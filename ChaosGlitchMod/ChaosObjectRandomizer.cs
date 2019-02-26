@@ -22,11 +22,12 @@ namespace ChaosGlitchMod {
         private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
         private static AssetBundle assetBundle2 = ResourceManager.LoadAssetBundle("shared_auto_002");
         private static AssetBundle assetBundle3 = ResourceManager.LoadAssetBundle("brave_resources_001");
-        // private static AssetBundle assetBundle4 = ResourceManager.LoadAssetBundle("shared_base_001");
-        // private static AssetBundle assetBundle5 = ResourceManager.LoadAssetBundle("enemies_base_001");
+        private static AssetBundle enemiesBundle = ResourceManager.LoadAssetBundle("enemies_base_001");
 
-        private static GameObject MetalGearRatPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/Bosses/MetalGearRat", ".prefab");
-        private static GameObject ResourcefulRatBossPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/Bosses/ResourcefulRat_Boss", ".prefab");
+
+        private static GameObject MetalGearRatPrefab = (GameObject)enemiesBundle.LoadAsset("MetalGearRat");
+        private static GameObject ResourcefulRatBossPrefab = (GameObject)enemiesBundle.LoadAsset("ResourcefulRat_Boss");
+        
 
         private static AIActor MetalGearRatActorPrefab = MetalGearRatPrefab.GetComponent<AIActor>();
         private static AIActor ResourcefulRatBossActorPrefab = ResourcefulRatBossPrefab.GetComponent<AIActor>();
@@ -35,9 +36,9 @@ namespace ChaosGlitchMod {
         private PunchoutController PunchoutPrefab = MetalGearRatDeathPrefab.PunchoutMinigamePrefab.GetComponent<PunchoutController>();
         private ResourcefulRatController resourcefulRatControllerPrefab = ResourcefulRatBossActorPrefab.GetComponent<ResourcefulRatController>();
 
-        private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
+        // private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
 
-        private DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
+        // private DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
 
         private GameObject RedDrum = assetBundle.LoadAsset("Red Drum") as GameObject;
         private GameObject YellowDrum = assetBundle2.LoadAsset("Yellow Drum") as GameObject;
@@ -150,7 +151,7 @@ namespace ChaosGlitchMod {
             bool cursedMirrorPlaced = false;
             bool VFXObjectPlaced = false;
             bool RatCorpsePlaced = false;
-            // bool ElevatorPlaced = false;
+            bool ElevatorPlaced = false;
             bool BabyDragunPlaced = false;
             int RandomObjectsPlaced = 0;
             int RandomObjectsSkipped = 0;
@@ -159,7 +160,7 @@ namespace ChaosGlitchMod {
             int MaxRandomObjects = 100;
             if (currentFloor <= 3 | currentFloor == -1) { MaxRandomObjects = UnityEngine.Random.Range(150, 200); } else { MaxRandomObjects = UnityEngine.Random.Range(100, 150); }
 
-            if (currentFloor != 3) { try { PlaceRatGrate(dungeon); } catch (Exception) { } }
+            // if (currentFloor != 3) { try { PlaceRatGrate(dungeon); } catch (Exception) { } }
                         
             List<GlobalDungeonData.ValidTilesets> FloorDestinations = new List<GlobalDungeonData.ValidTilesets>();
 
@@ -382,12 +383,6 @@ namespace ChaosGlitchMod {
                                             if (UnityEngine.Random.value <= 0.02) {
                                                 GameObject SelectedChest = BraveUtility.RandomElement(InteractableChests).gameObject;
                                                 GameObject SelectedChestObjectAlt = BraveUtility.RandomElement(InteractableChestsAlt).gameObject;
-                                                 if (SelectedChestObjectAlt == ChestRat) {
-                                                    SpeculativeRigidbody SelectedChestRigidBody = SelectedChestObjectAlt.GetComponent<SpeculativeRigidbody>();
-                                                    SelectedChestRigidBody.PrimaryPixelCollider.Enabled = false;
-                                                    SelectedChestRigidBody.HitboxPixelCollider.Enabled = false;
-                                                    SelectedChestRigidBody.CollideWithOthers = false;
-                                                }
                                                 if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest: " + SelectedChest, true);
                                                 if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place chest(alt): " + SelectedChestObjectAlt, true);
                                                 Chest SelectedChestAlt = SelectedChestObjectAlt.GetComponent<Chest>();
@@ -396,10 +391,16 @@ namespace ChaosGlitchMod {
                                                 WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
                                                 wChestObjectCollection.Add(wChestObject);
                                                 Chest PlacableChest = currentRoom.SpawnRoomRewardChest(wChestObjectCollection, RandomChestVector);
-                                                if (BraveUtility.RandomBool()) { PlacableChest.ChestType = Chest.GeneralChestType.ITEM; } else { PlacableChest.ChestType = Chest.GeneralChestType.WEAPON; }
-                                                PlacableChest.ForceUnlock();
-                                                if (SelectedChestAlt == ChestRat) {
+                                                if (wChestObject.rawGameObject == ChestRat) {
+                                                    SpeculativeRigidbody SelectedChestRigidBody = PlacableChest.GetComponentInChildren<SpeculativeRigidbody>();
+                                                    SelectedChestRigidBody.PrimaryPixelCollider.Enabled = false;
+                                                    SelectedChestRigidBody.HitboxPixelCollider.Enabled = false;
+                                                    SelectedChestRigidBody.CollideWithOthers = false;
+                                                }
+                                                if (BraveUtility.RandomBool() && wChestObject.rawGameObject != ChestRat) { PlacableChest.ChestType = Chest.GeneralChestType.ITEM; } else { PlacableChest.ChestType = Chest.GeneralChestType.WEAPON; }
+                                                if (PlacableChest.name == ChestRat.name | PlacableChest.ChestIdentifier == Chest.SpecialChestIdentifier.RAT) {
                                                     List<int> cachedRatChestItem = new List<int>();
+                                                    List<int> fallbackRatChestList = new List<int> {626, 662, 663, 667};
                                                     int selectedRatChestItem = -1;
                                                     if (ChaosLists.RatChestItems.Count <= 0 && currentFloor == 1) {
                                                         ChaosLists.RatChestItems.Add(626); // elimentaler
@@ -414,9 +415,10 @@ namespace ChaosGlitchMod {
                                                         cachedRatChestItem.Add(selectedRatChestItem);
                                                         PlacableChest.forceContentIds = cachedRatChestItem;
                                                     } else {
-                                                        PlacableChest.forceContentIds = null;
+                                                        PlacableChest.forceContentIds = fallbackRatChestList;
                                                     }
                                                 }
+                                                PlacableChest.ForceUnlock();
                                                 if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
                                             }
                                         }
@@ -448,8 +450,8 @@ namespace ChaosGlitchMod {
                                                 GameObject Random_InteractableRatNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedRatNPCObject, currentRoom, RandomRatNPCVector, false);
                                                 TalkDoerLite RatNPCComponent = Random_InteractableRatNPC.GetComponent<TalkDoerLite>();
                                                 if (RatNPCComponent) {
-                                                    RatNPCComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(RatNPCComponent);
-                                                    RatNPCComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(RatNPCComponent);
+                                                    currentRoom.RegisterInteractable(RatNPCComponent);
+                                                    currentRoom.TransferInteractableOwnershipToDungeon(RatNPCComponent);
                                                 }                                            
                                                 RatCorpsePlaced = true;
                                                 RandomObjectsPlaced++;
@@ -603,9 +605,9 @@ namespace ChaosGlitchMod {
                                                 }
 
                                                 if (SelectedNonInteractable == (PunchoutPrefab.PlayerLostNotePrefab.gameObject)) {
-                                                    if (PlacedMiscObject) { 
-                                                        IPlayerInteractable[] interfacesInChildren = PlacedMiscObject.GetInterfacesInChildren<IPlayerInteractable>();
-                                                        for (int i = 0; i < interfacesInChildren.Length; i++) { currentRoom.RegisterInteractable(interfacesInChildren[i]); }
+                                                    if (PlacedMiscObject) {
+                                                        NoteDoer RatNote = PlacedMiscObject.GetComponent<NoteDoer>();
+                                                        currentRoom.RegisterInteractable(RatNote);
                                                     }
                                                 }
                                                 if (SelectedNonInteractable == SellPit) {
@@ -628,7 +630,7 @@ namespace ChaosGlitchMod {
                                             if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
                                             RandomObjectsPlaced++;
                                         } else { RandomObjectsSkipped++; }
-                                        /*
+                                        
                                         if (RandomElevatorVector != IntVector2.Zero && !ElevatorPlaced && currentFloor != 6 && UnityEngine.Random.value <= 0.03f) {
                                             GameObject ElevatorObject = ElevatorDeparture.InstantiateObject(currentRoom, RandomElevatorVector);
                                             ElevatorDepartureController elevatorComponent = ElevatorObject.GetComponent<ElevatorDepartureController>();
@@ -645,7 +647,7 @@ namespace ChaosGlitchMod {
                                                 if (i != 2) { ElevatorRigidComponents[i].CollideWithOthers = false; }
                                             }                                            
                                         }
-                                        */
+                                        
 
                                         if (RandomMiscPlacableVector != IntVector2.Zero && UnityEngine.Random.value <= 0.3) {
                                             DungeonPlaceable SelectedMiscPlacable = BraveUtility.RandomElement(MiscPlacables);
@@ -756,7 +758,7 @@ namespace ChaosGlitchMod {
                 IntVector2 RegisteredCell = (SelectedCell);
                 if (useCachedList) dungeon.data[RegisteredCell].isOccupied = true;
                 validCellsCached.Remove(SelectedCell);
-                return (SelectedCell - currentRoom.area.basePosition + IntVector2.One);
+                return (SelectedCell - currentRoom.area.basePosition);
             } else { return IntVector2.Zero; }
         }
 
@@ -799,7 +801,7 @@ namespace ChaosGlitchMod {
                 IntVector2 RegisteredCell = (SelectedCell);
                 dungeon.data[RegisteredCell].isOccupied = true;
                 validCellsCached.Remove(SelectedCell);
-                return (SelectedCell - currentRoom.area.basePosition + IntVector2.One);
+                return (SelectedCell - currentRoom.area.basePosition);
             } else { return IntVector2.Zero; }
         }
 
@@ -868,12 +870,12 @@ namespace ChaosGlitchMod {
                 IntVector2 RegisteredCell = (SelectedCell);
                 dungeon.data[RegisteredCell].isOccupied = true;
                 validCellsCached.Remove(SelectedCell);
-                return (SelectedCell - currentRoom.area.basePosition + IntVector2.One);
+                return (SelectedCell - currentRoom.area.basePosition);
             } else { return IntVector2.Zero; }
         }
 
         
-        private void PlaceRatGrate(Dungeon dungeon) {
+        /*private void PlaceRatGrate(Dungeon dungeon) {
             List<IntVector2> list = new List<IntVector2>();
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
                 RoomHandler roomHandler = dungeon.data.rooms[i];
@@ -906,7 +908,7 @@ namespace ChaosGlitchMod {
                         RewardRoom1 = RoomCurrent;
                         RewardRoom2 = RoomCurrent;
                     }*/
-                }
+                /*}
                 
                 if (MaintenanceRoom != null) {
                     // trapDoorController.TargetMinecartRoom = RewardRoom1.area.prototypeRoom;
@@ -934,7 +936,6 @@ namespace ChaosGlitchMod {
                 }
             }
         }
-
         private bool ClearForRatGrate(Dungeon dungeon, int bpx, int bpy) {
             int num = -1;
             for (int i = 0; i < 4; i++) {
@@ -961,7 +962,7 @@ namespace ChaosGlitchMod {
                 }
             }
             return true;
-        }
+        }*/
     }
 }
 

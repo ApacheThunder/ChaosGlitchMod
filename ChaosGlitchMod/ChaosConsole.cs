@@ -24,6 +24,7 @@ namespace ChaosGlitchMod {
         public static bool autoUltra = false;
         public static bool debugMimicFlag = false;
         public static bool isExplosionHookActive = false;
+        public static bool explosionQueueDisabled = false;
 
         public static bool GlitchEverything = false;
         public static bool GlitchRandomized = true;
@@ -313,6 +314,18 @@ namespace ChaosGlitchMod {
                 }
             });
 
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("fixexplosionqueue", delegate (string[] e) {
+                if (!explosionQueueDisabled) {
+                    explosionQueueDisabled = true;
+                    ETGModConsole.Log("The Explosion Queue is dead!", false);
+                } else {
+                    if (explosionQueueDisabled) {
+                        explosionQueueDisabled = false;
+                        ETGModConsole.Log("The Explosion Queue is back!", false);
+                    }
+                }
+            });
+
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("fixtablesliding", delegate (string[] e) {
                 bool slideHookFlag = ChaosSharedHooks.slidehook != null;
                 if (!slideHookFlag) {
@@ -478,6 +491,7 @@ namespace ChaosGlitchMod {
                 if (slideHookFlag) { ChaosSharedHooks.slidehook.Dispose(); ChaosSharedHooks.slidehook = null; }
 
                 isExplosionHookActive = false;
+                explosionQueueDisabled = false;
                 GlitchEnemies = false;
                 GlitchRandomized = true;
                 GlitchEverything = false;
@@ -509,6 +523,8 @@ namespace ChaosGlitchMod {
                 ChallengeTimeChances = 0f;
                 TentacleTimeChances = 0.1f;
                 TentacleTimeRandomRoomChances = 0.1f;
+
+                if (ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(false); }
 
                 ETGModConsole.Log("Everything has returned to normal...", false);
             });

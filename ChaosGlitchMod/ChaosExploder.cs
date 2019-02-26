@@ -45,6 +45,9 @@ namespace ChaosGlitchMod {
         public static bool IsExplosionOccurring() { return ExplosionIsExtant || ChaosExplosionManager.Instance.QueueCount > 0; }
     
         public static void Explode(Vector3 position, ExplosionData data, Vector2 sourceNormal, Action onExplosionBegin = null, bool ignoreQueues = false, CoreDamageTypes damageTypes = CoreDamageTypes.None, bool ignoreDamageCaps = false) {
+
+            if (ChaosConsole.explosionQueueDisabled) { ignoreQueues = true; }
+
             if (data.useDefaultExplosion && data != GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData) {
                 DoDefaultExplosion(position, sourceNormal, onExplosionBegin, ignoreQueues, damageTypes, ignoreDamageCaps);
             } else {

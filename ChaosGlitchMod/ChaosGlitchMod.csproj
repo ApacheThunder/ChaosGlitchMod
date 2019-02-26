@@ -60,10 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChaosEnemyResizer.cs" />
-    <Compile Include="ChaosResizeEnemyItem.cs" />
+    <Compile Include="ChaosPitRandomizer.cs" />
     <Compile Include="ChaosRoomRandomizer.cs" />
     <Compile Include="ChaosShaders.cs" />
     <Compile Include="ChaosSpawnGlitchedEnemyOnDeath.cs" />
+    <Compile Include="ChaosSpawnGlitchedObjectOnDeath.cs" />
+    <Compile Include="ChaosStringTableManager.cs" />
     <Compile Include="Debug\AssetFinder.cs" />
     <Compile Include="ChaosExplodeOnDeath.cs" />
     <Compile Include="ChaosGlitchedEnemies.cs" />
@@ -77,14 +79,12 @@
     <Compile Include="ChaosGlitchHooks.cs" />
     <Compile Include="ChaosObjectRandomizer.cs" />
     <Compile Include="ChaosKickableObject.cs" />
-    <Compile Include="ChaosPitRandomizer.cs" />
     <Compile Include="ChaosLootCrate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChaosSharedHooks.cs" />
     <Compile Include="ChaosTentacleTeleport.cs" />
     <Compile Include="ChaosUtilities.cs" />
     <Compile Include="ChaosPlaceWallMimics.cs" />
-    <Compile Include="PunchoutAnytimeModule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

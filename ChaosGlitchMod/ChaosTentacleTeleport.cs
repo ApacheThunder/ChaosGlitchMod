@@ -19,11 +19,20 @@ namespace ChaosGlitchMod {
             }
         }
 
+        private static AssetBundle sharedauto = ResourceManager.LoadAssetBundle("shared_auto_001");
+        private static AssetBundle sharedauto2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+
+        private static PrototypeDungeonRoom HubRoom1 = sharedauto2.LoadAsset("gungeon_hub_001") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom GungeonRollTrap01 = sharedauto2.LoadAsset("normal_cubeworld_001") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom BasicSecretRoom12 = sharedauto2.LoadAsset("shop02") as PrototypeDungeonRoom;
 
         private static GameObject TeleporterIcon = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset("Minimap_Teleporter_Icon") as GameObject;
         private static GameObject GenericRoomIcon = ResourceManager.LoadAssetBundle("shared_auto_002").LoadAsset("Minimap_Maintenance_Icon") as GameObject;
         
         private Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
+
+        private RoomHandler GlitchRoom;
+        private PrototypeDungeonRoom SelectedPrototypeDungeonRoom;
 
 
         public void TentacleTime() {
@@ -124,21 +133,38 @@ namespace ChaosGlitchMod {
             Invoke("Unfreeze", 2f);
         }
 
-
-        private static AssetBundle sharedauto = ResourceManager.LoadAssetBundle("shared_auto_001");
-        private static AssetBundle sharedauto2 = ResourceManager.LoadAssetBundle("shared_auto_002");
-
-        private static PrototypeDungeonRoom HubRoom1 = sharedauto2.LoadAsset("gungeon_hub_001") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom GungeonRollTrap01 = sharedauto2.LoadAsset("normal_cubeworld_001") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom BasicSecretRoom12 = sharedauto2.LoadAsset("shop02") as PrototypeDungeonRoom;
-
         public void TeleportToGlitchRoom() { try {
                 PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
                 PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
                 Dungeon dungeon = GameManager.Instance.Dungeon;
-                //RoomHandler CreepyRoom = GameManager.Instance.Dungeon.AddRuntimeRoom(new IntVector2(24, 24), (GameObject)BraveResources.Load("Global Prefabs/CreepyEye_Room", ".prefab"));
-                RoomHandler GlitchRoom = dungeon.AddRuntimeRoom(ChaosRoomRandomizer.Instance.RandomRoom(), null, DungeonData.LightGenerationStyle.STANDARD);
-                GlitchRoom.visibility = RoomHandler.VisibilityStatus.VISITED;
+                int RoomIndex = UnityEngine.Random.Range(0, ChaosRoomRandomizer.MasterRoomArray.Length);
+
+                // There's over 400 combat rooms in the array. Lets give the non combat rooms a fair chance. :P
+                if (BraveUtility.RandomBool() && RoomIndex > 86) { RoomIndex = UnityEngine.Random.Range(0, 86); }
+
+                if (RoomIndex <= 0) {
+                    Invoke("TentacleRelease", 1f);
+                    Invoke("TentacleShowPlayer", 1.45f);
+                    Invoke("Unfreeze", 2f);
+                    return;
+                }
+
+                SelectedPrototypeDungeonRoom = Instantiate(ChaosRoomRandomizer.MasterRoomArray[RoomIndex]);
+
+                if (SelectedPrototypeDungeonRoom == null) {
+                    Invoke("TentacleRelease", 1f);
+                    Invoke("TentacleShowPlayer", 1.45f);
+                    Invoke("Unfreeze", 2f);
+                    return;
+                }
+
+                if (SelectedPrototypeDungeonRoom.category == PrototypeDungeonRoom.RoomCategory.SECRET) {
+                    SelectedPrototypeDungeonRoom.category = PrototypeDungeonRoom.RoomCategory.NORMAL;
+                }
+
+                SelectedPrototypeDungeonRoom.name = ("Glitched " + SelectedPrototypeDungeonRoom.name);
+
+                GlitchRoom = ChaosUtility.Instance.AddCustomRuntimeRoom(SelectedPrototypeDungeonRoom);
 
                 // Spawn Rainbow chest. This room doesn't spawn NPC it seems.(unless player hasn't unlocked it yet? Not likely. Most would have unlocked this one by now)
                 if (GlitchRoom.GetRoomName().ToLower().EndsWith("earlymetashopcell")) {
@@ -160,16 +186,6 @@ namespace ChaosGlitchMod {
                     GameManager.Instance.GetOtherPlayer(secondaryPlayer).ReuniteWithOtherPlayer(primaryPlayer, false);
                 }
 
-                /*
-                if (GlitchRoom.GetRoomName().ToLower().EndsWith("loadadventurernpc_room(clone)") | GlitchRoom.GetRoomName().ToLower().EndsWith("earlymetashopcell") | GlitchRoom.GetRoomName().ToLower().StartsWith("glitched shop")) {
-                    Minimap.Instance.RegisterRoomIcon(GlitchRoom, TeleporterIcon, true);
-                }
-                */
-                // Minimap.Instance.RevealMinimapRoom(GlitchRoom, true, true, true);
-                // Minimap.Instance.RegisterRoomIcon(GlitchRoom, GenericRoomIcon, true);
-
-                StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(GlitchRoom, true, true, true));
-                GlitchRoom.AddProceduralTeleporterToRoom();
             } catch (Exception ex) {
                 if (ChaosConsole.debugMimicFlag) {
                     ETGModConsole.Log("[DEBUG] Error! Exception occured while attempting to generate glitch room!", false);

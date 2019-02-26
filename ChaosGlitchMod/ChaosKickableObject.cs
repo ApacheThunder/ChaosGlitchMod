@@ -20,6 +20,7 @@ namespace ChaosGlitchMod {
 
         public bool explodesOnKick;
         public bool useDefaultExplosion;
+        public bool hasRollingAnimations;
         public float rollSpeed;
         [CheckAnimation(null)]
         public string[] rollAnimations;
@@ -55,6 +56,7 @@ namespace ChaosGlitchMod {
     
         public ChaosKickableObject() {
             rollSpeed = 6f;
+            rollAnimations = null;
             goopFrequency = 0.05f;
             goopRadius = 1f;
             breakTimerLength = 3f;
@@ -63,6 +65,7 @@ namespace ChaosGlitchMod {
             AllowTopWallTraversal = true;
             explodesOnKick = true;
             useDefaultExplosion = false;
+            hasRollingAnimations = false;
             RollingBreakAnim = "red_barrel_break";
             m_lastOutlineDirection = (DungeonData.Direction)(-1);
     	}
@@ -70,7 +73,9 @@ namespace ChaosGlitchMod {
     	private void Start() {
                 SpeculativeRigidbody specRigidbody = base.specRigidbody;
             try {
-                specRigidbody.OnRigidbodyCollision = (SpeculativeRigidbody.OnRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody.OnRigidbodyCollision, new SpeculativeRigidbody.OnRigidbodyCollisionDelegate(OnPlayerCollision));
+                if (specRigidbody != null) {
+                    specRigidbody.OnRigidbodyCollision = (SpeculativeRigidbody.OnRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody.OnRigidbodyCollision, new SpeculativeRigidbody.OnRigidbodyCollisionDelegate(OnPlayerCollision));
+                }                
             } catch (Exception ex) {
                 if (ChaosConsole.DebugExceptions) { 
                     ETGModConsole.Log("Exception Caught at [GetDistanceToPoint] in ChaosKickableObject class.", false);
@@ -81,8 +86,7 @@ namespace ChaosGlitchMod {
             }
         }
     
-    	public void Update()
-    	{
+    	public void Update() {
     		if (m_shouldDisplayOutline) {
     			int num;
     			DungeonData.Direction inverseDirection = DungeonData.GetInverseDirection(DungeonData.GetDirectionFromIntVector2(GetFlipDirection(m_lastInteractingPlayer.specRigidbody, out num)));
@@ -224,7 +228,9 @@ namespace ChaosGlitchMod {
     			MinorBreakable component2 = GetComponent<MinorBreakable>();
     			component2.destroyOnBreak = true;
     			component2.makeParallelOnBreak = false;
-    			component2.breakAnimName = RollingBreakAnim;
+                if (hasRollingAnimations) {
+                    component2.breakAnimName = RollingBreakAnim;
+                }                
     			component2.explodesOnBreak = false;
     			component2.Break(-rigidbodyCollision.Normal);
     		}
@@ -245,11 +251,15 @@ namespace ChaosGlitchMod {
                 StopRolling(collision.collisionType == CollisionData.CollisionType.TileMap);
     		}
     	}
-        /*
+        
     	private bool IsRollAnimation() {
             try {
-                for (int i = 0; i < rollAnimations.Length; i++) {
-                    if (spriteAnimator.CurrentClip.name == rollAnimations[i]) { return true; }
+                if (hasRollingAnimations) {
+                    for (int i = 0; i < rollAnimations.Length; i++) {
+                        if (spriteAnimator.CurrentClip.name == rollAnimations[i]) { return true; }
+                    }
+                } else {
+                    return false;
                 }
             } catch (Exception ex) {
                 if (ChaosConsole.DebugExceptions) {
@@ -260,19 +270,20 @@ namespace ChaosGlitchMod {
                 return false;
             }
     		return false;
-    	}*/
+    	}
     
-    	private void StopRolling(bool bounceBack)
-    	{
+    	private void StopRolling(bool bounceBack) {
     		if (bounceBack && !m_isBouncingBack) {
                 StartCoroutine(HandleBounceback());
     		} else {
     			spriteAnimator.Stop();
-                /*if (IsRollAnimation()) {
-    				tk2dSpriteAnimationClip currentClip = spriteAnimator.CurrentClip;
-    				spriteAnimator.Stop();
-    				spriteAnimator.Sprite.SetSprite(currentClip.frames[currentClip.frames.Length - 1].spriteId);
-    			}*/
+                if (hasRollingAnimations) {
+                    if (IsRollAnimation()) {
+                        tk2dSpriteAnimationClip currentClip = spriteAnimator.CurrentClip;
+                        spriteAnimator.Stop();
+                        spriteAnimator.Sprite.SetSprite(currentClip.frames[currentClip.frames.Length - 1].spriteId);
+                    }
+                }
                 base.specRigidbody.Velocity = Vector2.zero;
     			MinorBreakable component = GetComponent<MinorBreakable>();
     			if (component != null) { component.onlyVulnerableToGunfire = false; }
@@ -294,12 +305,14 @@ namespace ChaosGlitchMod {
                 specRigidbody.Velocity = rollSpeed * dirToMove;
     			IntVector2? lastDirectionKicked = m_lastDirectionKicked;
                 m_lastDirectionKicked = ((lastDirectionKicked == null) ? null : new IntVector2?(lastDirectionKicked.GetValueOrDefault() * -1));
-    			tk2dSpriteAnimationClip rollClip = spriteAnimator.GetClipByName(rollAnimations[quadrant]);
-    			if (rollClip.wrapMode == tk2dSpriteAnimationClip.WrapMode.LoopSection) {
-                    spriteAnimator.PlayFromFrame(rollClip, rollClip.loopStart);
-    			} else {
-                    spriteAnimator.Play(rollClip);
-    			}
+                if (hasRollingAnimations) {
+                    tk2dSpriteAnimationClip rollClip = spriteAnimator.GetClipByName(rollAnimations[quadrant]);
+                    if (rollClip.wrapMode == tk2dSpriteAnimationClip.WrapMode.LoopSection) {
+                        spriteAnimator.PlayFromFrame(rollClip, rollClip.loopStart);
+                    } else {
+                        spriteAnimator.Play(rollClip);
+                    }
+                }
     			float ela = 0f;
     			float dura = 1.5f / specRigidbody.Velocity.magnitude;
     			while (ela < dura && m_isBouncingBack) {
@@ -363,28 +376,44 @@ namespace ChaosGlitchMod {
                 PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(base.specRigidbody, new int?(value), false);
     
                 SpeculativeRigidbody specRigidbody = base.specRigidbody;
-                specRigidbody.MovementRestrictor = (SpeculativeRigidbody.MovementRestrictorDelegate)Delegate.Combine(specRigidbody.MovementRestrictor, new SpeculativeRigidbody.MovementRestrictorDelegate(NoPits));
-                SpeculativeRigidbody specRigidbody2 = base.specRigidbody;
-                specRigidbody2.OnCollision = (Action<CollisionData>)Delegate.Combine(specRigidbody2.OnCollision, new Action<CollisionData>(OnCollision));
-                SpeculativeRigidbody specRigidbody3 = base.specRigidbody;
-                specRigidbody3.OnPreRigidbodyCollision = (SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody3.OnPreRigidbodyCollision, new SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate(OnPreCollision));
+                if (specRigidbody != null && specRigidbody.MovementRestrictor != null) {
+                    specRigidbody.MovementRestrictor = (SpeculativeRigidbody.MovementRestrictorDelegate)Delegate.Combine(specRigidbody.MovementRestrictor, new SpeculativeRigidbody.MovementRestrictorDelegate(NoPits));
+                    SpeculativeRigidbody specRigidbody2 = base.specRigidbody;
+                    specRigidbody2.OnCollision = (Action<CollisionData>)Delegate.Combine(specRigidbody2.OnCollision, new Action<CollisionData>(OnCollision));
+                    SpeculativeRigidbody specRigidbody3 = base.specRigidbody;
+                    specRigidbody3.OnPreRigidbodyCollision = (SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody3.OnPreRigidbodyCollision, new SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate(OnPreCollision));
+                } else if (specRigidbody != null) {
+                    specRigidbody.MovementRestrictor = new SpeculativeRigidbody.MovementRestrictorDelegate(NoPits);
+                    SpeculativeRigidbody specRigidbody2 = base.specRigidbody;
+                    specRigidbody2.OnCollision = (Action<CollisionData>)Delegate.Combine(specRigidbody2.OnCollision, new Action<CollisionData>(OnCollision));
+                    SpeculativeRigidbody specRigidbody3 = base.specRigidbody;
+                    specRigidbody3.OnPreRigidbodyCollision = (SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody3.OnPreRigidbodyCollision, new SpeculativeRigidbody.OnPreRigidbodyCollisionDelegate(OnPreCollision));
+                }
+
                 int num;
                 IntVector2 flipDirection = GetFlipDirection(kickerRigidbody, out num);
                 if (AllowTopWallTraversal) { base.specRigidbody.AddCollisionLayerOverride(CollisionMask.LayerToMask(CollisionLayer.EnemyBlocker)); }
                 base.specRigidbody.Velocity = rollSpeed * flipDirection.ToVector2();
-                tk2dSpriteAnimationClip clipByName = spriteAnimator.GetClipByName(rollAnimations[num]);
+                tk2dSpriteAnimationClip clipByName = null;
+                if (hasRollingAnimations) { clipByName = spriteAnimator.GetClipByName(rollAnimations[num]); }
                 bool flag = false;
                 if (m_lastDirectionKicked != null) {
                     if (m_lastDirectionKicked.Value.y == 0 && flipDirection.y == 0) { flag = true; }
                     if (m_lastDirectionKicked.Value.x == 0 && flipDirection.x == 0) { flag = true; }
                 }
-                if (clipByName != null && clipByName.wrapMode == tk2dSpriteAnimationClip.WrapMode.LoopSection && flag) {
-                    spriteAnimator.PlayFromFrame(clipByName, clipByName.loopStart);
-                } else { spriteAnimator.Play(clipByName); }
-    
+                if (hasRollingAnimations) {
+                    if (clipByName != null && clipByName.wrapMode == tk2dSpriteAnimationClip.WrapMode.LoopSection && flag) {
+                        spriteAnimator.PlayFromFrame(clipByName, clipByName.loopStart);
+                    } else {
+                        spriteAnimator.Play(clipByName);
+                    }
+                }    
                 if (triggersBreakTimer && !m_timerIsActive) { StartCoroutine(HandleBreakTimer()); }
                 MinorBreakable component = GetComponent<MinorBreakable>();
-                if (component != null) { component.breakAnimName = impactAnimations[num]; component.onlyVulnerableToGunfire = true; }
+                if (component != null) {
+                    if (impactAnimations[num] != null) { component.breakAnimName = impactAnimations[num]; }
+                    component.onlyVulnerableToGunfire = true;
+                }
                 IntVector2 key = transform.PositionVector2().ToIntVector2(VectorConversions.Round);
                 GameManager.Instance.Dungeon.data[key].isOccupied = false;
                 m_lastDirectionKicked = new IntVector2?(flipDirection);
@@ -396,13 +425,18 @@ namespace ChaosGlitchMod {
     	}
     
     	public IntVector2 GetFlipDirection(SpeculativeRigidbody kickerRigidbody, out int quadrant) {
-    		Vector2 inVec = specRigidbody.UnitCenter - kickerRigidbody.UnitCenter;
+            Vector2 inVec = new Vector2(0, 1);
+            if (specRigidbody != null) {
+                inVec = specRigidbody.UnitCenter - kickerRigidbody.UnitCenter;
+            } else if (sprite != null) {
+                inVec = sprite.WorldCenter - kickerRigidbody.UnitCenter;
+            }
+
     		quadrant = BraveMathCollege.VectorToQuadrant(inVec);
     		return IntVector2.Cardinals[quadrant];
     	}
     
-        private void SelfDestructOnKick()
-        {
+        private void SelfDestructOnKick() {
             int currentCurse = PlayerStats.GetTotalCurse();
             int currentCoolness = PlayerStats.GetTotalCoolness();
             float ExplodeOnKickChances = 0.25f;
@@ -417,7 +451,7 @@ namespace ChaosGlitchMod {
                 ExplodeOnKickChances = 0.35f;
                 ExplodeOnKickDamageToEnemies = 200f;
             }
-    
+            
             if (UnityEngine.Random.value <= ExplodeOnKickChances) {
                 if (useDefaultExplosion) { 
                 Exploder.DoDefaultExplosion(specRigidbody.GetUnitCenter(ColliderType.HitBox), Vector2.zero, null, true, CoreDamageTypes.None);
@@ -426,6 +460,8 @@ namespace ChaosGlitchMod {
                     Exploder.Explode(specRigidbody.GetUnitCenter(ColliderType.HitBox), TableExplosionData, Vector2.zero, null, false, CoreDamageTypes.None, false);
                 }
             }
+
+            if (minorBreakable != null) { minorBreakable.Break(); }
             return;
         }
     }

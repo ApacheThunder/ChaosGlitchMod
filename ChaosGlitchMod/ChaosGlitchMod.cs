@@ -11,8 +11,6 @@ namespace ChaosGlitchMod {
             ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosConsole>();
             // Modified version of Anywhere mod
             ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
-            // Start the Punchout minigame anytime you want!
-            ETGModMainBehaviour.Instance.gameObject.AddComponent<PunchoutAnytimeModule>();
 
             ChaosSharedHooks.InstallPlaceWallMimicsHook();
         }

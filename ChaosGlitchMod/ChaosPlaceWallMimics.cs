@@ -79,7 +79,6 @@ namespace ChaosGlitchMod {
                 ChaosConsole.MaxWallMimicsPerRoom = 1;
                 ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(5, 15);
                 if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(15, 25); }
-                ChaosConsole.TentacleTimeRandomRoomChances = 0f;
             }
 
             // Floor 2 and onwards can have more then one mimic per room.
@@ -143,6 +142,9 @@ namespace ChaosGlitchMod {
                 ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
             }
 
+            if (currentFloor == 1 && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | ChaosSharedHooks.IsHooksInstalled) {
+                PlaceTeleporter(dungeon);
+            }
 
             if (ChaosConsole.isUltraMode) {
                 if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
@@ -353,6 +355,17 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log("[DEBUG] Number of Wall Mimics succesfully placed: " + WallMimicsPlaced, false);
                 }
             }
+        }
+        // Adds Teleporter to entrance room on first floor so that player can teleport back if teleported via Tentacle Teleporter.
+        private static void PlaceTeleporter(Dungeon dungeon) {
+            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
+                RoomHandler CurrnetRoom = dungeon.data.rooms[i];
+                if (CurrnetRoom.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.ENTRANCE) {
+                    CurrnetRoom.AddProceduralTeleporterToRoom();
+                    break;
+                }
+            }
+            return;
         }
     }
 }

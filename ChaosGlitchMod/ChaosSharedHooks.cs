@@ -15,6 +15,8 @@ namespace ChaosGlitchMod {
         public static Hook enterRoomHook;
         public static Hook wallmimichook;
         public static Hook slidehook;
+        public static Hook stringhook;
+        public static Hook cellhook;
 
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
 
@@ -51,8 +53,11 @@ namespace ChaosGlitchMod {
         public static void InstallPrimaryHooks(bool InstallHooks = true) {
             bool roomFlag = enterRoomHook != null;
             bool aiHookFlag = aiActorhook != null;
+            bool stringHookFlag = stringhook != null;
+            bool cellHookFlag = cellhook != null;
 
             if (InstallHooks) {
+
                 if (!aiHookFlag) {
                     aiActorhook = new Hook(
                         typeof(AIActor).GetMethod("Awake", BindingFlags.Public | BindingFlags.Instance),
@@ -67,12 +72,28 @@ namespace ChaosGlitchMod {
                     );
                 }
 
+                if (!stringHookFlag) {
+                    stringhook = new Hook(
+                        typeof(StringTableManager).GetMethod("GetEnemiesString", BindingFlags.Public | BindingFlags.Static),
+                        typeof(ChaosStringTableManager).GetMethod("GetEnemiesString", BindingFlags.Public | BindingFlags.Static)
+                    );
+                }
+
+                if (!cellHookFlag) {
+                    cellhook = new Hook(
+                        typeof(OccupiedCells).GetMethod("FlagCells", BindingFlags.Public | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks).GetMethod("FlagCellsHook", BindingFlags.Public | BindingFlags.Static)
+                    );
+                }
+
                 IsHooksInstalled = true;
                 if (!ChaosConsole.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
                 return;
             } else {
                 if (aiHookFlag) { aiActorhook.Dispose(); aiActorhook = null; }
                 if (roomFlag) { enterRoomHook.Dispose(); enterRoomHook = null; }
+                if (stringHookFlag) { stringhook.Dispose(); stringhook = null; }
+                if (cellHookFlag) { cellhook.Dispose(); cellhook = null; }
                 IsHooksInstalled = false;
                 ETGModConsole.Log("Primary hooks removed...", false);
                 return;
@@ -87,10 +108,13 @@ namespace ChaosGlitchMod {
             return;
         }
 
-         
+
+        public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) {
+            try { orig(self); } catch (Exception) { return; }            
+        }
+
         public static void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) {
-            return;
-            // orig(self);
+            return; // orig(self);
         }
         
         // Hook method for AIActor (enemies). Made with help from KyleTheScientist
@@ -157,6 +181,9 @@ namespace ChaosGlitchMod {
                 } else {
                     if (!self.sprite.usesOverrideMaterial && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid) && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
                         ChaosShaders.Instance.ApplyGlitchShader(self, self.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
+                        if (!self.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(self.EnemyGuid)) {
+                            if (UnityEngine.Random.value <= 0.25) { self.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
+                        }
                         ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(self);
                         if (!ChaosConsole.randomEnemySizeEnabled) {
                             // self.BaseMovementSpeed *= 1.1f;
@@ -169,7 +196,7 @@ namespace ChaosGlitchMod {
                                 }
                             }
                         }                        
-                        if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null) {
+                        if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchEnemyOnDeath>() == null) {
                             try { self.gameObject.AddComponent<ChaosExplodeOnDeath>(); } catch (Exception) { }
                         }
                     }
@@ -181,23 +208,10 @@ namespace ChaosGlitchMod {
             if (ChaosLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid) && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | minorbreakablehook != null) {
                 AIActor target = self.gameObject.GetComponent<AIActor>();
                 target.DiesOnCollison = true;
-                // targetAIActor.EnemyScale = new Vector2(1.25f, 1.25f);
-                // EnemyScale(aiActor, new Vector2(1.25f, 1.25f));
-                target.StartCoroutine(ChaosEnemyResizer.Instance.ResizeEnemy(self.gameObject.GetComponent<AIActor>(), new Vector2(1.25f, 1.25f)));
-                if (target.procedurallyOutlined) { target.procedurallyOutlined = false; }
+                // target.StartCoroutine(ChaosEnemyResizer.Instance.ResizeEnemy(self, new Vector2(1.25f, 1.25f)));
+                // if (target.procedurallyOutlined) { target.procedurallyOutlined = false; }
                 target.IgnoreForRoomClear = true;
             }
-            
-            // ChaosEnemyResizer.Instance.ChaosResizeEnemy(self.gameObject.GetComponent<AIActor>());
-
-            /*if (!ChaosConsole.randomEnemySizeEnabled && string.IsNullOrEmpty(self.EnemyGuid)) {
-                if (self.EnemyScale != Vector2.one && ChaosConsole.GlitchEnemies) { self.EnemyScale = Vector2.one; }
-            }
-
-            if (ChaosConsole.randomEnemySizeEnabled && string.IsNullOrEmpty(self.EnemyGuid)) {
-                if (self.EnemyScale != Vector2.one && ChaosConsole.GlitchEnemies) { self.EnemyScale = Vector2.one; }
-            }*/
-
         }
         
         private static void PotsTelefragRoom(RoomHandler currentRoom) {

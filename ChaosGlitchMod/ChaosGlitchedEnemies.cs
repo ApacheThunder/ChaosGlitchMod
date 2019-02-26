@@ -339,7 +339,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 601;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000001";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -386,7 +386,8 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.PreventFallingInPitsEver = CachedEnemyActor.PreventFallingInPitsEver;
             CachedGlitchEnemyActor.UseMovementAudio = CachedEnemyActor.UseMovementAudio;
             CachedGlitchEnemyActor.EnemySwitchState = CachedEnemyActor.EnemySwitchState;
-
+            
+            
             tk2dBaseSprite GlitchActorSprite = CachedGlitchEnemyActor.sprite.GetComponent<tk2dBaseSprite>();
             ChaosShaders.Instance.ApplySuperGlitchShader(GlitchActorSprite, CachedEnemyActor);
 
@@ -494,7 +495,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 602;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000002";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
@@ -649,7 +650,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 603;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000003";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
@@ -806,7 +807,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 604;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000004";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
@@ -954,7 +955,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 605;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000005";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1111,7 +1112,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 606;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000006";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1266,7 +1267,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 607;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000007";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1422,7 +1423,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 608;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000008";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1578,7 +1579,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 609;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000009";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1733,7 +1734,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 610;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000010";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -1887,7 +1888,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 611;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000011";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2041,7 +2042,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 612;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000012";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2194,7 +2195,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 613;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000013";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2348,7 +2349,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 614;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000014";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2503,7 +2504,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 615;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000015";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2657,7 +2658,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 615;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000015";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2788,7 +2789,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 620;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000020";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -2918,7 +2919,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 621;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000021";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3050,7 +3051,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 619;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000019";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3182,7 +3183,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 621;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000021";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3314,7 +3315,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 624;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000024";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3444,7 +3445,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 626;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000026";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3574,7 +3575,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 627;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000027";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3704,7 +3705,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 628;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000028";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3834,7 +3835,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 629;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000029";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -3971,7 +3972,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 630;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000030";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -4131,7 +4132,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1002;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001002";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<ResourcefulRatController>());
@@ -4296,7 +4297,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1004;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001004";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<ManfredsRivalIntroDoer>());
@@ -4465,7 +4466,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 600;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000000";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -4599,7 +4600,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = UnityEngine.Random.Range(900, 1000);
             CachedGlitchEnemyActor.EnemyGuid = ("f0ff000000000000000000000000f" + UnityEngine.Random.Range(100,999));
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -4762,7 +4763,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 641;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000041";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -4917,7 +4918,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = UnityEngine.Random.Range(700, 2000);
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000050";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5037,7 +5038,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = UnityEngine.Random.Range(700, 2000);
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000051";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -5178,7 +5179,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 652;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000052";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5301,7 +5302,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 653;
             CachedGlitchEnemyActor.EnemyGuid = "f0000000000000000000000000000053";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5436,7 +5437,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = UnityEngine.Random.Range(700, 800);
             CachedGlitchEnemyActor.EnemyGuid = ("ff000000000000000000000000000" + UnityEngine.Random.Range(100,999));
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5629,7 +5630,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 900;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000000";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5804,7 +5805,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 902;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000002";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -5991,7 +5992,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 901;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000001";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -6180,7 +6181,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 903;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000003";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.ForceBlackPhantomParticles = true;
@@ -6364,7 +6365,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 904;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000004";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             
@@ -6538,7 +6539,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 905;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000005";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             
@@ -6694,7 +6695,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 906;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000006";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.BehaviorVelocity = CachedEnemyActor.BehaviorVelocity;
@@ -6852,7 +6853,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 907;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000007";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -7001,7 +7002,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 908;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000008";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -7149,7 +7150,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 909;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000009";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -7342,7 +7343,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 911;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000011";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -7599,7 +7600,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 912;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000012";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -7744,7 +7745,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 913;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000013";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
@@ -7880,7 +7881,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 914;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000014";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -8021,7 +8022,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 915;
             CachedGlitchEnemyActor.EnemyGuid = "a0000000000000000000000000000015";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
 
@@ -8174,7 +8175,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1001;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001001";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BulletBroDeathController>());
@@ -8333,7 +8334,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1003;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001003";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<GatlingGullIntroDoer>());
@@ -8482,7 +8483,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1005;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001005";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BeholsterController>());
@@ -8605,7 +8606,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1007;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001007";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BossDoorMimicDeathController>());
@@ -8732,7 +8733,7 @@ namespace ChaosGlitchMod {
 
             CachedGlitchEnemyActor.EnemyId = 1008;
             CachedGlitchEnemyActor.EnemyGuid = "ff000000000000000000000000001008";
-            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<HighPriestIntroDoer>());

@@ -38,7 +38,7 @@ namespace ChaosGlitchMod {
                 return;
             }
         }
-        
+
         // Used for applying Hologram shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
         public void BecomeHologram(BraveBehaviour gameObject, bool usesOverrideMaterial = true) { try {
@@ -54,9 +54,9 @@ namespace ChaosGlitchMod {
                     gameObject.name.ToLower().StartsWith("outline") | gameObject.name.ToLower().StartsWith("braveoutline") |
                     gameObject.name.ToLower().StartsWith("defaultshadow") | gameObject.name.ToLower().StartsWith("shadow") |
                     gameObject.name.ToLower().StartsWith("elevator") | gameObject.name.ToLower().StartsWith("floor") |
-                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)") |
+                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)")/* |
                     gameObject.name.ToLower().EndsWith("stone(clone)") | gameObject.name.ToLower().EndsWith("horizontal(clone)") |
-                    gameObject.name.ToLower().EndsWith("vertical(clone)"))
+                    gameObject.name.ToLower().EndsWith("vertical(clone)")*/)
                 {
                     // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object was skipped: " + gameObject.name.ToLower(), false);
                     return;
@@ -73,10 +73,18 @@ namespace ChaosGlitchMod {
                 // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object is now a hologram: " + gameObject.name.ToLower(), false);
                 ApplyHologramShader(sprite, BraveUtility.RandomBool(), usesOverrideMaterial);
 
-                SpeculativeRigidbody CurrentObjectRigidBody = gameObject.GetComponent<SpeculativeRigidbody>();
-                CurrentObjectRigidBody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
-                if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
-                    CurrentObjectRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                if (gameObject.GetComponent<SpeculativeRigidbody>() != null) {
+                    SpeculativeRigidbody CurrentObjectRigidBody = gameObject.GetComponent<SpeculativeRigidbody>();
+                    CurrentObjectRigidBody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                        CurrentObjectRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    }
+                } else if (gameObject.GetComponentInChildren<SpeculativeRigidbody>() != null) {
+                    SpeculativeRigidbody CurrentObjectRigidBody = gameObject.GetComponentInChildren<SpeculativeRigidbody>();
+                    CurrentObjectRigidBody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                        CurrentObjectRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    }
                 }
 
             } catch (Exception ex) {

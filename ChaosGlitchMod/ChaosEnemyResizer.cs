@@ -67,7 +67,7 @@ namespace ChaosGlitchMod {
             int cachedOutlineLayer = cachedLayer;
             target.gameObject.layer = LayerMask.NameToLayer("Unpixelated");
             cachedOutlineLayer = SpriteOutlineManager.ChangeOutlineLayer(target.sprite, LayerMask.NameToLayer("Unpixelated"));
-            target.ClearPath();
+            // target.ClearPath();
             if (!onlyDoRescale) {
                 if (target.knockbackDoer) {
                     if (isBigEnemy) {
@@ -97,6 +97,7 @@ namespace ChaosGlitchMod {
                         target.MovementSpeed *= 1.15f;
                         if (targetHealthHaver != null) { targetHealthHaver.SetHealthMaximum(targetHealthHaver.GetMaxHealth() / 2f, null, false); }
                     }
+                    target.OverrideDisplayName = ("Tiny " + target.GetActorName());
                 } else if (isBigEnemy && targetHealthHaver != null && !onlyDoRescale) {
                     if (!target.IsFlying && !targetHealthHaver.IsBoss && !ChaosLists.OverrideFallIntoPitsList.Contains(target.EnemyGuid)) {
                         target.PreventFallingInPitsEver = true;
@@ -110,6 +111,7 @@ namespace ChaosGlitchMod {
                         target.MovementSpeed /= 1.25f;
                         targetHealthHaver.SetHealthMaximum(targetHealthHaver.GetMaxHealth() * 1.5f, null, false);
                     }
+                    target.OverrideDisplayName = ("Big " + target.GetActorName());
                 }
             }
             Vector2 startScale = target.EnemyScale;
