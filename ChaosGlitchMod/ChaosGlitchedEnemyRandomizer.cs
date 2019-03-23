@@ -21,6 +21,7 @@ namespace ChaosGlitchMod {
 
         public void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
             if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             int RandomEnemiesPlaced = 0;
             int RandomEnemiesSkipped = 0;

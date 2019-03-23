@@ -60,6 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChaosEnemyResizer.cs" />
+    <Compile Include="ChaosGlitchFloorGenerator.cs" />
+    <Compile Include="ChaosGlitchTrapDoor.cs" />
+    <Compile Include="ChaosMinimap.cs" />
+    <Compile Include="ChaosMirrorController.cs" />
     <Compile Include="ChaosPitRandomizer.cs" />
     <Compile Include="ChaosRoomRandomizer.cs" />
     <Compile Include="ChaosShaders.cs" />

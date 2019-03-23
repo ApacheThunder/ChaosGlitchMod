@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Dungeonator;
 
 namespace ChaosGlitchMod {
 
@@ -13,6 +13,8 @@ namespace ChaosGlitchMod {
             ETGModMainBehaviour.Instance.gameObject.AddComponent<DungeonFlowModule>();
 
             ChaosSharedHooks.InstallPlaceWallMimicsHook();
+
+            GameManager.Instance.OnNewLevelFullyLoaded += ChaosGlitchFloorGenerator.Instance.Init;            
         }
 
         public override void Exit() { }

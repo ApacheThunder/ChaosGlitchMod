@@ -392,6 +392,18 @@ namespace ChaosGlitchMod {
                 aiActor.CurrentGun.sprite.usesOverrideMaterial = AiActorGunMaterial;
             } catch (Exception) { }
         }
+        public void ApplyRainbowShader(tk2dBaseSprite sprite, bool usesOverrideMaterial = true) {
+            Material m_cachedGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/RainbowChestShader"));
+            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+            Material[] sharedMaterials = spriteComponent.sharedMaterials;
+            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+            Material CustomMaterial = Instantiate(m_cachedGlitchMaterial);
+            CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+            sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
+            spriteComponent.sharedMaterials = sharedMaterials;
+            sprite.usesOverrideMaterial = usesOverrideMaterial;
+        }
+
     }
 }
 

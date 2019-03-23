@@ -36,10 +36,6 @@ namespace ChaosGlitchMod {
         private PunchoutController PunchoutPrefab = MetalGearRatDeathPrefab.PunchoutMinigamePrefab.GetComponent<PunchoutController>();
         private ResourcefulRatController resourcefulRatControllerPrefab = ResourcefulRatBossActorPrefab.GetComponent<ResourcefulRatController>();
 
-        // private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
-
-        // private DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
-
         private GameObject RedDrum = assetBundle.LoadAsset("Red Drum") as GameObject;
         private GameObject YellowDrum = assetBundle2.LoadAsset("Yellow Drum") as GameObject;
         private GameObject WaterDrum = assetBundle2.LoadAsset("Blue Drum") as GameObject;
@@ -144,6 +140,7 @@ namespace ChaosGlitchMod {
         public void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
 
             if (!ChaosConsole.isUltraMode) { return; }
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
 
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             bool debugMode = false;
@@ -160,8 +157,6 @@ namespace ChaosGlitchMod {
             int MaxRandomObjects = 100;
             if (currentFloor <= 3 | currentFloor == -1) { MaxRandomObjects = UnityEngine.Random.Range(150, 200); } else { MaxRandomObjects = UnityEngine.Random.Range(100, 150); }
 
-            // if (currentFloor != 3) { try { PlaceRatGrate(dungeon); } catch (Exception) { } }
-                        
             List<GlobalDungeonData.ValidTilesets> FloorDestinations = new List<GlobalDungeonData.ValidTilesets>();
 
             List<Chest> InteractableChests = new List<Chest>();
@@ -707,8 +702,8 @@ namespace ChaosGlitchMod {
         }
 
 
-        private IntVector2 GetRandomAvailableCellForPlacable(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList, bool allowPlacingOverPits = false, int gridSnap = 1) {
-            if (!useCachedList) { validCellsCached = new List<IntVector2>(); }
+        public IntVector2 GetRandomAvailableCellForPlacable(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList, bool allowPlacingOverPits = false, int gridSnap = 1) {
+            if (!useCachedList | validCellsCached == null) { validCellsCached = new List<IntVector2>(); }
             if (validCellsCached.Count <= 0) {
                 for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
                     for (int height = -1; height <= currentRoom.area.dimensions.y; height++) {
@@ -762,8 +757,8 @@ namespace ChaosGlitchMod {
             } else { return IntVector2.Zero; }
         }
 
-        private IntVector2 GetRandomAvailableCellForNPC(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList) {
-            if (!useCachedList) {
+        public IntVector2 GetRandomAvailableCellForNPC(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList) {
+            if (!useCachedList | validCellsCached == null) {
                 validCellsCached = new List<IntVector2>();
                 validCellsCached.Clear();
             }
@@ -805,7 +800,11 @@ namespace ChaosGlitchMod {
             } else { return IntVector2.Zero; }
         }
 
-        private IntVector2 GetRandomAvailableCellForChest(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached) {
+        public IntVector2 GetRandomAvailableCellForChest(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached) {
+            if (validCellsCached == null) {
+                validCellsCached = new List<IntVector2>();
+                validCellsCached.Clear();
+            }
             if (validCellsCached.Count <= 0) { 
                 for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
                     for (int height = -1; height <= currentRoom.area.dimensions.y; height++) {
@@ -838,8 +837,8 @@ namespace ChaosGlitchMod {
             } else { return IntVector2.Zero; }
         }
 
-        private IntVector2 GetRandomAvailableCellForElevator(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList) {
-            if (!useCachedList) {
+        public IntVector2 GetRandomAvailableCellForElevator(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList) {
+            if (!useCachedList | validCellsCached == null) {
                 validCellsCached = new List<IntVector2>();
                 validCellsCached.Clear();
             }
@@ -873,96 +872,6 @@ namespace ChaosGlitchMod {
                 return (SelectedCell - currentRoom.area.basePosition);
             } else { return IntVector2.Zero; }
         }
-
-        
-        /*private void PlaceRatGrate(Dungeon dungeon) {
-            List<IntVector2> list = new List<IntVector2>();
-            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
-                RoomHandler roomHandler = dungeon.data.rooms[i];
-                if (!roomHandler.area.IsProceduralRoom && roomHandler.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.NORMAL && !roomHandler.OptionalDoorTopDecorable) {
-                    for (int j = roomHandler.area.basePosition.x; j < roomHandler.area.basePosition.x + roomHandler.area.dimensions.x; j++) {
-                        for (int k = roomHandler.area.basePosition.y; k < roomHandler.area.basePosition.y + roomHandler.area.dimensions.y; k++) {
-                            if (ClearForRatGrate(dungeon, j, k)) { list.Add(new IntVector2(j, k)); }
-                        }
-                    }
-                }
-            }
-            if (list.Count > 0) {
-                IntVector2 a = list[BraveRandom.GenerationRandomRange(0, list.Count)];
-                DungeonPlaceableBehaviour component = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
-                RoomHandler absoluteRoom = a.ToVector2().GetAbsoluteRoom();
-                GameObject gObj = component.InstantiateObject(absoluteRoom, a - absoluteRoom.area.basePosition, false);
-
-                ResourcefulRatMinesHiddenTrapdoor trapDoorController = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>();
-                List<int> TempRoomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
-
-                RoomHandler MaintenanceRoom = null;
-                // RoomHandler RewardRoom1 = null;
-                // RoomHandler RewardRoom2 = null;
-
-
-                for (int checkedRooms = 0; checkedRooms < TempRoomList.Count; checkedRooms++) {
-                    RoomHandler RoomCurrent = dungeon.data.rooms[TempRoomList[checkedRooms]];
-                    if (RoomCurrent.IsMaintenanceRoom()) { MaintenanceRoom = RoomCurrent; }
-                    /*if (RoomCurrent.GetRoomName().ToLower().EndsWith("rewardroom_1")) {
-                        RewardRoom1 = RoomCurrent;
-                        RewardRoom2 = RoomCurrent;
-                    }*/
-                /*}
-                
-                if (MaintenanceRoom != null) {
-                    // trapDoorController.TargetMinecartRoom = RewardRoom1.area.prototypeRoom;
-                    trapDoorController.TargetMinecartRoom = MaintenanceRoom.area.prototypeRoom;
-                    trapDoorController.FirstSecretRoom = MaintenanceRoom.area.prototypeRoom;
-                    trapDoorController.SecondSecretRoom = MaintenanceRoom.area.prototypeRoom;
-                    // trapDoorController.SecondSecretRoom = RewardRoom1.area.prototypeRoom;
-                } else {
-                    trapDoorController.TargetMinecartRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
-                    trapDoorController.FirstSecretRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
-                    trapDoorController.SecondSecretRoom = dungeon.data.rooms[BraveRandom.GenerationRandomRange(0, dungeon.data.rooms.Count)].area.prototypeRoom;
-                }
-
-
-
-                IPlayerInteractable[] interfacesInChildren = gObj.GetInterfacesInChildren<IPlayerInteractable>();
-                foreach (IPlayerInteractable ixable in interfacesInChildren) { absoluteRoom.RegisterInteractable(ixable); }
-                for (int m = 0; m < 4; m++) {
-                    for (int n = 0; n < 4; n++) {
-                        IntVector2 intVector = a + new IntVector2(m, n);
-                        if (dungeon.data.CheckInBoundsAndValid(intVector)) {
-                            dungeon.data[intVector].cellVisualData.floorTileOverridden = true;
-                        }
-                    }
-                }
-            }
-        }
-        private bool ClearForRatGrate(Dungeon dungeon, int bpx, int bpy) {
-            int num = -1;
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    IntVector2 intVector = new IntVector2(bpx + i, bpy + j);
-                    if (!dungeon.data.CheckInBoundsAndValid(intVector)) { return false; }
-                    CellData cellData = dungeon.data[intVector];
-                    if (num == -1) {
-                        num = cellData.cellVisualData.roomVisualTypeIndex;
-                        if (num != 0 && num != 1) { return false; }
-                    }
-                    if (cellData.parentRoom == null || cellData.parentRoom.IsMaintenanceRoom() || cellData.type != CellType.FLOOR || cellData.isOccupied || !cellData.IsPassable || cellData.containsTrap || cellData.IsTrapZone) {
-                        return false;
-                    }
-                    if (cellData.cellVisualData.roomVisualTypeIndex != num || cellData.HasPitNeighbor(dungeon.data) || cellData.PreventRewardSpawn || cellData.cellVisualData.isPattern || cellData.cellVisualData.IsPhantomCarpet) {
-                        return false;
-                    }
-                    if (cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Water || cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Carpet || cellData.cellVisualData.floorTileOverridden) {
-                        return false;
-                    }
-                    if (cellData.doesDamage || cellData.cellVisualData.preventFloorStamping || cellData.cellVisualData.hasStampedPath || cellData.forceDisallowGoop) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }*/
     }
 }
 

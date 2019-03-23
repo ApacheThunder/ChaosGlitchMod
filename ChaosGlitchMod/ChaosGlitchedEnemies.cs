@@ -194,7 +194,7 @@ namespace ChaosGlitchMod {
             return;
         }
 
-        public void GlitchExistingEnemy(AIActor aiActor) {
+        public void GlitchExistingEnemy(AIActor aiActor, bool overrideGUIDCheck = false) {
             if (string.IsNullOrEmpty(aiActor.EnemyGuid)) { return; }
             if (aiActor.GetActorName().ToLower().StartsWith("glitched")) { return; }
             if (aiActor.name.ToLower().StartsWith("glitched")) { return; }
@@ -211,6 +211,8 @@ namespace ChaosGlitchMod {
                 SpawnEnemyOnDeath CachedBullatSpawnEnemyOnDeath = aiActor.GetComponent<SpawnEnemyOnDeath>();
                 CachedBullatSpawnEnemyOnDeath.enemyGuidsToSpawn = ChaosLists.SpawnEnemyOnDeathGUIDList;
                 return;
+            } else if (overrideGUIDCheck) {
+                aiActor.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
             }
             return;
         }
@@ -4969,9 +4971,7 @@ namespace ChaosGlitchMod {
         }
         public void SpawnGlitchedSnake(RoomHandler CurrentRoom, IntVector2 position, bool autoEngage = false, AIActor.AwakenAnimationType awakenAnimType = AIActor.AwakenAnimationType.Awaken) {
             GameObject CachedTargetEnemyObject = Instantiate(SnakePrefab);
-            GameObject CachedSourceEnemyObject;
-
-            if (BraveUtility.RandomBool()) { CachedSourceEnemyObject = BulletKingsToadieObject; } else { CachedSourceEnemyObject = TinyBlobulordObject; }
+            GameObject CachedSourceEnemyObject = TinyBlobulordObject;
 
             if (CachedSourceEnemyObject == null) {
                 if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] ERROR: Source object for random donor enemy is null!", false);
@@ -5044,7 +5044,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
 
 
-            SpeculativeRigidbody specRigidbody = CachedGlitchEnemyActor.GetComponent<SpeculativeRigidbody>();
+            SpeculativeRigidbody specRigidbody = CachedGlitchEnemyActor.GetComponentInChildren<SpeculativeRigidbody>();
             specRigidbody.PrimaryPixelCollider.Enabled = true;
             specRigidbody.HitboxPixelCollider.Enabled = true;
             specRigidbody.CollideWithTileMap = true;

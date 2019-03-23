@@ -8,6 +8,21 @@ namespace ChaosGlitchMod {
 
     class ChaosPlaceWallMimic : MonoBehaviour {
 
+        private static ChaosPlaceWallMimic m_instance;
+
+        public static ChaosPlaceWallMimic Instance {
+            get {
+                if (!m_instance) {
+                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosPlaceWallMimic>();
+                }
+                return m_instance;
+            }
+        }
+
+        private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
+
+        private DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
+
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
             "EndTimes_Chamber",
@@ -124,7 +139,7 @@ namespace ChaosGlitchMod {
             int currentFloor = GameManager.Instance.CurrentFloor;
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
             var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
-
+            
             if (currentFloor < 3) ChaosConsole.ShaderPass = 0;
             if (currentFloor > 3) ChaosConsole.ShaderPass = 18;
             if (currentFloor == -1) ChaosConsole.ShaderPass = 10;
@@ -142,10 +157,10 @@ namespace ChaosGlitchMod {
                 ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
             }
 
-            if (currentFloor == 1 && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | ChaosSharedHooks.IsHooksInstalled) {
-                PlaceTeleporter(dungeon);
+            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
+                if (currentFloor == 1) PlaceTeleporter(dungeon);
             }
-
+            
             if (ChaosConsole.isUltraMode) {
                 if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
@@ -167,6 +182,12 @@ namespace ChaosGlitchMod {
             } else {
                 ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
             }
+            
+            if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }
+
+            // Additional Wall Mimics will not be placed on special Glitch Floor
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+
 
             if (levelOverrideState != GameManager.LevelOverrideState.NONE | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL)
             {
@@ -366,6 +387,80 @@ namespace ChaosGlitchMod {
                 }
             }
             return;
+        }
+
+        private void PlaceRatGrate(Dungeon dungeon) {
+            List<IntVector2> list = new List<IntVector2>();
+            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
+                RoomHandler roomHandler = dungeon.data.rooms[i];
+                if (!roomHandler.area.IsProceduralRoom && roomHandler.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.NORMAL && !roomHandler.OptionalDoorTopDecorable) {
+                    for (int j = roomHandler.area.basePosition.x; j < roomHandler.area.basePosition.x + roomHandler.area.dimensions.x; j++) {
+                        for (int k = roomHandler.area.basePosition.y; k < roomHandler.area.basePosition.y + roomHandler.area.dimensions.y; k++) {
+                            if (ClearForRatGrate(dungeon, j, k)) { list.Add(new IntVector2(j, k)); }
+                        }
+                    }
+                }
+            }
+            if (list.Count > 0) {
+                IntVector2 a = list[BraveRandom.GenerationRandomRange(0, list.Count)];
+                DungeonPlaceableBehaviour component = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
+                RoomHandler absoluteRoom = a.ToVector2().GetAbsoluteRoom();
+                GameObject gObj = component.InstantiateObject(absoluteRoom, a - absoluteRoom.area.basePosition, true);
+                gObj.AddComponent<ChaosGlitchTrapDoor>();
+                ChaosGlitchTrapDoor chaosGlitchTrapDoor = gObj.GetComponent<ChaosGlitchTrapDoor>();
+                chaosGlitchTrapDoor.RevealPercentage = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().RevealPercentage;
+                chaosGlitchTrapDoor.Lock = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().Lock;
+                chaosGlitchTrapDoor.Lock.sprite.scale = new Vector3(2, 2);
+                chaosGlitchTrapDoor.Lock.lockMode = InteractableLock.InteractableLockMode.RESOURCEFUL_RAT;
+                chaosGlitchTrapDoor.Lock.transform.position -= new Vector3(0.725f, 0.7f);
+                chaosGlitchTrapDoor.OverridePitGrid = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().OverridePitGrid;
+                chaosGlitchTrapDoor.BlendMaterial = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().BlendMaterial;
+                chaosGlitchTrapDoor.LockBlendMaterial = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().LockBlendMaterial;
+                chaosGlitchTrapDoor.StoneFloorTex = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().StoneFloorTex;
+                chaosGlitchTrapDoor.DirtFloorTex = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().DirtFloorTex;
+                chaosGlitchTrapDoor.FlightCollider = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().FlightCollider;
+                chaosGlitchTrapDoor.MinimapIcon = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().MinimapIcon;
+                tk2dSpriteAnimator GlitchTrapDoorAnimator = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().GetComponentInChildren<tk2dSpriteAnimator>();
+                chaosGlitchTrapDoor.spriteAnimator = GlitchTrapDoorAnimator;
+                chaosGlitchTrapDoor.ConfigureOnPlacement(absoluteRoom);
+                Destroy(gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>());
+
+                for (int m = 0; m < 4; m++) {
+                    for (int n = 0; n < 4; n++) {
+                        IntVector2 intVector = a + new IntVector2(m, n);
+                        if (dungeon.data.CheckInBoundsAndValid(intVector)) {
+                            dungeon.data[intVector].cellVisualData.floorTileOverridden = true;
+                        }
+                    }
+                }
+            }
+        }
+        private bool ClearForRatGrate(Dungeon dungeon, int bpx, int bpy) {
+            int num = -1;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    IntVector2 intVector = new IntVector2(bpx + i, bpy + j);
+                    if (!dungeon.data.CheckInBoundsAndValid(intVector)) { return false; }
+                    CellData cellData = dungeon.data[intVector];
+                    if (num == -1) {
+                        num = cellData.cellVisualData.roomVisualTypeIndex;
+                        if (num != 0 && num != 1) { return false; }
+                    }
+                    if (cellData.parentRoom == null || cellData.parentRoom.IsMaintenanceRoom() || cellData.type != CellType.FLOOR || cellData.isOccupied || !cellData.IsPassable || cellData.containsTrap || cellData.IsTrapZone) {
+                        return false;
+                    }
+                    if (cellData.cellVisualData.roomVisualTypeIndex != num || cellData.HasPitNeighbor(dungeon.data) || cellData.PreventRewardSpawn || cellData.cellVisualData.isPattern || cellData.cellVisualData.IsPhantomCarpet) {
+                        return false;
+                    }
+                    if (cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Water || cellData.cellVisualData.floorType == CellVisualData.CellFloorType.Carpet || cellData.cellVisualData.floorTileOverridden) {
+                        return false;
+                    }
+                    if (cellData.doesDamage || cellData.cellVisualData.preventFloorStamping || cellData.cellVisualData.hasStampedPath || cellData.forceDisallowGoop) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

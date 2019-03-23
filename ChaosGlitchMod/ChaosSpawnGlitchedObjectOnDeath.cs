@@ -34,6 +34,7 @@ namespace ChaosGlitchMod {
             maxSpawnCount = 1;
             allowSpawnOverPit = true;
             usesExternalObjectArray = false;
+            externalObjectArrayIsPickupItems = false;
             objectSelection = ObjectSelection.Random;
             objectsToSpawn = new GameObject[] {
                 PunchoutPrefab.PlayerWonRatNPC.gameObject,
@@ -90,6 +91,7 @@ namespace ChaosGlitchMod {
         public int extraPixelWidth;
         public bool allowSpawnOverPit;
         public bool usesExternalObjectArray;
+        public bool externalObjectArrayIsPickupItems;
 
         private int ObjectPrefabSpawnCount;
         private bool m_hasTriggered;
@@ -131,67 +133,79 @@ namespace ChaosGlitchMod {
 		    for (int i = 0; i < ObjectPrefabSpawnCount; i++) {
                 if (objectsToSpawn == null) { return; }
                 GameObject SelectedObject = selectedObjects[i];
-                GameObject SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);                
-                if (SpawnedObject == null) { return; }
+                GameObject SpawnedObject = null;
+                if (!usesExternalObjectArray && !externalObjectArrayIsPickupItems) {
+                    SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);
+                    if (SpawnedObject == null) { return; }
+                }
+                
                 float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
                 float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
                 float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
                 float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
                 float RandomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
 
-                if (SpawnedObject.GetComponent<tk2dBaseSprite>() != null) {
+                if (SpawnedObject.GetComponent<tk2dBaseSprite>() != null && !externalObjectArrayIsPickupItems) {
                     ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponent<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
-                } else if(SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null) {
+                } else if(SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null && !externalObjectArrayIsPickupItems) {
                     ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponentInChildren<tk2dSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
                 }
 
-                if (SpawnedObject.GetComponent<TalkDoerLite>() != null) {
-                    TalkDoerLite talkdoerComponent = SpawnedObject.GetComponent<TalkDoerLite>();
-                    talkdoerComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(talkdoerComponent);
-                    if (SpawnedObject.name == objectsToSpawn[0].name && !usesExternalObjectArray) {
-                        talkdoerComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(talkdoerComponent);
+                if (SpawnedObject != null) {
+                    if (!usesExternalObjectArray && SpawnedObject.GetComponent<TalkDoerLite>() != null) {
+                        TalkDoerLite talkdoerComponent = SpawnedObject.GetComponent<TalkDoerLite>();
+                        talkdoerComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(talkdoerComponent);
+                        if (SpawnedObject.name == objectsToSpawn[0].name && !usesExternalObjectArray) {
+                            talkdoerComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(talkdoerComponent);
+                        }
                     }
+
+                    if (!usesExternalObjectArray &&SpawnedObject.GetComponentInChildren<KickableObject>() != null) {
+                        KickableObject kickableObjectComponent = SpawnedObject.GetComponentInChildren<KickableObject>();
+                        kickableObjectComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(kickableObjectComponent);
+                        kickableObjectComponent.ConfigureOnPlacement(kickableObjectComponent.transform.position.XY().GetAbsoluteRoom());
+                    }
+
+                    if (!usesExternalObjectArray && SpawnedObject.GetComponent<FlippableCover>() != null) {
+                        FlippableCover tableComponent = SpawnedObject.GetComponent<FlippableCover>();
+                        tableComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(tableComponent);
+                        tableComponent.ConfigureOnPlacement(tableComponent.transform.position.XY().GetAbsoluteRoom());
+                        SpawnedObject.AddComponent<ChaosKickableObject>();
+                        ChaosKickableObject chaosKickableComponent = SpawnedObject.GetComponent<ChaosKickableObject>();
+                        chaosKickableComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(chaosKickableComponent);
+                    }
+
+                    if (!usesExternalObjectArray && SpawnedObject.GetComponent<NoteDoer>() != null) {
+                        NoteDoer noteComponent = SpawnedObject.GetComponent<NoteDoer>();
+                        noteComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(noteComponent);
+                        noteComponent.alreadyLocalized = true;
+                        noteComponent.useAdditionalStrings = false;
+                        noteComponent.stringKey = ("Here lies " + aiActor.GetActorName() + "\nHe was annoying anyways....");
+                    }
+
+                    if (!usesExternalObjectArray && SpawnedObject.GetComponent<HeartDispenser>() != null) {
+                        HeartDispenser heartDispenserComponent = SpawnedObject.GetComponent<HeartDispenser>();
+                        heartDispenserComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(heartDispenserComponent);
+                    }
+
+                    if (SpawnedObject.GetComponentInChildren<SpeculativeRigidbody>() != null &&
+                        SpawnedObject.GetComponentInChildren<KickableObject>() == null &&
+                        SpawnedObject.GetComponent<TrapController>() == null &&
+                        SpawnedObject.GetComponent<FlippableCover>() == null &&
+                        SelectedObject.name != "NPC_ResourcefulRat_Beaten" &&
+                        !usesExternalObjectArray)
+                    {
+                        SpeculativeRigidbody SpawnedObjectRigidBody = SpawnedObject.GetComponentInChildren<SpeculativeRigidbody>();
+                        SpawnedObjectRigidBody.PrimaryPixelCollider.Enabled = false;
+                        SpawnedObjectRigidBody.HitboxPixelCollider.Enabled = false;
+                        SpawnedObjectRigidBody.CollideWithOthers = false;
+                    }
+
                 }
 
-                if (SpawnedObject.GetComponentInChildren<KickableObject>() != null) {
-                    KickableObject kickableObjectComponent = SpawnedObject.GetComponentInChildren<KickableObject>();
-                    kickableObjectComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(kickableObjectComponent);
-                    kickableObjectComponent.ConfigureOnPlacement(kickableObjectComponent.transform.position.XY().GetAbsoluteRoom());
-                }
-
-                if (SpawnedObject.GetComponent<FlippableCover>() != null) {
-                    FlippableCover tableComponent = SpawnedObject.GetComponent<FlippableCover>();
-                    tableComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(tableComponent);
-                    tableComponent.ConfigureOnPlacement(tableComponent.transform.position.XY().GetAbsoluteRoom());
-                    SpawnedObject.AddComponent<ChaosKickableObject>();
-                    ChaosKickableObject chaosKickableComponent = SpawnedObject.GetComponent<ChaosKickableObject>();
-                    chaosKickableComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(chaosKickableComponent);
-                }
-
-                if (SpawnedObject.GetComponent<NoteDoer>() != null) {
-                    NoteDoer noteComponent = SpawnedObject.GetComponent<NoteDoer>();
-                    noteComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(noteComponent);
-                    noteComponent.alreadyLocalized = true;
-                    noteComponent.useAdditionalStrings = false;
-                    noteComponent.stringKey = ("Here lies " + aiActor.GetActorName() + "\nHe was annoying anyways....");
-                }
-
-                if (SpawnedObject.GetComponent<HeartDispenser>() != null) {
-                    HeartDispenser heartDispenserComponent = SpawnedObject.GetComponent<HeartDispenser>();
-                    heartDispenserComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(heartDispenserComponent);
-                }
-
-                if (SpawnedObject.GetComponentInChildren<SpeculativeRigidbody>() != null &&
-                    SpawnedObject.GetComponentInChildren<KickableObject>() == null &&
-                    SpawnedObject.GetComponent<TrapController>() == null &&
-                    SpawnedObject.GetComponent<FlippableCover>() == null &&
-                    SelectedObject.name != "NPC_ResourcefulRat_Beaten" &&
-                    !usesExternalObjectArray)
-                {
-                    SpeculativeRigidbody SpawnedObjectRigidBody = SpawnedObject.GetComponentInChildren<SpeculativeRigidbody>();
-                    SpawnedObjectRigidBody.PrimaryPixelCollider.Enabled = false;
-                    SpawnedObjectRigidBody.HitboxPixelCollider.Enabled = false;
-                    SpawnedObjectRigidBody.CollideWithOthers = false;
+                if (externalObjectArrayIsPickupItems && usesExternalObjectArray) {
+                    // SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);
+                    SpawnedObject = LootEngine.SpawnItem(objectsToSpawn[i], specRigidbody.UnitCenter, new Vector2(0 , 0), 0.5f).gameObject;
                 }
 
                 if (SpawnedObject && SpawnedObject.GetComponentInChildren<SpeculativeRigidbody>() != null) {

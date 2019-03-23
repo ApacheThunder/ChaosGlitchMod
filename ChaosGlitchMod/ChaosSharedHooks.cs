@@ -5,6 +5,7 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Collections.Generic;
+using Pathfinding;
 
 namespace ChaosGlitchMod {
 
@@ -17,6 +18,7 @@ namespace ChaosGlitchMod {
         public static Hook slidehook;
         public static Hook stringhook;
         public static Hook cellhook;
+        // public static Hook glitchroomsetuphook;
 
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
 
@@ -55,6 +57,7 @@ namespace ChaosGlitchMod {
             bool aiHookFlag = aiActorhook != null;
             bool stringHookFlag = stringhook != null;
             bool cellHookFlag = cellhook != null;
+            // bool glitchRoomSetupHookFlag = glitchroomsetuphook != null;
 
             if (InstallHooks) {
 
@@ -86,6 +89,11 @@ namespace ChaosGlitchMod {
                     );
                 }
 
+                /*Hook PathFinderFixHook = new Hook(
+                        typeof(Pathfinder).GetMethod("Initialize", BindingFlags.Public | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks).GetMethod("PathfindingInitializeHook", BindingFlags.Public | BindingFlags.Static)
+                );*/
+
                 IsHooksInstalled = true;
                 if (!ChaosConsole.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
                 return;
@@ -94,6 +102,8 @@ namespace ChaosGlitchMod {
                 if (roomFlag) { enterRoomHook.Dispose(); enterRoomHook = null; }
                 if (stringHookFlag) { stringhook.Dispose(); stringhook = null; }
                 if (cellHookFlag) { cellhook.Dispose(); cellhook = null; }
+                // if (glitchRoomSetupHookFlag) { glitchroomsetuphook.Dispose(); glitchroomsetuphook = null; }
+
                 IsHooksInstalled = false;
                 ETGModConsole.Log("Primary hooks removed...", false);
                 return;
@@ -108,6 +118,10 @@ namespace ChaosGlitchMod {
             return;
         }
 
+        /*public static void PathfindingInitializeHook(Action<Pathfinder, DungeonData> orig, Pathfinder self, DungeonData d) {
+            try { orig(self, d); } catch (Exception) { }
+            // orig(self, d);
+        }*/
 
         public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) {
             try { orig(self); } catch (Exception) { return; }            
@@ -254,15 +268,19 @@ namespace ChaosGlitchMod {
             return;
         }
 
+        public void RevealRoom(RoomHandler CurrentRoom) {
+            StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(CurrentRoom, true, true, true));
+        }
+
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
             orig(self, player);
 
             if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Player entered room with name '" + player.CurrentRoom.GetRoomName() + "' .", false); }
             
 
-            if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
-                Instance.ResizeEnemiesInRoom();
-            }
+            if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { Instance.ResizeEnemiesInRoom(); }
+
+            if (self.OverrideTilemap && ChaosConsole.allowGlitchFloor) { Instance.RevealRoom(self); }
 
             if (ChaosConsole.ShaderPass <= 25 && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { 
                 if (ChaosConsole.GlitchEverything | ChaosConsole.isUltraMode | ChaosConsole.isUltraMode) {

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Dungeonator;
 using UnityEngine;
-using ChaosGlitchMod;
 
 // Custom Copy of KickableObject. Mainly to set RollingDestroysSafely to false as default.
 // Future instances of objects spawned by ObjectRandomizer end up with their Object class being changed.
@@ -11,13 +10,16 @@ using ChaosGlitchMod;
 // This can cause frame drops. So this object class has been cloned and the break on roll property disabled by default.
 // A few other bools that are null by default have also now been set to proper values.
 namespace ChaosGlitchMod {
+
         public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractable, IPlaceConfigurable {
-
-
+        
         private static GameObject GrenadeGuyPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/GrenadeGuy", ".prefab");
         // Use Explosion Data from Grenade Kin
         public ExplosionData TableExplosionData = GrenadeGuyPrefab.gameObject.GetComponent<ExplodeOnDeath>().explosionData;
 
+        public GameObject SpawnedObject;
+        public bool spawnObjectOnSelfDestruct;
+        public bool willDefinitelyExplode;
         public bool explodesOnKick;
         public bool useDefaultExplosion;
         public bool hasRollingAnimations;
@@ -45,6 +47,7 @@ namespace ChaosGlitchMod {
         private RoomHandler m_room;
         private bool m_isBouncingBack;
         private bool m_timerIsActive;
+        private bool m_objectSpawned;
         [NonSerialized]
         public bool AllowTopWallTraversal;
         public IntVector2? m_lastDirectionKicked;
@@ -64,10 +67,13 @@ namespace ChaosGlitchMod {
             triggersBreakTimer = false;
             AllowTopWallTraversal = true;
             explodesOnKick = true;
+            willDefinitelyExplode = false;
+            spawnObjectOnSelfDestruct = false;
             useDefaultExplosion = false;
             hasRollingAnimations = false;
             RollingBreakAnim = "red_barrel_break";
             m_lastOutlineDirection = (DungeonData.Direction)(-1);
+            m_objectSpawned = false;
     	}
     
     	private void Start() {
@@ -354,14 +360,20 @@ namespace ChaosGlitchMod {
     	private void Kick(SpeculativeRigidbody kickerRigidbody) {
     
             if (explodesOnKick) {
-                try { Invoke("SelfDestructOnKick", UnityEngine.Random.Range(0.25f, 3f)); } catch (Exception ex) {
+                try {
+                    if (willDefinitelyExplode) {
+                        Invoke("SelfDestructOnKick", UnityEngine.Random.Range(0f, 0.15f));
+                    } else {
+                        Invoke("SelfDestructOnKick", UnityEngine.Random.Range(0.25f, 3f));
+                    }
+                } catch (Exception ex) {
                     if (ChaosConsole.DebugExceptions) {
                         ETGModConsole.Log("Exception Caught at [SelfDestructOnKick] in ChaosKickableObject class.", false);
                         ETGModConsole.Log(ex.Message + ex.Source + ex.StackTrace, false);
                     }
                 }
             }
-    
+
             try {
                 if (base.specRigidbody && !base.specRigidbody.enabled) { return; }
                 RemoveFromRoomHierarchy();
@@ -441,17 +453,35 @@ namespace ChaosGlitchMod {
             int currentCoolness = PlayerStats.GetTotalCoolness();
             float ExplodeOnKickChances = 0.25f;
             float ExplodeOnKickDamageToEnemies = 150f;
+
             bool ExplodeOnKickDamagesPlayer = BraveUtility.RandomBool();
     
-            if (currentCoolness >= 3) {
+            if (willDefinitelyExplode) {
+                ExplodeOnKickChances = 1f;
                 ExplodeOnKickDamagesPlayer = false;
-                ExplodeOnKickDamageToEnemies = 175f;
-            }
-            if (currentCurse >= 3) {
-                ExplodeOnKickChances = 0.35f;
                 ExplodeOnKickDamageToEnemies = 200f;
+            } else {
+                if (currentCoolness >= 3) {
+                    ExplodeOnKickDamagesPlayer = false;
+                    ExplodeOnKickDamageToEnemies = 175f;
+                }
+                if (currentCurse >= 3) {
+                    ExplodeOnKickChances = 0.35f;
+                    ExplodeOnKickDamageToEnemies = 200f;
+                }
             }
-            
+
+            if (spawnObjectOnSelfDestruct && SpawnedObject != null && !m_objectSpawned) {
+                m_objectSpawned = true;
+                GameObject PlacedGlitchObject = ChaosGlitchFloorGenerator.Instance.CustomGlitchDungeonPlacable(SpawnedObject, false, true).InstantiateObject(transform.position.GetAbsoluteRoom(), (specRigidbody.GetUnitCenter(ColliderType.HitBox) - transform.position.GetAbsoluteRoom().area.basePosition.ToVector2()).ToIntVector2(VectorConversions.Floor));
+                PlacedGlitchObject.transform.parent = transform.position.GetAbsoluteRoom().hierarchyParent;
+
+                if (PlacedGlitchObject.GetComponent<PickupObject>() != null) {
+                    PickupObject PlacedGltichObjectComponent = PlacedGlitchObject.GetComponent<PickupObject>();
+                    PlacedGltichObjectComponent.RespawnsIfPitfall = true;
+                }
+            }
+
             if (UnityEngine.Random.value <= ExplodeOnKickChances) {
                 if (useDefaultExplosion) { 
                 Exploder.DoDefaultExplosion(specRigidbody.GetUnitCenter(ColliderType.HitBox), Vector2.zero, null, true, CoreDamageTypes.None);
@@ -459,9 +489,25 @@ namespace ChaosGlitchMod {
                 } else {
                     Exploder.Explode(specRigidbody.GetUnitCenter(ColliderType.HitBox), TableExplosionData, Vector2.zero, null, false, CoreDamageTypes.None, false);
                 }
+                /*if (gameObject.GetComponent<FlippableCover>() != null) {
+                    FlippableCover flippableCover = gameObject.GetComponent<FlippableCover>();
+                        flippableCover.DestroyCover();
+                } else if (gameObject.GetComponent<MajorBreakable>() != null) {
+                    MajorBreakable majorBreakableComponent = gameObject.GetComponent<MajorBreakable>();
+                    if (m_lastDirectionKicked.HasValue) {
+                        majorBreakableComponent.Break(m_lastDirectionKicked.Value.ToVector2());
+                    } else {
+                        majorBreakableComponent.Break(new Vector2(0, 0));
+                    }
+                } else if (gameObject.GetComponent<MinorBreakable>() != null) {
+                    MinorBreakable minorBreakableComponent = gameObject.GetComponent<MinorBreakable>();
+                    minorBreakableComponent.Break();
+                } else {
+                    Destroy(gameObject);
+                }*/
+                Destroy(gameObject);
+                return;
             }
-
-            if (minorBreakable != null) { minorBreakable.Break(); }
             return;
         }
     }

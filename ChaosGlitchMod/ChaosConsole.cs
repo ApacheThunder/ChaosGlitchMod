@@ -25,6 +25,7 @@ namespace ChaosGlitchMod {
         public static bool debugMimicFlag = false;
         public static bool isExplosionHookActive = false;
         public static bool explosionQueueDisabled = false;
+        public static bool allowGlitchFloor = false;
 
         public static bool GlitchEverything = false;
         public static bool GlitchRandomized = true;
@@ -51,6 +52,7 @@ namespace ChaosGlitchMod {
             if (autoUltra) {
                 GlitchEnemies = true;
                 addRandomEnemy = true;
+                allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
@@ -74,30 +76,14 @@ namespace ChaosGlitchMod {
             }
 
             ETGModConsole.Commands.AddGroup("chaos", delegate (string[] e) {
-                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nglitch\nglitch_all\nglitch_test\nglitch_randomizer\nbonus\npots\npots_debug\nwalls\nwalls_ultra\nwalls_disabled\ntinybigmode\nnormal\nextreme\nultra\nultra_glitched\nspawnbulletkin\nspawnlootcrate\nspawnlootrandom\ntentacletime\ndebug\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
+                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nglitch\nglitch_all\nglitch_test\nglitch_randomizer\nbonus\npots\npots_debug\nwalls\nwalls_ultra\nwalls_disabled\ntinybigmode\nnormal\nextreme\nultra\nultra_glitched\nspawnbulletkin\nspawnlootcrate\nspawnlootrandom\ntentacletime\ndebug\nenableglitchfloor\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
             });
 
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
-                AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_002");
-                GameObject NPCBabyDragun = (GameObject)assetBundle.LoadAsset("BabyDragunJail");
-
-                RoomHandler currentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
-                PlayerController Player = GameManager.Instance.PrimaryPlayer;
-                IntVector2 RoomPosition = (ChaosUtility.GetRandomAvailableCellSmart(currentRoom, Player, 2, true) - currentRoom.area.basePosition + IntVector2.One);
-
-                DungeonPlaceableUtility.InstantiateDungeonPlaceable(NPCBabyDragun, currentRoom, RoomPosition, false);
-                // IntVector2 RoomPosition = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, Player, 2, true);
-                // ChaosGlitchedEnemies.Instance.SpawnGlitchedDog(currentRoom, RoomPosition, true);
-                // AIActor SelectedEnemy = currentRoom.GetRandomActiveEnemy(true);
-                /*float i = 0.5f;
-                bool RandomBool = BraveUtility.RandomBool();
-                if (RandomBool) { i = 1.5f; }*/
-                // ChaosEnemyResizer.Instance.ResizeEnemy(SelectedEnemy, new Vector2(i, i), false, RandomBool);
-                // ChaosEnemyResizer.Instance.ChaosResizeEnemy(SelectedEnemy);
-                // ChaosShrinkEnemiesInRoomEffect.Instance.ResizeEnemy(SelectedEnemy);
-                //RandomEnemy.StartCoroutine(ChaosShrinkEnemiesInRoomEffect.Instance.HandleShrink(RandomEnemy));
-
-            });
+            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
+                ChaosGlitchFloorGenerator.isGlitchFloor = true;
+                ChaosGlitchFloorGenerator.debugMode = true;
+                ChaosGlitchFloorGenerator.Instance.Init();
+            });*/
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {
                 if (addRandomEnemy) {
@@ -193,6 +179,7 @@ namespace ChaosGlitchMod {
                     }
                 }
                 NormalWallMimicMode = false;
+                allowGlitchFloor = true;
                 addRandomEnemy = false;
                 randomEnemySizeEnabled = true;
                 isHardMode = false;
@@ -220,6 +207,7 @@ namespace ChaosGlitchMod {
 
                 NormalWallMimicMode = true;
                 addRandomEnemy = true;
+                allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = false;
@@ -248,6 +236,7 @@ namespace ChaosGlitchMod {
 
                 NormalWallMimicMode = false;
                 addRandomEnemy = true;
+                allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
@@ -287,6 +276,7 @@ namespace ChaosGlitchMod {
                 GlitchEverything = true;
                 NormalWallMimicMode = false;
                 addRandomEnemy = true;
+                allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
@@ -339,6 +329,19 @@ namespace ChaosGlitchMod {
                     if (slideHookFlag) {
                         ChaosSharedHooks.slidehook.Dispose(); ChaosSharedHooks.slidehook = null;
                         ETGModConsole.Log("Table sliding is back!", false);
+                    }
+                }
+            });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("enableglitchfloor", delegate (string[] e) {
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!allowGlitchFloor) {
+                    allowGlitchFloor = true;
+                    ETGModConsole.Log("A secret floor has now been added!", false);
+                } else {
+                    if (allowGlitchFloor) {
+                        allowGlitchFloor = false;
+                        ETGModConsole.Log("The secret floor will not appear...", false);
                     }
                 }
             });
@@ -492,6 +495,7 @@ namespace ChaosGlitchMod {
 
                 isExplosionHookActive = false;
                 explosionQueueDisabled = false;
+                allowGlitchFloor = false;
                 GlitchEnemies = false;
                 GlitchRandomized = true;
                 GlitchEverything = false;

@@ -33,6 +33,7 @@ namespace ChaosGlitchMod {
 
         public void PlaceRandomPits(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
             if (!ChaosConsole.isUltraMode) { return; }
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
             int LocalRandomPitsPerRoom = ChaosConsole.RandomPitsPerRoom;
             int RandomPitsPlaced = 0;
             int validPitsCount = 0;
