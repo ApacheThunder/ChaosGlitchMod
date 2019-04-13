@@ -137,11 +137,19 @@ namespace ChaosGlitchMod {
             "ElevatorMaintenanceRoom"
         };
 
+        public static Dungeon dungeonPrefab = DungeonDatabase.GetOrLoadByName("finalscenario_convict");
+        public static DungeonFlow dungeonFlowPrefab = dungeonPrefab.PatternSettings.flows[0];
+        public static PrototypeDungeonRoom ConvictPastRoom = dungeonFlowPrefab.AllNodes[0].overrideExactRoom;
+
+
         public void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
 
             if (!ChaosConsole.isUltraMode) { return; }
-            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
 
+            // InitStorm();
+
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             bool debugMode = false;
             bool hammerPlaced = false;
@@ -588,12 +596,12 @@ namespace ChaosGlitchMod {
                                                     SellCellController sellCreepController = PlacedMiscObject.GetComponent<SellCellController>();
                                                     SpeculativeRigidbody SellCreepNPCRigidBody = sellCreepController.SellPitDweller.GetComponentInChildren<SpeculativeRigidbody>();
                                                     SellCreepNPCRigidBody.PrimaryPixelCollider.Enabled = false;
+                                                    
                                                 }
                                                 if (SelectedNonInteractable == LockedDoor) {
                                                     SpeculativeRigidbody SelectedDoorRigidBody = PlacedMiscObject.GetComponentInChildren<SpeculativeRigidbody>();
                                                     SelectedDoorRigidBody.CollideWithOthers = false;
                                                 }
-
                                                 if (SelectedNonInteractable == NPCHeartDispenser) {
                                                     HeartDispenser HeatDispenserComponent = PlacedMiscObject.GetComponent<HeartDispenser>();
                                                     HeatDispenserComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(HeatDispenserComponent);
@@ -701,6 +709,27 @@ namespace ChaosGlitchMod {
             } catch (Exception) { }
         }
 
+        public void InitStorm() {
+            PlayerController PrimaryPlayer = GameManager.Instance.PrimaryPlayer;
+
+            GameObject ConvictPastRoomObject = ConvictPastRoom.placedObjects[0].nonenemyBehaviour.gameObject;
+            GameObject RainObject = ConvictPastRoomObject.transform.Find("Rain").gameObject;
+
+            GameObject ThunderStorm = Instantiate(RainObject);
+            ThunderstormController stormController = ThunderStorm.GetComponent<ThunderstormController>();
+            // ParticleSystem RainParticleSystem = stormController.RainSystemTransform.gameObject.GetComponent<ParticleSystem>();
+
+            stormController.DoLighting = false;
+            stormController.TrackCamera = true;
+            stormController.DecayYRange = new Vector2(25, 32);
+            stormController.ModifyAmbient = false;
+            // stormController.AmbientBoost = 1.5f;
+            stormController.ZOffset = -20;
+            stormController.DecayTrackPlayer = false;
+            stormController.DecayVertical = false;
+
+            ThunderStorm.AddComponent<ChaosThunderstormController>();
+        }
 
         public IntVector2 GetRandomAvailableCellForPlacable(Dungeon dungeon, RoomHandler currentRoom, List<IntVector2> validCellsCached, bool useCachedList, bool allowPlacingOverPits = false, int gridSnap = 1) {
             if (!useCachedList | validCellsCached == null) { validCellsCached = new List<IntVector2>(); }

@@ -20,17 +20,24 @@ namespace ChaosGlitchMod {
             }
         }
 
-        private static Dungeon DungeonPrefab = DungeonDatabase.GetOrLoadByName("base_cathedral");
+        // private static Dungeon DungeonPrefab = DungeonDatabase.GetOrLoadByName("base_cathedral");
+
+        public RoomHandler[] GlitchRoomCluster;
 
         public static bool isGlitchFloor = false;
         public static bool debugMode = false;
         public static bool exceptionState = false;
-        private bool m_IsForgeTileSet = false;
+
+        private bool m_IsOfficeTileSet = false;
+
+        private static Material m_glitchpass = new Material(Shader.Find("Brave/Internal/GlitchUnlit"));
+
 
         private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
         private static AssetBundle assetBundle2 = ResourceManager.LoadAssetBundle("shared_auto_002");
         private static AssetBundle enemiesBundle = ResourceManager.LoadAssetBundle("enemies_base_001");
         private static AssetBundle resourcesBundle = ResourceManager.LoadAssetBundle("brave_resources_001");
+
         private static GameObject MetalGearRatPrefab = (GameObject)enemiesBundle.LoadAsset("MetalGearRat");
         private static AIActor MetalGearRatActorPrefab = MetalGearRatPrefab.GetComponent<AIActor>();
         private static MetalGearRatDeathController MetalGearRatDeathPrefab = MetalGearRatActorPrefab.GetComponent<MetalGearRatDeathController>();
@@ -66,19 +73,6 @@ namespace ChaosGlitchMod {
         private GameObject TableHorizontalStone = assetBundle.LoadAsset("Table_Horizontal_Stone") as GameObject;
         private GameObject TableVerticalStone = assetBundle.LoadAsset("Table_Vertical_Stone") as GameObject;
 
-
-        private int[] BossDropRewardIdArray = new int[] {
-            71, 106, 65, 138, 118, 131, 114, 212, 87, 86,
-            79, 93, 100, 97, 91, 88, 54, 81, 15, 2, 30, 42,
-            56, 18, 9, 19, 59, 26, 1, 7, 57, 28, 24, 17, 14,
-            41, 36, 39, 10, 37, 60, 5, 16, 49, 84, 51, 50,
-            38, 43, 47, 25, 61, 53, 8, 32, 62, 12, 23, 20,
-            13, 55, 58, 80, 89, 125, 124, 126, 146, 143,
-            142, 169, 157, 156, 6, 154, 186, 128, 167, 135,
-            278, 277, 288, 295, 315
-        };
-
-
         private static PrototypeDungeonRoom non_elevator_entrance = assetBundle2.LoadAsset("non elevator entrance") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom gungeon_hub_001 = assetBundle2.LoadAsset("gungeon_hub_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom exit_room_basic = assetBundle2.LoadAsset("exit_room_basic") as PrototypeDungeonRoom;
@@ -86,16 +80,14 @@ namespace ChaosGlitchMod {
         private static PrototypeDungeonRoom utiliroom = assetBundle2.LoadAsset("utiliroom") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom castle_horizontalhallway = assetBundle2.LoadAsset("castle_horizontalhallway") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom castle_normal_tabledemonstrationroom = assetBundle2.LoadAsset("castle_normal_tabledemonstrationroom") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom hollow_rekt = assetBundle2.LoadAsset("hollow_rekt") as PrototypeDungeonRoom;
+
+        private static PrototypeDungeonRoom challengeshrine_joe_hollow_001 = assetBundle.LoadAsset("challengeshrine_joe_hollow_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom basic_secret_room_001 = assetBundle2.LoadAsset("basic_secret_room_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom gungeon_normal_trap_verticalspiketrapbridge_noenemies = assetBundle2.LoadAsset("gungeon_normal_trap_verticalspiketrapbridge_noenemies") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom shop02 = assetBundle2.LoadAsset("shop02") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom hollow_agd_room_010 = assetBundle2.LoadAsset("hollow_ag&d_room_010") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom normal_blobulonparadise_001 = assetBundle2.LoadAsset("normal_blobulonparadise_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom reward_room = assetBundle2.LoadAsset("reward room") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom shop_special_key_01 = assetBundle.LoadAsset("shop_special_key_01") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom letsgetsomeshrines_001 = assetBundle.LoadAsset("letsgetsomeshrines_001") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom hollow_joe_ice_giant_020 = assetBundle2.LoadAsset("hollow_joe_ice_giant_020") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom boss_foyer = assetBundle2.LoadAsset("boss foyer") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom challengeshrine_castle_001 = assetBundle.LoadAsset("challengeshrine_castle_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom gungeon_checkerboard = assetBundle2.LoadAsset("gungeon_checkerboard") as PrototypeDungeonRoom;
@@ -111,7 +103,6 @@ namespace ChaosGlitchMod {
         private static PrototypeDungeonRoom gungeon_normal_evilplatformingroom = assetBundle2.LoadAsset("gungeon_normal_evilplatformingroom") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom square_hub = assetBundle2.LoadAsset("square hub") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom PayDayDrillRoom = PayDayDrillItemPrefab.GenericFallbackCombatRoom;
-        private static PrototypeDungeonRoom challengeshrine_joe_hollow_001 = assetBundle.LoadAsset("challengeshrine_joe_hollow_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom shop_special_truck_01 = assetBundle.LoadAsset("shop_special_truck_01") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom gungeon_roll_trap_001 = assetBundle2.LoadAsset("gungeon_roll_trap_001") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom shop_special_blank_01 = assetBundle.LoadAsset("shop_special_blank_01") as PrototypeDungeonRoom;
@@ -139,7 +130,7 @@ namespace ChaosGlitchMod {
 
         private static PrototypeDungeonRoom bulletkingroom01 = assetBundle.LoadAsset("bulletkingroom01") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom bulletbrosroom01 = assetBundle.LoadAsset("bulletbrosroom01") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom beholsterroom01 = assetBundle.LoadAsset("beholsterroom01") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom beholsterroom01 = assetBundle.LoadAsset("beholsterroom01") as PrototypeDungeonRoom;        
         private static PrototypeDungeonRoom meduziroom01 = assetBundle.LoadAsset("meduziroom01") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom bashelliskroom01 = assetBundle.LoadAsset("bashelliskroom01") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom tanktreaderroom = assetBundle.LoadAsset("tanktreaderroom") as PrototypeDungeonRoom;
@@ -201,7 +192,7 @@ namespace ChaosGlitchMod {
             Instantiate(elevator_entrance), // [3]
             Instantiate(castle_horizontalhallway), // [4]
             Instantiate(castle_normal_tabledemonstrationroom), // [5]
-            Instantiate(hollow_rekt), // [6]
+            null, // [6] // hollow_rekt
             Instantiate(utiliroom), // [7]
             Instantiate(utiliroom), // [8]
             Instantiate(basic_secret_room_001), // [9]
@@ -211,13 +202,13 @@ namespace ChaosGlitchMod {
             Instantiate(gungeon_normal_trap_verticalspiketrapbridge_noenemies), // [13]
             Instantiate(shop02), // [14]
             Instantiate(test_entrance), // [15]
-            Instantiate(hollow_agd_room_010), // [16]
-            Instantiate(normal_blobulonparadise_001), // [17]
+            null, // [16] // hollow_agd_room_010
+            null, // [17] // normal_blobulonparadise_001
             Instantiate(reward_room), // [18]
             Instantiate(shop_special_key_01), // [19]
             Instantiate(utiliroom), // [20]
             Instantiate(letsgetsomeshrines_001), // [21]
-            Instantiate(hollow_joe_ice_giant_020), // [22]
+            null, // [22] // hollow_joe_ice_giant_020
             Instantiate(boss_foyer), // [23]
             null, // [24] // Random Boss Room Slot
             Instantiate(exit_room_basic), // [25]
@@ -267,22 +258,50 @@ namespace ChaosGlitchMod {
             Instantiate(gungeon_entrance), // [69]
             Instantiate(utiliroom), // [70]
         };
-
-        public RoomHandler[] GlitchRoomCluster;
-
+        
         public void Init() {
-            var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+            List<AGDEnemyReplacementTier> m_cachedReplacementTiers = GameManager.Instance.EnemyReplacementTiers;
+
+            if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.HELLGEON) {
+                // Removes special enemies added after the secret floor
+                for (int i = 0; i < m_cachedReplacementTiers.Count; i++) {
+                    if (m_cachedReplacementTiers[i].Name.ToLower().EndsWith("_Forge") | m_cachedReplacementTiers[i].Name.ToLower().EndsWith("_Hell")) {
+                        m_cachedReplacementTiers.Remove(m_cachedReplacementTiers[i]);
+                    }
+                }
+            }
+
+            ChaosDungeonFlow.flowOverride = false;
 
             if (!isGlitchFloor) { return; }
-            // if (levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && !debugMode) { return; }
+
+            var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+
             if (levelOverrideState == GameManager.LevelOverrideState.FOYER) { return; }
 
 
-            Vector3 TextBoxPosition = GameManager.Instance.PrimaryPlayer.CenterPosition;
-            // TextBoxManager.ShowThoughtBubble(TextBoxPosition, null, -1, ChaosLists.ThoughtBubbleList.RandomString());
-            TextBoxManager.ShowInfoBox(TextBoxPosition, null, 3f, "Loading Glitch Floor Assets. Please wait...", true);
+            if (debugMode) {
+                Vector3 TextBoxPosition = GameManager.Instance.PrimaryPlayer.CenterPosition;
+                // TextBoxManager.ShowThoughtBubble(TextBoxPosition, null, -1, ChaosLists.ThoughtBubbleList.RandomString());
+                TextBoxManager.ShowInfoBox(TextBoxPosition, null, 3f, "Loading Glitch Floor Assets. Please wait...", true);
+            }
 
             ChaosConsole.hasBeenTentacledToAnotherRoom = true;
+
+            Pixelator.Instance.RegisterAdditionalRenderPass(m_glitchpass);
+
+            bool m_HasAddedSecretEnemies = false;
+
+            for (int i = 0; i < m_cachedReplacementTiers.Count; i++) {
+                if (m_cachedReplacementTiers[i].Name.ToLower().EndsWith("_Forge") | m_cachedReplacementTiers[i].Name.ToLower().EndsWith("_Hell")) {
+                    m_HasAddedSecretEnemies = true;
+                    break;
+                }
+            }
+            if (!m_HasAddedSecretEnemies) {
+                ChaosEnemyReplacements.InitReplacementEnemiesAfterSecret(GlobalDungeonData.ValidTilesets.FORGEGEON, "_Forge");
+                ChaosEnemyReplacements.InitReplacementEnemiesAfterSecret(GlobalDungeonData.ValidTilesets.HELLGEON, "_Hell");
+            }
 
             StartCoroutine(BuildGlitchFloor());
         }
@@ -295,102 +314,63 @@ namespace ChaosGlitchMod {
             var CurrentTileSet = dungeon.tileIndices.tilesetId;
             int CurrentFloor = GameManager.Instance.CurrentFloor;
 
+            Dungeon CatacombsDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Catacombs");
 
-            if (!debugMode) { Pixelator.Instance.FadeToColor(0.1f, Color.black, false, 0f); }
+            // These rooms were moved in the Farewell to Arms update. All room tables besides those used by Castle/Gungeon Proper were moved to their respective dungeon assetbundles
+            PrototypeDungeonRoom hollow_rekt = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable.includedRooms.elements[133].room;
+            PrototypeDungeonRoom hollow_agd_room_010 = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable.includedRooms.elements[144].room;
+            PrototypeDungeonRoom hollow_joe_ice_giant_020 = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable.includedRooms.elements[79].room;
+            PrototypeDungeonRoom normal_blobulonparadise_001 = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable.includedRooms.elements[5].room;
 
-            /*if (levelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && !debugMode) {
-                dungeon.LevelOverrideType = GameManager.LevelOverrideState.RESOURCEFUL_RAT;
-            }*/
+            prototypeDungeonRoomArray[6] = hollow_rekt;
+            prototypeDungeonRoomArray[16] = hollow_agd_room_010;
+            prototypeDungeonRoomArray[17] = normal_blobulonparadise_001;
+            prototypeDungeonRoomArray[22] = hollow_joe_ice_giant_020;
+
+            // Null any Dungeon prefabs you call up when done else you'll break level generation for that prefab on future level loads!
+            CatacombsDungeonPrefab = null;
+
+            // if (!debugMode) { Pixelator.Instance.FadeToColor(0.1f, Color.black, false, 0f); }
 
             isGlitchFloor = false;
 
-            
-            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
-                dungeon.data.rooms[i].visibility = RoomHandler.VisibilityStatus.OBSCURED;
-                if (dungeon.data.rooms[i].GetRoomName() == "Black Market") {
-                    dungeon.data.rooms.Remove(dungeon.data.rooms[i]);
-                }
-            }
-
-
-
-            /*DungeonPlaceable[] dungeonPlacables = FindObjectsOfType<DungeonPlaceable>();
-            for (int i = 0; i < dungeonPlacables.Length; i++) { Destroy(dungeonPlacables[i]); }
-            
-            AIActor[] aiActors = FindObjectsOfType<AIActor>();        
-
-            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
-                dungeon.data.rooms[i].ClearReinforcementLayers();                
-            }
-
-            for (int i = 0; i < aiActors.Length; i++) {
-                if (aiActors[i].GetComponent<AIActor>() != null) { Destroy(aiActors[i].gameObject); }
-            }
-
-            while(aiActors.Length == 0) { yield return null; }
-
-            for (int i = 0; i < aiActors.Length; i++) {
-                if (aiActors[i].GetComponent<AIActor>() != null) { Destroy(aiActors[i].gameObject); }
-            }
-
-            for (int i = 0; i < dungeon.data.rooms.Count; i++) {
-                if (dungeon.data.rooms[i].GetActiveEnemiesCount(RoomHandler.ActiveEnemyType.All) > 0) {
-                    List<AIActor> actorList = new List<AIActor>();
-                    actorList = dungeon.data.rooms[i].GetActiveEnemies(RoomHandler.ActiveEnemyType.All);
-                    for (int n = 0; n < actorList.Count; n++) {
-                        Destroy(actorList[n].gameObject);
+            if (CurrentTileSet != GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                for (int i = 0; i < dungeon.data.rooms.Count; i++) {
+                    dungeon.data.rooms[i].visibility = RoomHandler.VisibilityStatus.OBSCURED;
+                    if (dungeon.data.rooms[i].GetRoomName() == "Black Market") {
+                        dungeon.data.rooms.Remove(dungeon.data.rooms[i]);
                     }
                 }
-            }*/
+            }
 
-            // dungeon.data.rooms.Clear();
 
-            dungeon.musicEventName = "Play_MUS_Space_theme_01";
-            GameManager.Instance.DungeonMusicController.ResetForNewFloor(dungeon);
+            if (CurrentTileSet != GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                dungeon.musicEventName = "Play_MUS_Space_theme_01";
+                GameManager.Instance.DungeonMusicController.ResetForNewFloor(dungeon);
+            }            
+
+            GlitchRoomCluster = GenerateGlitchRoomCluster();
             
-            GlitchRoomCluster = GenerateGlitchRoomCluster(new Action<RoomHandler>(PostProcessWallCleanup), DungeonData.LightGenerationStyle.STANDARD);
-            
-            if (!debugMode) {
+            if (!debugMode && CurrentTileSet != GlobalDungeonData.ValidTilesets.OFFICEGEON) {
                 yield return new WaitForSeconds(3f);
             } else {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(1.5f);
             }            
 
             if (!debugMode && exceptionState) {
                 isGlitchFloor = true;
                 debugMode = false;
                 exceptionState = false;
-                GameManager.Instance.LoadCustomLevel("tt_forge");
-                yield break;
-            }/* else if (debugMode && exceptionState) {
-                debugMode = false;
-                exceptionState = false;
-                if (CurrentTileSet == GlobalDungeonData.ValidTilesets.CASTLEGEON && CurrentFloor == -1) {
-                    GameManager.Instance.LoadCustomLevel("tt_tutorial");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.CASTLEGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_castle");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.SEWERGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_sewer");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.GUNGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt5");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.CATHEDRALGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_cathedral");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.MINEGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_mines");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.RATGEON) {
-                    GameManager.Instance.LoadCustomLevel("ss_resourcefulrat");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.CATACOMBGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_catacombs");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.FORGEGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_forge");
-                } else if (CurrentTileSet == GlobalDungeonData.ValidTilesets.HELLGEON) {
-                    GameManager.Instance.LoadCustomLevel("tt_bullethell");
+                if (CurrentTileSet == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                    GameManager.Instance.LoadCustomLevel("tt_nakatomi");
                 } else {
-                    GameManager.Instance.LoadCustomLevel("tt_castle");
+                    GameManager.Instance.LoadCustomLevel("tt_forge");
                 }
-            }*/
+                
+                yield break;
+            }
 
-            // Prevent Player from cheating by keeping Gnawed Key from floor 2 and/or holding onto spare rat keys after punchout fight.
+            // Prevent Player from cheating by holding onto spare rat keys after punchout fight.
             if (PrimaryPlayer.HasPickupID(316)) {
                 while (PrimaryPlayer.HasPickupID(316)) {
                     PrimaryPlayer.RemovePassiveItem(316);
@@ -422,12 +402,11 @@ namespace ChaosGlitchMod {
                 }
             }
             if (!debugMode) {
-                // Minimap.Instance.PreventAllTeleports = true;
                 yield return new WaitForSeconds(0.1f);
-
-                Pixelator.Instance.FadeToColor(0.5f, Color.black, true, 0f);
+                // Pixelator.Instance.FadeToColor(0.5f, Color.black, true, 0f);
                 yield return new WaitForSeconds(0.5f);
             }
+
             dungeon.data.Entrance.visibility = RoomHandler.VisibilityStatus.OBSCURED;
 
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
@@ -438,19 +417,21 @@ namespace ChaosGlitchMod {
 
             debugMode = false;
 
-            if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.FORGEGEON) {
-                m_IsForgeTileSet = true;
+            if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                m_IsOfficeTileSet = true;
             } else {
-                m_IsForgeTileSet = false;
+                m_IsOfficeTileSet = false;
             }
             GameManager.Instance.Dungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.RATGEON;
+
+            Pixelator.Instance.DeregisterAdditionalRenderPass(m_glitchpass);
 
             yield break;
         }
 
 
 
-        public RoomHandler[] GenerateGlitchRoomCluster(Action<RoomHandler> postProcessCellData = null, DungeonData.LightGenerationStyle lightStyle = DungeonData.LightGenerationStyle.FORCE_COLOR) {
+        public RoomHandler[] GenerateGlitchRoomCluster(Action<RoomHandler> postProcessCellData = null, DungeonData.LightGenerationStyle lightStyle = DungeonData.LightGenerationStyle.STANDARD) {
             Dungeon dungeon = GameManager.Instance.Dungeon;
             int CurrentFloor = GameManager.Instance.CurrentFloor;
 
@@ -463,7 +444,6 @@ namespace ChaosGlitchMod {
             prototypeDungeonRoomArray[40] = Instantiate(SelectedNPCRoom);
             prototypeDungeonRoomArray[48] = Instantiate(SelectedMiniBossRoom);
             prototypeDungeonRoomArray[49] = Instantiate(SelectedWinchesterRoom);
-            // ag&d 003 is the platform in pit one
 
             IntVector2[] basePositions = new IntVector2[] {
                 IntVector2.Zero, // [0]
@@ -590,14 +570,10 @@ namespace ChaosGlitchMod {
             prototypeDungeonRoomArray[69].name = "GlitchZeldaPuzzleRoom";
             prototypeDungeonRoomArray[70].name = "TinyRoom_BossKeyRoom";
 
-            /*for (int i = 0; i < prototypeDungeonRoomArray.Length; i++) {
-                if (prototypeDungeonRoomArray[i].name != "GlitchFloorEntrance") {
-                    prototypeDungeonRoomArray[i].name = "Glitch" + prototypeDungeonRoomArray[i].name;
-                } 
-            }*/
-
-
             if (prototypeDungeonRoomArray[24].name.ToLower().StartsWith("beholsterroom01")) {
+                basePositions[24] = new IntVector2(117, 69);
+                basePositions[25] = new IntVector2(161, 79);
+            } else if (prototypeDungeonRoomArray[24].name.ToLower().StartsWith("doublebeholsterroom01")) {
                 basePositions[24] = new IntVector2(117, 69);
                 basePositions[25] = new IntVector2(161, 79);
             } else if (prototypeDungeonRoomArray[24].name.ToLower().StartsWith("mineflayerroom01")) {
@@ -663,10 +639,11 @@ namespace ChaosGlitchMod {
             prototypeDungeonRoomArray[42].category = PrototypeDungeonRoom.RoomCategory.SPECIAL;
 
 
-            GameObject tileMapObject = GameObject.Find("TileMap");
-            // GameObject tileMapObject = (GameObject)assetBundle.LoadAsset("TileMap");
-            tk2dTileMap m_tilemap = tileMapObject.GetComponent<tk2dTileMap>();
-            
+            // GameObject tileMapObject = GameObject.Find("TileMap");
+            // GameObject tileMapObject = assetBundle.LoadAsset<GameObject>("TileMap");
+            // tk2dTileMap m_tilemap = tileMapObject.GetComponent<tk2dTileMap>();
+            tk2dTileMap m_tilemap = assetBundle.LoadAsset<GameObject>("TileMap").GetComponent<tk2dTileMap>();
+
             if (m_tilemap == null) {
                 ETGModConsole.Log("ERROR: TileMap object is null! Something seriously went wrong!");
                 return null;
@@ -861,8 +838,8 @@ namespace ChaosGlitchMod {
                 RoomClusterArray[31].TargetPitfallRoom = RoomClusterArray[33];
                 RoomClusterArray[32].TargetPitfallRoom = RoomClusterArray[7];
             }
-            
 
+            if (dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) { FloorStamper(RoomClusterArray[3], new IntVector2(7, 10), 6, 4); }
 
             FloorStamper(RoomClusterArray[14], new IntVector2(5, 26), 2, 2, CellType.FLOOR);
             FloorStamper(RoomClusterArray[14], new IntVector2(5, 25), 16, 1, CellType.FLOOR);
@@ -924,7 +901,6 @@ namespace ChaosGlitchMod {
                 RenderMeshBuilder.CurrentCellXOffset = intVector3.x - num2;
                 RenderMeshBuilder.CurrentCellYOffset = intVector3.y - num2;
                 component.ForceBuild();
-                // Minimap.Instance.tilemap.ForceBuild();
                 RenderMeshBuilder.CurrentCellXOffset = 0;
                 RenderMeshBuilder.CurrentCellYOffset = 0;
                 component.renderData.transform.position = new Vector3(intVector3.x - num2, intVector3.y - num2, intVector3.y - num2);
@@ -946,7 +922,6 @@ namespace ChaosGlitchMod {
                     }
                 }
                 Pathfinder.Instance.InitializeRegion(dungeon.data, RoomClusterArray[num6].area.basePosition + new IntVector2(-3, -3), RoomClusterArray[num6].area.dimensions + new IntVector2(3, 3));
-                // Pathfinder.Instance.InitializeRegion(dungeon.data, RoomClusterArray[num6].area.basePosition, RoomClusterArray[num6].area.dimensions);
                 if(debugMode) {
                     RoomClusterArray[num6].visibility = RoomHandler.VisibilityStatus.VISITED;
                     StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(RoomClusterArray[num6], true, true, false));
@@ -1004,7 +979,7 @@ namespace ChaosGlitchMod {
                 runtimeRoomExitData.additionalExitLength = room1ExitLengthPadding;
                 runtimeRoomExitData2.additionalExitLength = room2ExitLengthPadding;
             } catch (Exception) {
-                ETGModConsole.Log("WARNING: Exception caused during CoonectClusteredRunTimeRooms method!");
+                ETGModConsole.Log("WARNING: Exception caused during ConnectRooms method!");
                 return;
             }
         }
@@ -1097,9 +1072,6 @@ namespace ChaosGlitchMod {
             for (int i = 0; i < Sarcophogus2Sprites.Length; i++) {
                 Destroy(Sarcophogus2Sprites[i]);
             }
-            // Destroy(SarcophogusWall1.GetComponentInChildren<tk2dBaseSprite>());
-            // Destroy(SarcophogusWall2.GetComponentInChildren<tk2dBaseSprite>());
-
 
             Vector3 BackDoorPosition = new Vector3(5, 27) + targetRooms[14].area.basePosition.ToVector3();
             Vector3 SpecialLockedDoor1Position = new Vector3(1, 4.25f) + targetRooms[45].area.basePosition.ToVector3();
@@ -1171,40 +1143,52 @@ namespace ChaosGlitchMod {
             if (PlacedChest1Component != null && PlacedChest2Component != null) {
                 GenericLootTable GenericItemLootTable = GameManager.Instance.RewardManager.ItemsLootTable;
                 GenericLootTable GenericGunLootTable = GameManager.Instance.RewardManager.GunsLootTable;
-                if (BraveUtility.RandomBool()) {
-                    PlacedChest1Component.ChestType = Chest.GeneralChestType.ITEM;
-                    PlacedChest2Component.ChestType = Chest.GeneralChestType.WEAPON;
-                    PlacedChest1Component.lootTable.lootTable = GenericItemLootTable;
-                    PlacedChest2Component.lootTable.lootTable = GenericGunLootTable;
-                    bool Chest1LootTableCheck = PlacedChest1Component.lootTable.canDropMultipleItems && PlacedChest1Component.lootTable.overrideItemLootTables != null && PlacedChest1Component.lootTable.overrideItemLootTables.Count > 0;
-                    bool Chest2LootTableCheck = PlacedChest2Component.lootTable.canDropMultipleItems && PlacedChest2Component.lootTable.overrideItemLootTables != null && PlacedChest2Component.lootTable.overrideItemLootTables.Count > 0;
-                    if (Chest1LootTableCheck) {
-                        PlacedChest1Component.lootTable.overrideItemLootTables[0] = GenericItemLootTable;
-                    }
-                    if (Chest1LootTableCheck) {
-                        PlacedChest2Component.lootTable.overrideItemLootTables[0] = GenericGunLootTable;
-                    }
+                try { 
+                    if (BraveUtility.RandomBool()) {
+                        PlacedChest1Component.ChestType = Chest.GeneralChestType.ITEM;
+                        PlacedChest2Component.ChestType = Chest.GeneralChestType.WEAPON;
+                        PlacedChest1Component.lootTable.lootTable = GenericItemLootTable;
+                        PlacedChest2Component.lootTable.lootTable = GenericGunLootTable;
+                        bool Chest1LootTableCheck = PlacedChest1Component.lootTable.canDropMultipleItems && PlacedChest1Component.lootTable.overrideItemLootTables != null && PlacedChest1Component.lootTable.overrideItemLootTables.Count > 0;
+                        bool Chest2LootTableCheck = PlacedChest2Component.lootTable.canDropMultipleItems && PlacedChest2Component.lootTable.overrideItemLootTables != null && PlacedChest2Component.lootTable.overrideItemLootTables.Count > 0;
+                        if (Chest1LootTableCheck) {
+                            PlacedChest1Component.lootTable.overrideItemLootTables[0] = GenericItemLootTable;
+                        }
+                        if (Chest1LootTableCheck) {
+                            PlacedChest2Component.lootTable.overrideItemLootTables[0] = GenericGunLootTable;
+                        }
 
-                } else {
-                    PlacedChest1Component.ChestType = Chest.GeneralChestType.WEAPON;
-                    PlacedChest2Component.ChestType = Chest.GeneralChestType.ITEM;
-                    PlacedChest1Component.lootTable.lootTable = GenericGunLootTable;
-                    PlacedChest2Component.lootTable.lootTable = GenericItemLootTable;
-                    bool Chest1LootTableCheck = PlacedChest1Component.lootTable.canDropMultipleItems && PlacedChest1Component.lootTable.overrideItemLootTables != null && PlacedChest1Component.lootTable.overrideItemLootTables.Count > 0;
-                    bool Chest2LootTableCheck = PlacedChest2Component.lootTable.canDropMultipleItems && PlacedChest2Component.lootTable.overrideItemLootTables != null && PlacedChest2Component.lootTable.overrideItemLootTables.Count > 0;
-                    if (Chest1LootTableCheck) {
-                        PlacedChest1Component.lootTable.overrideItemLootTables[0] = GenericGunLootTable;
+                    } else {
+                        PlacedChest1Component.ChestType = Chest.GeneralChestType.WEAPON;
+                        PlacedChest2Component.ChestType = Chest.GeneralChestType.ITEM;
+                        PlacedChest1Component.lootTable.lootTable = GenericGunLootTable;
+                        PlacedChest2Component.lootTable.lootTable = GenericItemLootTable;
+                        bool Chest1LootTableCheck = PlacedChest1Component.lootTable.canDropMultipleItems && PlacedChest1Component.lootTable.overrideItemLootTables != null && PlacedChest1Component.lootTable.overrideItemLootTables.Count > 0;
+                        bool Chest2LootTableCheck = PlacedChest2Component.lootTable.canDropMultipleItems && PlacedChest2Component.lootTable.overrideItemLootTables != null && PlacedChest2Component.lootTable.overrideItemLootTables.Count > 0;
+                        if (Chest1LootTableCheck) {
+                            PlacedChest1Component.lootTable.overrideItemLootTables[0] = GenericGunLootTable;
+                        }
+                        if (Chest1LootTableCheck) {
+                            PlacedChest2Component.lootTable.overrideItemLootTables[0] = GenericItemLootTable;
+                        }
                     }
-                    if (Chest1LootTableCheck) {
-                        PlacedChest2Component.lootTable.overrideItemLootTables[0] = GenericItemLootTable;
-                    }
+                } catch (Exception ex) {
+                    ETGModConsole.Log("WARNING: Exception occured during chest setup!\nException details written to log.");
+                    Debug.Log("WARNING: Exception occured during chest setup!");
+                    Debug.LogException(ex);
+                    PlacedChest1Component.ConfigureOnPlacement(targetRooms[18]);
+                    PlacedChest2Component.ConfigureOnPlacement(targetRooms[26]);
+                    targetRooms[18].RegisterInteractable(PlacedChest1Component);
+                    targetRooms[26].RegisterInteractable(PlacedChest2Component);
+                    goto IL_SKIP01;
                 }
-
                 PlacedChest1Component.ConfigureOnPlacement(targetRooms[18]);
                 PlacedChest2Component.ConfigureOnPlacement(targetRooms[26]);
                 targetRooms[18].RegisterInteractable(PlacedChest1Component);
                 targetRooms[26].RegisterInteractable(PlacedChest2Component);
             }
+
+            IL_SKIP01:;
 
             IntVector2 WallMimicPosition = new IntVector2(11, 11);
             GameObject PlacedWallMimic = CustomGlitchDungeonPlacable(null, true).InstantiateObject(targetRooms[33], WallMimicPosition);
@@ -1225,9 +1209,7 @@ namespace ChaosGlitchMod {
             GameObject PlacedWingsItem = CustomGlitchDungeonPlacable(null, false, false, true).InstantiateObject(targetRooms[33], WingsItemPosition);
             PlacedWingsItem.transform.parent = targetRooms[33].hierarchyParent;
             WingsItem WingsItemComponent = PlacedWingsItem.GetComponent<WingsItem>();
-            if (WingsItemComponent != null) {
-                targetRooms[33].RegisterInteractable(WingsItemComponent);
-            }
+            if (WingsItemComponent != null) { targetRooms[33].RegisterInteractable(WingsItemComponent); }
 
             NoteDoer[] NoteDoerObjects = FindObjectsOfType<NoteDoer>();
             TalkDoerLite[] TalkDoerLiteObjects = FindObjectsOfType<TalkDoerLite>();
@@ -1506,20 +1488,6 @@ namespace ChaosGlitchMod {
                 }
             }
             
-            /*if (CurrentFloor == 5 | m_IsForgeTileSet) {
-                IntVector2 BossRewardPedestalPosition = new IntVector2(6, 3);
-                GameObject BossRewardPedestal = CustomGlitchDungeonPlacable(RewardPedestalPrefab, false, true).InstantiateObject(targetRooms[25], BossRewardPedestalPosition);
-                BossRewardPedestal.transform.parent = targetRooms[25].hierarchyParent;
-
-                RewardPedestal BossRewardPedestalComponent = BossRewardPedestal.GetComponent<RewardPedestal>();
-
-                if (BossRewardPedestal != null) {
-                    BossRewardPedestalComponent.SpawnsTertiarySet = false;
-                    BossRewardPedestalComponent.SpecificItemId = BraveUtility.RandomElement(BossDropRewardIdArray);
-                    BossRewardPedestalComponent.UsesSpecificItem = true;
-                }                
-            }*/
-
             AdvancedShrineController[] cachedAdvancedShrineObjects = FindObjectsOfType<AdvancedShrineController>();
             ChallengeShrineController[] cachedChallengeShrineObjects = FindObjectsOfType<ChallengeShrineController>();
             GameObject[] cachedGameObjects = FindObjectsOfType<GameObject>();
@@ -1556,7 +1524,7 @@ namespace ChaosGlitchMod {
             }
 
             FloorStamper(targetRooms[53], new IntVector2(12, 8), 15, 13, CellType.FLOOR);
-            IntVector2 ZeldaPuzzleSignPosition = new IntVector2(28, 14);
+            IntVector2 ZeldaPuzzleSignPosition = new IntVector2(27, 10);
             GameObject ZeldaPuzzleSign = CustomGlitchDungeonPlacable(Teleporter_Info_Sign, false, true).InstantiateObject(targetRooms[53], ZeldaPuzzleSignPosition);
             NoteDoer ZeldaPuzzleSignComponent = ZeldaPuzzleSign.GetComponent<NoteDoer>();
 
@@ -1912,14 +1880,12 @@ namespace ChaosGlitchMod {
                     }
                 }
 
-                if (CurrentFloor == 5 | m_IsForgeTileSet) {
+                if (CurrentFloor == 5 | m_IsOfficeTileSet) {
                     for (int i = 0; i < RoomAIActors.Length; i++) {
                         if (RoomAIActors[i].GetAbsoluteParentRoom().GetRoomName().StartsWith(prototypeDungeonRoomArray[24].name) && RoomAIActors[i].healthHaver.IsBoss) {
                             ChaosShaders.Instance.ApplyGlitchShader(null, RoomAIActors[i].GetComponentInChildren<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat);
                             RoomAIActors[i].CanDropItems = true;
-                            RoomAIActors[i].AdditionalSafeItemDrops = new List<PickupObject> {
-                                PickupObjectDatabase.GetById(BraveUtility.RandomElement(ChaosLists.ItemLootArray))
-                            };
+                            RoomAIActors[i].AdditionalSafeItemDrops = new List<PickupObject> { PickupObjectDatabase.GetById(BraveUtility.RandomElement(ChaosLists.ItemLootArray)) };
                         }
                     }
                 }
@@ -2347,6 +2313,6 @@ namespace ChaosGlitchMod {
             }
             return hashSet;
         }
-    }
+    } 
 }
 

@@ -107,7 +107,7 @@ namespace ChaosGlitchMod {
             ApplyGlitchShader(null, sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
         }
 
-		
+
         /*public static Material SetSpaceShader(tk2dBaseSprite sprite, float Zoom = 0.8f, float Tile = 0.85f, float Speed = 0.01f) {
             Material m_cachedSpaceMaterial = new Material(Shader.Find("Brave/Internal/StarNest_Derivative"));
             sprite.renderer.material.shader = Shader.Find("Brave/Internal/StarNest_Derivative");
@@ -117,6 +117,43 @@ namespace ChaosGlitchMod {
             sprite.renderer.material = m_cachedSpaceMaterial;
             return m_cachedSpaceMaterial;
         }*/
+
+        public void ApplyCosmicHorrorShader(tk2dBaseSprite sprite) {
+            Material m_cachedEeveeMaterial = new Material(ShaderCache.Acquire("Brave/PlayerShaderEevee"));
+            Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
+            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+            Material[] sharedMaterials = spriteComponent.sharedMaterials;
+            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+            Material CustomMaterial = Instantiate(m_cachedEeveeMaterial);
+            CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+            CustomMaterial.SetTexture("_EeveeTex", m_CosmicTex);
+            sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
+            spriteComponent.sharedMaterials = sharedMaterials;
+            sprite.usesOverrideMaterial = m_cachedEeveeMaterial;
+        }
+
+        public void ApplyParadoxGlitchShader(tk2dBaseSprite sprite, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f, float WaveIntensity = 1f, float AdditionalTime = 0f) {
+            Material m_cachedParadoxGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/GlitchEevee"));
+            Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
+            m_cachedParadoxGlitchMaterial.SetFloat("_GlitchInterval", GlitchInterval);
+            m_cachedParadoxGlitchMaterial.SetFloat("_DispProbability", DispProbability);
+            m_cachedParadoxGlitchMaterial.SetFloat("_DispIntensity", DispIntensity);
+            m_cachedParadoxGlitchMaterial.SetFloat("_ColorProbability", ColorProbability);
+            m_cachedParadoxGlitchMaterial.SetFloat("_ColorIntensity", ColorIntensity);
+            m_cachedParadoxGlitchMaterial.SetFloat("_WaveIntensity", WaveIntensity);
+            m_cachedParadoxGlitchMaterial.SetFloat("_AdditionalTime", AdditionalTime);
+            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+            Material[] sharedMaterials = spriteComponent.sharedMaterials;
+            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+            Material CustomMaterial = Instantiate(m_cachedParadoxGlitchMaterial);
+            CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+            CustomMaterial.SetTexture("_EeveeTex", m_CosmicTex);
+            sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
+            spriteComponent.sharedMaterials = sharedMaterials;
+            sprite.usesOverrideMaterial = m_cachedParadoxGlitchMaterial;
+        }
+
+
         public void ApplyGalaxyShader(tk2dBaseSprite sprite) {
             Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Effects/SimplicityDerivativeShader"));
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
@@ -130,7 +167,7 @@ namespace ChaosGlitchMod {
         }
         public void ApplySpaceShader(tk2dBaseSprite sprite) {
             Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"));
-            // Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/SpaceFogShader"));
+            // Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/SpaceFogShader"));            
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);

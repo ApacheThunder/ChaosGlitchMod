@@ -6,6 +6,7 @@ using Dungeonator;
 namespace ChaosGlitchMod {
 
     class ChaosConsole : MonoBehaviour {
+
         public static float GlitchRandomActors = 0.3f;
         public static float GlitchRandomAll = 0.01f;
         public static float RandomResizedEnemies = 0.4f;
@@ -57,8 +58,8 @@ namespace ChaosGlitchMod {
                 isHardMode = true;
                 isUltraMode = true;
                 isExplosionHookActive = true;
-                NormalWallMimicMode = false;
-                WallMimicsUseRewardManager = false;
+                // NormalWallMimicMode = false;
+                // WallMimicsUseRewardManager = false;
                 ChaosSharedHooks.InstallPrimaryHooks();
                 ChaosSharedHooks.minorbreakablehook = new Hook(
                         typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
@@ -76,14 +77,14 @@ namespace ChaosGlitchMod {
             }
 
             ETGModConsole.Commands.AddGroup("chaos", delegate (string[] e) {
-                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nglitch\nglitch_all\nglitch_test\nglitch_randomizer\nbonus\npots\npots_debug\nwalls\nwalls_ultra\nwalls_disabled\ntinybigmode\nnormal\nextreme\nultra\nultra_glitched\nspawnbulletkin\nspawnlootcrate\nspawnlootrandom\ntentacletime\ndebug\nenableglitchfloor\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
+                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nglitch\nglitch_all\nglitch_test\nglitch_randomizer\nbonus\npots\npots_debug\ntinybigmode\nnormal\nextreme\nultra\nultra_glitched\nspawnbulletkin\nspawnlootcrate\nspawnlootrandom\ntentacletime\ndebug\nenableglitchfloor\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
             });
 
-            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
                 ChaosGlitchFloorGenerator.isGlitchFloor = true;
                 ChaosGlitchFloorGenerator.debugMode = true;
                 ChaosGlitchFloorGenerator.Instance.Init();
-            });*/
+            });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {
                 if (addRandomEnemy) {
@@ -124,7 +125,7 @@ namespace ChaosGlitchMod {
                 }
             });
 
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls", delegate (string[] e) {
+            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls", delegate (string[] e) {
                 if (NormalWallMimicMode) {
                     ETGModConsole.Log("The Walls are already untrusted!", false);
                 } else {
@@ -162,7 +163,7 @@ namespace ChaosGlitchMod {
                         ETGModConsole.Log("TinyBig mode enabled enabled...", false);
                     }
                 }
-            });
+            });*/
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("normal", delegate (string[] e) {
                 if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
@@ -205,13 +206,15 @@ namespace ChaosGlitchMod {
 
                 if (NormalWallMimicMode && !WallMimicsUseRewardManager) { ETGModConsole.Log("The Walls are already untrusted!", false); }
 
-                NormalWallMimicMode = true;
+                // NormalWallMimicMode = true;
+                NormalWallMimicMode = false;
                 addRandomEnemy = true;
                 allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = false;
-                WallMimicsUseRewardManager = false;
+                // WallMimicsUseRewardManager = false;
+                WallMimicsUseRewardManager = true;
                 ETGModConsole.Log("Prepare to have an extremely bad time! :D", false);
             });
 
@@ -240,7 +243,8 @@ namespace ChaosGlitchMod {
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
-                WallMimicsUseRewardManager = false;
+                // WallMimicsUseRewardManager = false;
+                WallMimicsUseRewardManager = true;                
                 ETGModConsole.Log("Prepare to have an ultra bad time! :D", false);
             });
 
@@ -280,7 +284,8 @@ namespace ChaosGlitchMod {
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
-                WallMimicsUseRewardManager = false;
+                // WallMimicsUseRewardManager = false;
+                WallMimicsUseRewardManager = true;
                 ETGModConsole.Log("Glitched Ultra mode is active...\n", false);
                 ETGModConsole.Log("Prepare to have an ultra bad time! :D", false);
             });

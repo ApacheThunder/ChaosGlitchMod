@@ -258,7 +258,8 @@ namespace ChaosGlitchMod {
             "45f5291a60724067bd3ccde50f65ac22", // payday_shooter_01
             "41ab10778daf4d3692e2bc4b370ab037", // payday_shooter_02
             "2976522ec560460c889d11bb54fbe758", // payday_shooter_03
-            "e456b66ed3664a4cb590eab3a8ff3814" // baby_mimic
+            "e456b66ed3664a4cb590eab3a8ff3814", // baby_mimic
+            "3f40178e10dc4094a1565cd4fdc4af56" // baby_shelleton
         };
 
         public static string[] PotEnemyGUIDList = {
@@ -419,7 +420,36 @@ namespace ChaosGlitchMod {
             "45192ff6d6cb43ed8f1a874ab6bef316", // misfire_beast
             "12a054b8a6e549dcac58a82b89e319e5", // robots_past_terminator
             "556e9f2a10f9411cb9dbfd61e0e0f1e1", // convicts_past_soldier
-            "eeb33c3a5a8e4eaaaaf39a743e8767bc" // candle_guy
+            "eeb33c3a5a8e4eaaaaf39a743e8767bc", // candle_guy
+            "226fd90be3a64958a5b13cb0a4f43e97", // musket_kin
+            "df4e9fedb8764b5a876517431ca67b86", // bullet_kin_gal_titan_boss
+            "1f290ea06a4c416cabc52d6b3cf47266", // bullet_kin_titan_boss
+            "c4cf0620f71c4678bb8d77929fd4feff", // bullet_kin_titan
+            "6f818f482a5c47fd8f38cce101f6566c", // bullet_kin_pirate
+            "143be8c9bbb84e3fb3ab98bcd4cf5e5b", // bullet_kin_fish
+            "06f5623a351c4f28bc8c6cda56004b80", // bullet_kin_fish_blue
+            "ff4f54ce606e4604bf8d467c1279be3e", // bullet_kin_broccoli
+            "39e6f47a16ab4c86bec4b12984aece4c", // bullet_kin_knight
+            "f020570a42164e2699dcf57cac8a495c", // bullet_kin_kaliber
+            "37de0df92697431baa47894a075ba7e9", // bullet_kin_candle
+            "5861e5a077244905a8c25c2b7b4d6ebb", // bullet_kin_cowboy
+            "906d71ccc1934c02a6f4ff2e9c07c9ec", // bullet_kin_officetie
+            "9eba44a0ea6c4ea386ff02286dd0e6bd", // bullet_kin_officesuit
+            "2b6854c0849b4b8fb98eb15519d7db1c", // bullet_kin_mech
+            "05cb719e0178478685dc610f8b3e8bfc", // bullet_kin_vest
+            "5f15093e6f684f4fb09d3e7e697216b4", // dynamite_kin_office
+            "d4f4405e0ff34ab483966fd177f2ece3", // cylinder
+            "534f1159e7cf4f6aa00aeea92459065e", // cylinder_red
+            "80ab6cd15bfc46668a8844b2975c6c26", // gunzookie_office
+            "981d358ffc69419bac918ca1bdf0c7f7", // bullat_gargoyle
+            "e861e59012954ab2b9b6977da85cb83c", // snake_office
+            "3b0bd258b4c9432db3339665cc61c356", // cactus_kin
+            "4b21a913e8c54056bc05cafecf9da880", // gigi_parrot
+            "78e0951b097b46d89356f004dda27c42", // tablet_bookllet
+            "216fd3dfb9da439d9bd7ba53e1c76462", // necronomicon_bookllet
+            "ddf12a4881eb43cfba04f36dd6377abb", // cowboy_shotgun_kin
+            "86dfc13486ee4f559189de53cfb84107", // pirate_shotgun_kin
+            "9215d1a221904c7386b481a171e52859" // lead_maiden_fridge
         };
 
         public static string[] ReplacementEnemyGUIDList = {
@@ -443,7 +473,23 @@ namespace ChaosGlitchMod {
             "8b43a5c59b854eb780f9ab669ec26b7a", // dragun_egg_slimeguy
             "d1c9781fdac54d9e8498ed89210a0238", // tiny_blobulord
             "76bc43539fc24648bff4568c75c686d1", // chicken
-            "eeb33c3a5a8e4eaaaaf39a743e8767bc" // candle_guy
+            "eeb33c3a5a8e4eaaaaf39a743e8767bc", // candle_guy
+            "226fd90be3a64958a5b13cb0a4f43e97", // musket_kin
+            "df4e9fedb8764b5a876517431ca67b86", // bullet_kin_gal_titan_boss
+            "1f290ea06a4c416cabc52d6b3cf47266", // bullet_kin_titan_boss
+            "c4cf0620f71c4678bb8d77929fd4feff", // bullet_kin_titan
+            "6f818f482a5c47fd8f38cce101f6566c", // bullet_kin_pirate
+            "143be8c9bbb84e3fb3ab98bcd4cf5e5b", // bullet_kin_fish
+            "06f5623a351c4f28bc8c6cda56004b80", // bullet_kin_fish_blue
+            "ff4f54ce606e4604bf8d467c1279be3e", // bullet_kin_broccoli
+            "39e6f47a16ab4c86bec4b12984aece4c", // bullet_kin_knight
+            "f020570a42164e2699dcf57cac8a495c", // bullet_kin_kaliber
+            "37de0df92697431baa47894a075ba7e9", // bullet_kin_candle
+            "5861e5a077244905a8c25c2b7b4d6ebb", // bullet_kin_cowboy
+            "906d71ccc1934c02a6f4ff2e9c07c9ec", // bullet_kin_officetie
+            "9eba44a0ea6c4ea386ff02286dd0e6bd", // bullet_kin_officesuit
+            "2b6854c0849b4b8fb98eb15519d7db1c", // bullet_kin_mech
+            "05cb719e0178478685dc610f8b3e8bfc", // bullet_kin_vest
         };
 
         /*
@@ -571,6 +617,12 @@ namespace ChaosGlitchMod {
             "1bc2a07ef87741be90c37096910843ab", // chancebulon
             "88f037c3f93b4362a040a87b30770407", // gunreaper
             "0d3f7c641557426fbac8596b61c9fb45", // lord_of_the_jammed
+            "d4f4405e0ff34ab483966fd177f2ece3", // cylinder
+            "534f1159e7cf4f6aa00aeea92459065e", // cylinder_red
+            "981d358ffc69419bac918ca1bdf0c7f7", // bullat_gargoyle
+            "4b21a913e8c54056bc05cafecf9da880", // gigi_parrot
+            "78e0951b097b46d89356f004dda27c42", // tablet_bookllet
+            "216fd3dfb9da439d9bd7ba53e1c76462", // necronomicon_bookllet
             // Companions
             "c07ef60ae32b404f99e294a6f9acba75", // dog
             "7bd9c670f35b4b8d84280f52a5cc47f6", // cucco
@@ -596,7 +648,8 @@ namespace ChaosGlitchMod {
             "45f5291a60724067bd3ccde50f65ac22", // payday_shooter_01
             "41ab10778daf4d3692e2bc4b370ab037", // payday_shooter_02
             "2976522ec560460c889d11bb54fbe758", // payday_shooter_03
-            "e456b66ed3664a4cb590eab3a8ff3814" // baby_mimic
+            "e456b66ed3664a4cb590eab3a8ff3814", // baby_mimic
+            "3f40178e10dc4094a1565cd4fdc4af56" // baby_shelleton
         };
 
         public static string[] DieOnContactOverrideList = {

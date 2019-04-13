@@ -57,7 +57,7 @@ namespace ChaosGlitchMod {
             if (UnityEngine.Random.value <= 0.5) {
                 Invoke("TeleportToGlitchRoom", 1f);
             } else {
-               Invoke("TeleportToRandomRoom", 1f);
+                Invoke("TeleportToRandomRoom", 1f);
             }
         }
 

@@ -35,7 +35,7 @@ namespace ChaosGlitchMod {
 
         public ChaosGlitchTrapDoor() {
             // targetLevelName = "ss_resourcefulrat";
-            targetLevelName = "tt_forge";
+            targetLevelName = "tt_nakatomi";
             loadLevelOnPitFall = true;
             ExplosionReactDistance = 8f;
             m_goopedSpots = new HashSet<IntVector2>();
@@ -71,6 +71,7 @@ namespace ChaosGlitchMod {
         private bool m_revealing;
         // private bool m_isLoading;
         
+        private Material m_glitchpass= new Material(Shader.Find("Brave/Internal/GlitchUnlit"));
 
         private IEnumerator Start() {
             name = "GlitchTrapDoor";
@@ -166,7 +167,7 @@ namespace ChaosGlitchMod {
                 if (component && component.IsFlying) {
                     m_timeHovering += BraveTime.DeltaTime;
                     if (m_timeHovering > 0.5f) {
-                        ChaosGlitchFloorGenerator.isGlitchFloor = true;
+                        // ChaosGlitchFloorGenerator.isGlitchFloor = true;
                         component.ForceFall();
                         m_timeHovering = 0f;
                     }
@@ -189,16 +190,29 @@ namespace ChaosGlitchMod {
             if (component) {
                 ChaosGlitchFloorGenerator.isGlitchFloor = true;
                 component.LevelToLoadOnPitfall = targetLevelName;
+                Pixelator.Instance.RegisterAdditionalRenderPass(m_glitchpass);
             }
         }
 
         private void HandleTriggerExited(SpeculativeRigidbody specRigidbody, SpeculativeRigidbody sourceSpecRigidbody) {
             PlayerController component = specRigidbody.GetComponent<PlayerController>();
-            if (component) {
-                component.LevelToLoadOnPitfall = string.Empty;
-                if (!component.IsFalling) { ChaosGlitchFloorGenerator.isGlitchFloor = false; }
+            if (component) {                
+                if (!component.IsFalling) {
+                    ChaosGlitchFloorGenerator.isGlitchFloor = false;
+                    component.LevelToLoadOnPitfall = string.Empty;
+                    Pixelator.Instance.DeregisterAdditionalRenderPass(m_glitchpass);
+                }
             }            
         }
+
+        /*private IEnumerator GlitchTransition() {
+            Material glitchPass = new Material(Shader.Find("Brave/Internal/GlitchUnlit"));
+            Pixelator.Instance.RegisterAdditionalRenderPass(glitchPass);
+            yield return new WaitForSeconds(3f);
+            Pixelator.Instance.FadeToBlack(1f, false, 0f);
+            yield return new WaitForSeconds(1.25f);*
+            yield break;
+        }*/
 
         /*private void HandleTriggerRemain(SpeculativeRigidbody specRigidbody, SpeculativeRigidbody sourceSpecRigidbody, CollisionData collisionData) {
             if (!Lock.IsLocked && !m_isLoading) {

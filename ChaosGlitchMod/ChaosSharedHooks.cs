@@ -6,6 +6,7 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Collections.Generic;
 using Pathfinding;
+using System.Collections;
 
 namespace ChaosGlitchMod {
 
@@ -15,9 +16,12 @@ namespace ChaosGlitchMod {
         public static Hook doExplodeHook;
         public static Hook enterRoomHook;
         public static Hook wallmimichook;
+        // public static Hook wallmimichook2;
         public static Hook slidehook;
         public static Hook stringhook;
         public static Hook cellhook;
+        public static Hook flowhook;
+        public static Hook loadlevelhook;
         // public static Hook glitchroomsetuphook;
 
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
@@ -109,27 +113,41 @@ namespace ChaosGlitchMod {
                 return;
             }
         }
-
+        
         public static void InstallPlaceWallMimicsHook() {
             wallmimichook = new Hook(
                 typeof(Dungeon).GetMethod("PlaceWallMimics", BindingFlags.Public | BindingFlags.Instance),
                 typeof(ChaosPlaceWallMimic).GetMethod("ChaosPlaceWallMimics", BindingFlags.Public | BindingFlags.Static)
             );
+            
+            flowhook = new Hook(
+                typeof(FlowDatabase).GetMethod("GetOrLoadByName", BindingFlags.Public | BindingFlags.Static),
+                typeof(ChaosDungeonFlow).GetMethod("LoadCustomFlow", BindingFlags.Public | BindingFlags.Static)
+            );
+
+            loadlevelhook = new Hook(
+                typeof(GameManager).GetMethod("LoadNextLevel", BindingFlags.Public | BindingFlags.Instance),
+                typeof(ChaosSharedHooks).GetMethod("LoadNextLevelHook", BindingFlags.Public | BindingFlags.Static)
+            );       
             return;
-        }
+        }        
 
         /*public static void PathfindingInitializeHook(Action<Pathfinder, DungeonData> orig, Pathfinder self, DungeonData d) {
             try { orig(self, d); } catch (Exception) { }
             // orig(self, d);
         }*/
 
-        public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) {
-            try { orig(self); } catch (Exception) { return; }            
+        public static void LoadNextLevelHook(Action<GameManager> orig, GameManager self) {
+            if (GameManager.Instance.InjectedFlowPath == "Core Game Flows/Secret_DoubleBeholster_Flow") {
+                ChaosDungeonFlow.flowOverride = true;
+                GameManager.Instance.LoadCustomFlowForDebug("test_west_floor_03a_flow", "Base_Nakatomi", "tt_nakatomi");
+                return;
+            } else { orig(self); }
         }
 
-        public static void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) {
-            return; // orig(self);
-        }
+        public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) { try { orig(self); } catch (Exception) { return; } }
+
+        public static void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) { return; /*orig(self);*/ }
         
         // Hook method for AIActor (enemies). Made with help from KyleTheScientist
         public static void AwakeHookCustom(Action<AIActor> orig, AIActor self) {
@@ -138,11 +156,18 @@ namespace ChaosGlitchMod {
             } catch (Exception) {
                 if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("[DEBUG] Exception caught in method 'Awake' in AIActor class!", false); }
             }
-
             // if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
 
             // Prevents certain enemies from keeping rooms in combat/spawning next waves.
             // if (ChaosEnemyLists.SafeEnemyGUIDList.Contains(self.EnemyGuid)) { self.IgnoreForRoomClear = true; }
+
+
+            if (self.EnemyGuid == "796a7ed4ad804984859088fc91672c7f" && 
+                 GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON | 
+                 GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.RATGEON
+               ) {
+                self.AdditionalSafeItemDrops.Clear();
+            }
 
             if (ChaosLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
 
@@ -171,13 +196,18 @@ namespace ChaosGlitchMod {
                     } catch (Exception) { }
                     goto IL_SKIPGLITCH;
                 } else {
-                    if (UnityEngine.Random.value <= 0.1f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
+                    if (UnityEngine.Random.value <= 0.15f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
                         ChaosShaders.Instance.ApplyRainbowShader(self, self.sprite);
                         goto IL_SKIPGLITCH;
                     } else {
-                        if (UnityEngine.Random.value <= 0.05f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                            ChaosShaders.Instance.ApplyGalaxyShader(self.sprite);
+                        if (UnityEngine.Random.value <= 0.1f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
+                            ChaosShaders.Instance.ApplyCosmicHorrorShader(self.sprite);
                             goto IL_SKIPGLITCH;
+                        } else {
+                            if (UnityEngine.Random.value <= 0.05f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
+                                ChaosShaders.Instance.ApplyGalaxyShader(self.sprite);
+                                goto IL_SKIPGLITCH;
+                            }
                         }
                     }
                 }
@@ -273,10 +303,9 @@ namespace ChaosGlitchMod {
         }
 
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
-            orig(self, player);
+            orig(self, player);            
 
-            if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Player entered room with name '" + player.CurrentRoom.GetRoomName() + "' .", false); }
-            
+            if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Player entered room with name '" + player.CurrentRoom.GetRoomName() + "' .", false); }            
 
             if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { Instance.ResizeEnemiesInRoom(); }
 
@@ -435,7 +464,8 @@ namespace ChaosGlitchMod {
             AIActor CritterList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.CritterGUIDList.RandomString());
             AIActor PestList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.PestGUIDList.RandomString());
             AIActor Tombstoners = EnemyDatabase.GetOrLoadByGuid(ChaosLists.tombstonerEnemyGUID);
-            AIActor SkusketHeads = EnemyDatabase.GetOrLoadByGuid(ChaosLists.skusketHeadEnemyGUID);
+            // AIActor SkusketHeads = EnemyDatabase.GetOrLoadByGuid(ChaosLists.skusketHeadEnemyGUID);
+            AIActor MusketKins = EnemyDatabase.GetOrLoadByGuid("226fd90be3a64958a5b13cb0a4f43e97");
             AIActor Poisbuloids = EnemyDatabase.GetOrLoadByGuid(ChaosLists.poisbuloidEnemyGUID);
             AIActor Funguns = EnemyDatabase.GetOrLoadByGuid(ChaosLists.fungunEnemyGUID);
             
@@ -541,9 +571,9 @@ namespace ChaosGlitchMod {
                }
                if (!flagBlueDrum) {
                     if (UnityEngine.Random.value <= ChaosConsole.MainPotSpawnChance) {
-                        AIActor.Spawn(SkusketHeads, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
+                        AIActor.Spawn(MusketKins, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
                     }
-               }     
+               }    
             }
         }
     }

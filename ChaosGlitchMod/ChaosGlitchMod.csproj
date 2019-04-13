@@ -59,6 +59,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChaosDungeonFlow.cs" />
+    <Compile Include="ChaosEnemyReplacements.cs" />
     <Compile Include="ChaosEnemyResizer.cs" />
     <Compile Include="ChaosGlitchFloorGenerator.cs" />
     <Compile Include="ChaosGlitchTrapDoor.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="ChaosSpawnGlitchedEnemyOnDeath.cs" />
     <Compile Include="ChaosSpawnGlitchedObjectOnDeath.cs" />
     <Compile Include="ChaosStringTableManager.cs" />
+    <Compile Include="ChaosThunderStorm.cs" />
     <Compile Include="Debug\AssetFinder.cs" />
     <Compile Include="ChaosExplodeOnDeath.cs" />
     <Compile Include="ChaosGlitchedEnemies.cs" />
