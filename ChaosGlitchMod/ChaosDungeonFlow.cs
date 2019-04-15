@@ -1,5 +1,4 @@
 using Dungeonator;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -55,7 +54,7 @@ namespace ChaosGlitchMod {
         private static PrototypeDungeonRoom elevator_entrance = assetBundle2.LoadAsset("elevator entrance") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom exit_room_basic = assetBundle2.LoadAsset("exit_room_basic") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom boss_foyer = assetBundle2.LoadAsset("boss foyer") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom gungeon_rewardroom_1 = assetBundle2.LoadAsset("gungeon_rewardroom_1") as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom gungeon_rewardroom_1 = Instantiate(assetBundle2.LoadAsset("gungeon_rewardroom_1")) as PrototypeDungeonRoom;
 
         private static PrototypeDungeonRoom shop02 = assetBundle2.LoadAsset("shop02") as PrototypeDungeonRoom;
         private static PrototypeDungeonRoom shop02_alternate_entrance = assetBundle2.LoadAsset("shop02 alternate entrance") as PrototypeDungeonRoom;
@@ -67,7 +66,12 @@ namespace ChaosGlitchMod {
         public static PrototypeDungeonRoom doublebeholsterroom01 = FlowDatabase.GetOrLoadByName("Secret_DoubleBeholster_Flow").AllNodes[2].overrideExactRoom;
 
 
-        private static PrototypeDungeonRoom[] RandomShops = new PrototypeDungeonRoom[] { shop02, blacksmithshop };
+        private static PrototypeDungeonRoom[] RandomShops = new PrototypeDungeonRoom[] {
+            shop02,
+            shop02_alternate_entrance,
+            shop02_annex,
+            shop02_alternate_annex
+        };
 
         /*private static PrototypeDungeonRoom[] RandomBossRooms = new PrototypeDungeonRoom[] {
             assetBundle.LoadAsset("bashelliskroom01") as PrototypeDungeonRoom,
@@ -660,7 +664,7 @@ namespace ChaosGlitchMod {
             roomCategory = PrototypeDungeonRoom.RoomCategory.CONNECTOR,
             percentChance = 1f,
             priority = DungeonFlowNode.NodePriority.MANDATORY,
-            overrideExactRoom = RandomShops[UnityEngine.Random.Range(0,1)],
+            overrideExactRoom = RandomShops[Random.Range(0,1)],
             capSubchain = false,
             limitedCopiesOfSubchain = false,
             maxCopiesOfSubchain = 1,

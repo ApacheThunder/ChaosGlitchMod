@@ -8487,6 +8487,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BeholsterController>());
+            Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BeholsterTentacleController>());
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<GenericIntroDoer>());
 
 

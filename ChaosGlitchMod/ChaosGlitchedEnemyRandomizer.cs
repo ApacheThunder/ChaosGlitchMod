@@ -20,15 +20,9 @@ namespace ChaosGlitchMod {
         }
 
         public void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
-            // If special glitch floor is loaded, skip normal checks for chaos modes
-            if (ChaosDungeonFlow.flowOverride && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON)
-            {
-                goto IL_SKIP;
-            }
-
-            if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
             if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
-            IL_SKIP:;
+            if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
+
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             int RandomEnemiesPlaced = 0;
             int RandomEnemiesSkipped = 0;
@@ -128,7 +122,7 @@ namespace ChaosGlitchMod {
                 ETGModConsole.Log("[DEBUG] Number of Glitched Enemies skipped: " + RandomEnemiesSkipped, false);
                 if (RandomEnemiesPlaced <= 0) { ETGModConsole.Log("[DEBUG] Error: No Glitched Enemies have been placed!", false); }
             }
-        }
+        }        
     }
 }
 

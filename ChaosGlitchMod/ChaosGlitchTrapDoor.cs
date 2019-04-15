@@ -141,16 +141,15 @@ namespace ChaosGlitchMod {
             } else if (loadLevelOnPitFall) {
                 float RandomDispIntensityFloat = UnityEngine.Random.Range(0.001f, 0.002f);
                 float RandomColorIntensityFloat = UnityEngine.Random.Range(0.01f, 0.015f);
-
                 if (spriteAnimator) {
                     spriteAnimator.Play();
                     if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, DispIntensity: RandomDispIntensityFloat, ColorIntensity: RandomColorIntensityFloat); }
-                    //if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat); }
+                    StartCoroutine(DestroyAnimator());
                 } else {
                     if (spriteAnimator) {
                         spriteAnimator.Play();
-                        // if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat); }
                         if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, DispIntensity: RandomDispIntensityFloat, ColorIntensity: RandomColorIntensityFloat); }
+                        StartCoroutine(DestroyAnimator());
                     }
                 }
                 StartCoroutine(HandleFlaggingCells());
@@ -159,6 +158,12 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log("[DEBUG] Warning: Something went wrong! m_createdRoom is null!");
                 }
             }
+        }
+
+        private IEnumerator DestroyAnimator() {
+            yield return new WaitForSeconds(1.5f);
+            Destroy(spriteAnimator);
+            yield break;
         }
 
         private void HandleFlightCollider(SpeculativeRigidbody specRigidbody, SpeculativeRigidbody sourceSpecRigidbody, CollisionData collisionData) {

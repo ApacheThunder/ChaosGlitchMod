@@ -5,8 +5,6 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Collections.Generic;
-using Pathfinding;
-using System.Collections;
 
 namespace ChaosGlitchMod {
 
@@ -16,12 +14,12 @@ namespace ChaosGlitchMod {
         public static Hook doExplodeHook;
         public static Hook enterRoomHook;
         public static Hook wallmimichook;
-        // public static Hook wallmimichook2;
         public static Hook slidehook;
         public static Hook stringhook;
         public static Hook cellhook;
         public static Hook flowhook;
         public static Hook loadlevelhook;
+        public static Hook objectstamphook;
         // public static Hook glitchroomsetuphook;
 
         private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
@@ -128,7 +126,12 @@ namespace ChaosGlitchMod {
             loadlevelhook = new Hook(
                 typeof(GameManager).GetMethod("LoadNextLevel", BindingFlags.Public | BindingFlags.Instance),
                 typeof(ChaosSharedHooks).GetMethod("LoadNextLevelHook", BindingFlags.Public | BindingFlags.Static)
-            );       
+            );
+
+            objectstamphook = new Hook(
+                typeof(TK2DDungeonAssembler).GetMethod("ApplyObjectStamp", BindingFlags.Public | BindingFlags.Static),
+                typeof(ChaosSharedHooks).GetMethod("ApplyObjectStampHook", BindingFlags.Public | BindingFlags.Static)
+            );
             return;
         }        
 
@@ -142,7 +145,20 @@ namespace ChaosGlitchMod {
                 ChaosDungeonFlow.flowOverride = true;
                 GameManager.Instance.LoadCustomFlowForDebug("test_west_floor_03a_flow", "Base_Nakatomi", "tt_nakatomi");
                 return;
-            } else { orig(self); }
+            } else {
+                try {
+                    orig(self);
+                } catch (Exception ex) {
+                    ETGModConsole.Log("WARNING: Exception during LoadNextLevelHook!");
+                    Debug.Log("WARNING: Exception during LoadNextLevelHook!");
+                    Debug.LogException(ex);
+                    if (GameManager.Instance.InjectedFlowPath == "Core Game Flows/Secret_DoubleBeholster_Flow") {
+                        GameManager.Instance.LoadCustomFlowForDebug("test_west_floor_03a_flow", "Base_Nakatomi", "tt_nakatomi");
+                    } else {
+                        orig(self);
+                    }                    
+                }
+            }
         }
 
         public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) { try { orig(self); } catch (Exception) { return; } }
@@ -156,11 +172,6 @@ namespace ChaosGlitchMod {
             } catch (Exception) {
                 if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("[DEBUG] Exception caught in method 'Awake' in AIActor class!", false); }
             }
-            // if (ChaosConsole.randomEnemySizeEnabled) { self.CorpseObject.transform.localScale = self.EnemyScale.ToVector3ZUp(1f); }
-
-            // Prevents certain enemies from keeping rooms in combat/spawning next waves.
-            // if (ChaosEnemyLists.SafeEnemyGUIDList.Contains(self.EnemyGuid)) { self.IgnoreForRoomClear = true; }
-
 
             if (self.EnemyGuid == "796a7ed4ad804984859088fc91672c7f" && 
                  GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON | 
@@ -184,76 +195,62 @@ namespace ChaosGlitchMod {
                 if (ChaosLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) { self.PreventBlackPhantom = true; }
                 if (ChaosLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
                 if (self.EnemyGuid == "eeb33c3a5a8e4eaaaaf39a743e8767bc") { self.AlwaysShowOffscreenArrow = true; }
-
-                if (UnityEngine.Random.value <= 0.2f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                    ChaosShaders.Instance.ApplyHologramShader(self.sprite, BraveUtility.RandomBool());
+                
+                if (UnityEngine.Random.value <= 0.2f && !self.IsBlackPhantom) {
+                    ChaosShaders.Instance.BecomeHologram(self.gameObject, true, BraveUtility.RandomBool());
                     try {
                         self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
                         if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
                             self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
                         }
-                        ChaosShaders.Instance.ApplyHologramShader(self.CurrentGun.sprite, BraveUtility.RandomBool());
+                        ChaosShaders.Instance.BecomeHologram(self.CurrentGun.gameObject, true, BraveUtility.RandomBool());
                     } catch (Exception) { }
-                    goto IL_SKIPGLITCH;
-                } else {
-                    if (UnityEngine.Random.value <= 0.15f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                        ChaosShaders.Instance.ApplyRainbowShader(self, self.sprite);
-                        goto IL_SKIPGLITCH;
-                    } else {
-                        if (UnityEngine.Random.value <= 0.1f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                            ChaosShaders.Instance.ApplyCosmicHorrorShader(self.sprite);
-                            goto IL_SKIPGLITCH;
-                        } else {
-                            if (UnityEngine.Random.value <= 0.05f && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                                ChaosShaders.Instance.ApplyGalaxyShader(self.sprite);
-                                goto IL_SKIPGLITCH;
-                            }
-                        }
-                    }
+                } else if (UnityEngine.Random.value <= 0.16f && !self.IsBlackPhantom) {
+                    ChaosShaders.Instance.ApplySpaceShader(self.sprite);
+                } else if (UnityEngine.Random.value <= 0.15f && !self.IsBlackPhantom) {
+                    ChaosShaders.Instance.BecomeRainbow(self, self.sprite);
+                } else if (UnityEngine.Random.value <= 0.1f && !self.IsBlackPhantom) {
+                    ChaosShaders.Instance.BecomeCosmicHorror(self.sprite);
+                } else if (UnityEngine.Random.value <= 0.05f && !self.IsBlackPhantom) {
+                    ChaosShaders.Instance.BecomeGalaxy(self.sprite);
                 }
             }
 
-            if (UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors && ChaosConsole.GlitchEnemies && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
+            if (UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors && ChaosConsole.GlitchEnemies && !self.IsBlackPhantom) {
                 float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
                 float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
                 float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
                 float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
                 float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
 
-                if (!self.sprite.usesOverrideMaterial && UnityEngine.Random.value <= 0.15f) {
-                    ChaosShaders.Instance.ApplySpaceShader(self.sprite);
-                } else {
-                    if (!self.sprite.usesOverrideMaterial && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid) && !self.name.StartsWith("Glitched") && !self.GetActorName().StartsWith("Glitched")) {
-                        ChaosShaders.Instance.ApplyGlitchShader(self, self.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
-                        if (!self.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(self.EnemyGuid)) {
-                            if (UnityEngine.Random.value <= 0.25) { self.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
-                        }
-                        ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(self);
-                        if (!ChaosConsole.randomEnemySizeEnabled) {
-                            // self.BaseMovementSpeed *= 1.1f;
-                            // self.MovementSpeed *= 1.1f;
-                            if (self.healthHaver != null) {
-                                if (!self.healthHaver.IsBoss) {
-                                    self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.5f, null, false);
-                                } else {
-                                    self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.25f, null, false);
-                                }
-                            }
-                        }                        
-                        if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchEnemyOnDeath>() == null) {
-                            try { self.gameObject.AddComponent<ChaosExplodeOnDeath>(); } catch (Exception) { }
-                        }
+                
+                if (!self.sprite.usesOverrideMaterial && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid) &&
+                    GameManager.Instance.Dungeon.tileIndices.tilesetId != GlobalDungeonData.ValidTilesets.OFFICEGEON)
+                {
+                    ChaosShaders.Instance.ApplyGlitchShader(self, self.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
+                    if (!self.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(self.EnemyGuid) && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
+                        if (UnityEngine.Random.value <= 0.25) { self.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
                     }
-                }                
+                    ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(self);
+                    if (!ChaosConsole.randomEnemySizeEnabled) {
+                        if (self.healthHaver != null) {
+                            if (!self.healthHaver.IsBoss) {
+                                self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.5f, null, false);
+                            } else {
+                                self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.25f, null, false);
+                            }
+                        }
+                    }                        
+                    if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchEnemyOnDeath>() == null) {
+                        try { self.gameObject.AddComponent<ChaosExplodeOnDeath>(); } catch (Exception) { }
+                    }
+                }
+                            
             }
-
-            IL_SKIPGLITCH:;
 
             if (ChaosLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid) && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | minorbreakablehook != null) {
                 AIActor target = self.gameObject.GetComponent<AIActor>();
                 target.DiesOnCollison = true;
-                // target.StartCoroutine(ChaosEnemyResizer.Instance.ResizeEnemy(self, new Vector2(1.25f, 1.25f)));
-                // if (target.procedurallyOutlined) { target.procedurallyOutlined = false; }
                 target.IgnoreForRoomClear = true;
             }
         }
@@ -298,9 +295,7 @@ namespace ChaosGlitchMod {
             return;
         }
 
-        public void RevealRoom(RoomHandler CurrentRoom) {
-            StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(CurrentRoom, true, true, true));
-        }
+        public void RevealRoom(RoomHandler CurrentRoom) { StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(CurrentRoom, true, true, true)); }
 
         public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
             orig(self, player);            
@@ -310,23 +305,6 @@ namespace ChaosGlitchMod {
             if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { Instance.ResizeEnemiesInRoom(); }
 
             if (self.OverrideTilemap && ChaosConsole.allowGlitchFloor) { Instance.RevealRoom(self); }
-
-            if (ChaosConsole.ShaderPass <= 25 && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { 
-                if (ChaosConsole.GlitchEverything | ChaosConsole.isUltraMode | ChaosConsole.isUltraMode) {
-                    foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
-                        if (ChaosConsole.isUltraMode | ChaosConsole.isHardMode) {
-                            if (UnityEngine.Random.value < 0.006f) {
-                                ChaosShaders.Instance.BecomeHologram(gameObject);
-                                continue;
-                            }
-                        }
-                        if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && ChaosConsole.GlitchEverything) {
-                            ChaosShaders.Instance.BecomeGlitched(gameObject);
-                        }
-                    }
-                }
-                ChaosConsole.ShaderPass++;
-            }
 
             if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && minorbreakablehook != null) { player.CurrentRoom.OnEnemiesCleared += KillPotEnemiesOnRoomClear; }
 
@@ -574,6 +552,98 @@ namespace ChaosGlitchMod {
                         AIActor.Spawn(MusketKins, self.sprite.WorldCenter, primaryPlayer.CurrentRoom, true);
                     }
                }    
+            }
+        }
+
+        public static GameObject ApplyObjectStampHook(int ix, int iy, ObjectStampData osd, Dungeon d, tk2dTileMap map, bool flipX = false, bool isLightStamp = false) {
+            try {
+                DungeonTileStampData.StampSpace occupySpace = osd.occupySpace;
+                for (int i = 0; i < osd.width; i++) {
+                    for (int j = 0; j < osd.height; j++) {
+                        CellData cellData = d.data.cellData[ix + i][iy + j];
+                        CellVisualData cellVisualData = cellData.cellVisualData;
+                        if (cellVisualData.forcedMatchingStyle != DungeonTileStampData.IntermediaryMatchingStyle.ANY && cellVisualData.forcedMatchingStyle != osd.intermediaryMatchingStyle) {
+                            return null;
+                        }
+                        if (osd.placementRule != DungeonTileStampData.StampPlacementRule.ALONG_LEFT_WALLS || !isLightStamp) {
+                            bool flag = cellVisualData.containsWallSpaceStamp;
+                            if (cellVisualData.facewallGridPreventsWallSpaceStamp && isLightStamp) { flag = false; }
+                            if (occupySpace == DungeonTileStampData.StampSpace.BOTH_SPACES) {
+                                if (cellVisualData.containsObjectSpaceStamp || flag || (!isLightStamp && cellVisualData.containsLight)) {
+                                    return null;
+                                }
+                                if (cellData.type == CellType.PIT) { return null; }
+                            } else if (occupySpace == DungeonTileStampData.StampSpace.OBJECT_SPACE) {
+                                if (cellVisualData.containsObjectSpaceStamp) { return null; }
+                                if (cellData.type == CellType.PIT) { return null; }
+                            } else if (occupySpace == DungeonTileStampData.StampSpace.WALL_SPACE && (flag || (!isLightStamp && cellVisualData.containsLight))) {
+                                return null;
+                            }
+                        }
+                    }
+                }
+                int num = (occupySpace != DungeonTileStampData.StampSpace.OBJECT_SPACE) ? GlobalDungeonData.wallStampLayerIndex : GlobalDungeonData.objectStampLayerIndex;
+                float z = map.data.Layers[num].z;
+                Vector3 vector = osd.objectReference.transform.position;
+                ObjectStampOptions component = osd.objectReference.GetComponent<ObjectStampOptions>();
+                if (component != null) { vector = component.GetPositionOffset(); }
+                GameObject gameObject = Instantiate(osd.objectReference);            
+                gameObject.transform.position = new Vector3(ix, iy, z) + vector;
+                if (!isLightStamp && osd.placementRule == DungeonTileStampData.StampPlacementRule.ALONG_LEFT_WALLS) {
+                    gameObject.transform.position = new Vector3(ix + 1, iy, z) + vector.WithX(-vector.x);
+                }
+                tk2dSprite component2 = gameObject.GetComponent<tk2dSprite>();
+                RoomHandler absoluteRoomFromPosition = GameManager.Instance.Dungeon.data.GetAbsoluteRoomFromPosition(new IntVector2(ix, iy));
+                MinorBreakable componentInChildren = gameObject.GetComponentInChildren<MinorBreakable>();
+                if (componentInChildren) {
+                    if (osd.placementRule == DungeonTileStampData.StampPlacementRule.ON_ANY_FLOOR) {
+                        componentInChildren.IgnoredForPotShotsModifier = true;
+                    }
+                    componentInChildren.IsDecorativeOnly = true;
+                }
+                IPlaceConfigurable @interface = gameObject.GetInterface<IPlaceConfigurable>();
+                if (@interface != null) { @interface.ConfigureOnPlacement(absoluteRoomFromPosition); }
+                SurfaceDecorator component3 = gameObject.GetComponent<SurfaceDecorator>();
+                if (component3 != null) {
+                    component3.Decorate(absoluteRoomFromPosition);
+                }
+                if (flipX) {
+                    if (component2 != null) {
+                        component2.FlipX = true;
+                        float x = Mathf.Ceil(component2.GetBounds().size.x);
+                        gameObject.transform.position = gameObject.transform.position + new Vector3(x, 0f, 0f);
+                    } else {
+                        gameObject.transform.localScale = Vector3.Scale(gameObject.transform.localScale, new Vector3(-1f, 1f, 1f));
+                    }
+                }
+                gameObject.transform.parent = ((absoluteRoomFromPosition == null) ? null : absoluteRoomFromPosition.hierarchyParent);
+                DepthLookupManager.ProcessRenderer(gameObject.GetComponentInChildren<Renderer>());
+                if (component2 != null) {
+                    component2.UpdateZDepth();
+                }
+                for (int k = 0; k < osd.width; k++) {
+                    for (int l = 0; l < osd.height; l++) {
+                        CellVisualData cellVisualData2 = d.data.cellData[ix + k][iy + l].cellVisualData;
+                        if (occupySpace == DungeonTileStampData.StampSpace.OBJECT_SPACE) {
+                            cellVisualData2.containsObjectSpaceStamp = true;
+                        }
+                        if (occupySpace == DungeonTileStampData.StampSpace.WALL_SPACE) {
+                            cellVisualData2.containsWallSpaceStamp = true;
+                        }
+                        if (occupySpace == DungeonTileStampData.StampSpace.BOTH_SPACES) {
+                            cellVisualData2.containsObjectSpaceStamp = true;
+                            cellVisualData2.containsWallSpaceStamp = true;
+                        }
+                    }
+                }
+                return gameObject;
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Warning: Exception caught during ApplyObjectStamp method during Dungeon generation!");
+                    Debug.Log("Warning: Exception caught during ApplyObjectStamp method during Dungeon generation!");
+                    Debug.LogException(ex);
+                }
+                return null;
             }
         }
     }

@@ -19,10 +19,6 @@ namespace ChaosGlitchMod {
             }
         }
 
-        private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
-
-        private DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
-
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
             "EndTimes_Chamber",
@@ -160,9 +156,7 @@ namespace ChaosGlitchMod {
         		ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
         	}
         	
-        	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
-        		if (currentFloor == 1) PlaceTeleporter(dungeon);
-        	}
+        	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) { if (currentFloor == 1) PlaceTeleporter(dungeon); }
         	
         	if (ChaosConsole.isUltraMode) {
         		if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
@@ -185,8 +179,11 @@ namespace ChaosGlitchMod {
         	} else {
         		ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
         	}
-        	
-        	if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }
+
+            Instance.InitObjectMods(dungeon);
+
+
+            if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }
         	
         	// Additional Wall Mimics will not be placed on special Glitch Floor
         	if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }	
@@ -376,6 +373,43 @@ namespace ChaosGlitchMod {
         		}
         	}
         }
+        
+        
+        private void InitObjectMods(Dungeon dungeon) {
+            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            GameObject[] m_CachedObjects = FindObjectsOfType<GameObject>();
+            if (ChaosDungeonFlow.flowOverride && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON && !ChaosConsole.GlitchEverything) {
+                for (int i = 0; i < m_CachedObjects.Length; i++) {
+                    if (m_CachedObjects[i].GetComponentInChildren<PlayerController>() == null && !m_CachedObjects[i].name.ToLower().StartsWith("player")) {
+                        if (UnityEngine.Random.value < 0.45f && m_CachedObjects[i].GetComponentInChildren<AIActor>() == null) {
+                            ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+                        } else if (m_CachedObjects[i].GetComponentInChildren<AIActor>() != null && UnityEngine.Random.value < 0.65f) {
+                            AIActor m_cachedAIActor = m_CachedObjects[i].GetComponentInChildren<AIActor>();
+                            if (!ChaosLists.DontGlitchMeList.Contains(m_cachedAIActor.EnemyGuid) && !m_cachedAIActor.IsBlackPhantom && !m_cachedAIActor.healthHaver.IsBoss && !m_cachedAIActor.name.EndsWith("Glitched")) {
+                                ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, false, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+                                if (UnityEngine.Random.value <= 0.25 && !m_cachedAIActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(m_cachedAIActor.EnemyGuid) && m_cachedAIActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
+                                    m_CachedObjects[i].AddComponent<ChaosSpawnGlitchObjectOnDeath>();
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (ChaosConsole.GlitchEverything) {
+                for (int i = 0; i < m_CachedObjects.Length; i++) {
+                    if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && !m_CachedObjects[i].name.ToLower().StartsWith("player")) {
+                        ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+                    }
+                }
+            }
+            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
+                for (int i = 0; i < m_CachedObjects.Length; i++) {
+                    if (UnityEngine.Random.value < 0.1f && !m_CachedObjects[i].name.ToLower().StartsWith("player") && m_CachedObjects[i].GetComponentInChildren<AIActor>() == null) {
+                        ChaosShaders.Instance.BecomeHologram(m_CachedObjects[i]);
+                    }
+                }                
+            }
+        }
+        
         // Adds Teleporter to entrance room on first floor so that player can teleport back if teleported via Tentacle Teleporter.
         private static void PlaceTeleporter(Dungeon dungeon) {
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
@@ -387,7 +421,6 @@ namespace ChaosGlitchMod {
             }
             return;
         }
-
         private void PlaceRatGrate(Dungeon dungeon) {
             List<IntVector2> list = new List<IntVector2>();
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
@@ -401,6 +434,10 @@ namespace ChaosGlitchMod {
                 }
             }
             if (list.Count > 0) {
+                Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
+
+                DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
+
                 IntVector2 a = list[BraveRandom.GenerationRandomRange(0, list.Count)];
                 DungeonPlaceableBehaviour component = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
                 RoomHandler absoluteRoom = a.ToVector2().GetAbsoluteRoom();
@@ -423,6 +460,8 @@ namespace ChaosGlitchMod {
                 chaosGlitchTrapDoor.spriteAnimator = GlitchTrapDoorAnimator;
                 chaosGlitchTrapDoor.ConfigureOnPlacement(absoluteRoom);
                 Destroy(gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>());
+
+                MinesPrefab = null;
 
                 for (int m = 0; m < 4; m++) {
                     for (int n = 0; n < 4; n++) {

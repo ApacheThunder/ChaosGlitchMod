@@ -20,8 +20,6 @@ namespace ChaosGlitchMod {
             }
         }
 
-        // private static Dungeon DungeonPrefab = DungeonDatabase.GetOrLoadByName("base_cathedral");
-
         public RoomHandler[] GlitchRoomCluster;
 
         public static bool isGlitchFloor = false;

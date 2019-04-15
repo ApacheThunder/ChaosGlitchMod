@@ -8,7 +8,7 @@ namespace ChaosGlitchMod {
     class ChaosConsole : MonoBehaviour {
 
         public static float GlitchRandomActors = 0.3f;
-        public static float GlitchRandomAll = 0.01f;
+        public static float GlitchRandomAll = 0.09f;
         public static float RandomResizedEnemies = 0.4f;
         public static float RandomSizeChooser = 0.3f;
         public static float BonusEnemyChances = 0.5f;
@@ -81,9 +81,13 @@ namespace ChaosGlitchMod {
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
-                ChaosGlitchFloorGenerator.isGlitchFloor = true;
+                /*ChaosGlitchFloorGenerator.isGlitchFloor = true;
                 ChaosGlitchFloorGenerator.debugMode = true;
-                ChaosGlitchFloorGenerator.Instance.Init();
+                ChaosGlitchFloorGenerator.Instance.Init();*/
+                NPCCellKeyItem CellKey = PickupObjectDatabase.GetById(392).GetComponent<NPCCellKeyItem>();
+                GameManager.Instance.PrimaryPlayer.AcquirePuzzleItem(CellKey);
+                GameUIRoot.Instance.UpdatePlayerConsumables(GameManager.Instance.PrimaryPlayer.carriedConsumables);
+                // DropPuzzleItem
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {
@@ -403,15 +407,11 @@ namespace ChaosGlitchMod {
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("superdebug", delegate (string[] e) {
-                if (!DebugExceptions)
-                {
+                if (!DebugExceptions) {
                     DebugExceptions = true;
                     ETGModConsole.Log("Exceptions Debug Mode On...", false);
-                }
-                else
-                {
-                    if (DebugExceptions)
-                    {
+                } else {
+                    if (DebugExceptions) {
                         DebugExceptions = false;
                         ETGModConsole.Log("Exceptions Debug Mode Off...", false);
                     }

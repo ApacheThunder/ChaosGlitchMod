@@ -4,8 +4,7 @@ Assembly-CSharp.Base.mm.dll
 Assembly-CSharp.dll
 MonoMod.RuntimeDetour.dll
 MonoMod.Utils.dll
-UnityEngine.Base.mm.dll
-UnityEngine.CoreModule.dll
+UnityEngine.CoreModule.Base.dll
 UnityEngine.ImageConversionModule.dll
 UnityEngine.ParticleSystemModule.dll
 

@@ -11,42 +11,66 @@ namespace ChaosGlitchMod {
                 return m_instance;
             }
         }
-
         private static ChaosShaders m_instance;
+
+        
+        public void BecomeGlitchedTest(BraveBehaviour gameObject) {
+            tk2dBaseSprite sprite = null;
+            try {
+                if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                sprite = gameObject.sprite;
+            } catch { };
+
+            ApplyGlitchShader(null, sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+        }
 
 		// Glitch Everything Function (mostly written by Abeclancy with a dash of code from old Rainbow mod)
         // Used for applying Glitch shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
-        public void BecomeGlitched(BraveBehaviour gameObject) { try {
-                tk2dBaseSprite sprite = null;
-                try {
-                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                    sprite = gameObject.sprite;
-                } catch { };
+        public void BecomeGlitched(GameObject gameObject, bool usesOverrideMaterial = true, bool ignoreAIActors = false, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) { try {
+                if (gameObject == null) { return; }
+                if (ignoreAIActors && gameObject.GetComponent<AIActor>() != null) { return; }
+                if (ignoreAIActors && gameObject.GetComponentInChildren<AIActor>() != null) { return; }
+                if (gameObject.GetComponent<PlayerController>()) { return; }
+                if (gameObject.GetComponentInChildren<PlayerController>()) { return; }
 
-                if (gameObject == null) return;
 
-                if (gameObject.GetComponent<AIActor>() != null | sprite.usesOverrideMaterial) { return; }
+                tk2dBaseSprite sprite = gameObject.GetComponentInChildren<tk2dBaseSprite>();
 
-                ApplyGlitchShader(null, sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-            } catch (Exception ex) {
-                if (ChaosConsole.DebugExceptions) {
-                    ETGModConsole.Log("Exception Caught at [BecomeGlitched] in ChaosGlitchHooks class.", false);
-                    ETGModConsole.Log(ex.Message + ex.Source, false);
-                    ETGModConsole.Log(ex.StackTrace, false);
+                if (sprite == null) { sprite = gameObject.GetComponent<tk2dBaseSprite>(); }
+                if (sprite == null) { return; }
+
+                if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+
+                if (gameObject.GetComponent<AIActor>() != null) {
+                    ApplyGlitchShader(gameObject.GetComponent<AIActor>(), sprite, usesOverrideMaterial, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
+                } else {
+                    ApplyGlitchShader(null, sprite, usesOverrideMaterial, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
                 }
+
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosShaders class.", false); }
+                Debug.Log("Exception Caught at[BecomeHologram] in ChaosShaders class");
+                Debug.LogException(ex);
                 return;
             }
         }
 
         // Used for applying Hologram shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
-        public void BecomeHologram(BraveBehaviour gameObject, bool usesOverrideMaterial = true) { try {
-                if (gameObject == null | gameObject.GetComponent<AIActor>() != null |
-                    gameObject.GetComponent<PickupObject>() != null | gameObject.GetComponent<PressurePlate>() != null |
-                    gameObject.GetComponent<AIActor>() != null) {
+        public void BecomeHologram(GameObject gameObject, bool usesOverrideMaterial = true, bool isGreen = false, bool ignoreAIActors = false) { try {
+                if (gameObject == null | gameObject.GetComponent<PickupObject>() != null | gameObject.GetComponent<PressurePlate>() != null) {
                     return;
                 }
+
+                if (ignoreAIActors && gameObject.GetComponent<AIActor>() != null) { return; }
+                if (ignoreAIActors && gameObject.GetComponentInChildren<AIActor>() != null) { return; }
 
                 if (gameObject.name.ToLower().StartsWith("boss") | gameObject.name.ToLower().StartsWith("door") |
                     gameObject.name.ToLower().StartsWith("shellcasing") | gameObject.name.ToLower().StartsWith("5") |
@@ -54,24 +78,23 @@ namespace ChaosGlitchMod {
                     gameObject.name.ToLower().StartsWith("outline") | gameObject.name.ToLower().StartsWith("braveoutline") |
                     gameObject.name.ToLower().StartsWith("defaultshadow") | gameObject.name.ToLower().StartsWith("shadow") |
                     gameObject.name.ToLower().StartsWith("elevator") | gameObject.name.ToLower().StartsWith("floor") |
-                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)")/* |
-                    gameObject.name.ToLower().EndsWith("stone(clone)") | gameObject.name.ToLower().EndsWith("horizontal(clone)") |
-                    gameObject.name.ToLower().EndsWith("vertical(clone)")*/)
-                {
-                    // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object was skipped: " + gameObject.name.ToLower(), false);
-                    return;
-                }
+                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)"))
+                { return; }
 
-                tk2dBaseSprite sprite = null;
-                try {
-                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                    sprite = gameObject.sprite;
-                } catch { };
-                
-                if (sprite.usesOverrideMaterial) { return; }
+                tk2dBaseSprite sprite = gameObject.GetComponentInChildren<tk2dBaseSprite>();
 
-                // if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] The following object is now a hologram: " + gameObject.name.ToLower(), false);
-                ApplyHologramShader(sprite, BraveUtility.RandomBool(), usesOverrideMaterial);
+                if (sprite == null) { sprite = gameObject.GetComponent<tk2dBaseSprite>(); }
+                if (sprite == null) { return; }
+
+                if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+
+                ApplyHologramShader(sprite, isGreen, usesOverrideMaterial);
 
                 if (gameObject.GetComponent<SpeculativeRigidbody>() != null) {
                     SpeculativeRigidbody CurrentObjectRigidBody = gameObject.GetComponent<SpeculativeRigidbody>();
@@ -89,7 +112,7 @@ namespace ChaosGlitchMod {
 
             } catch (Exception ex) {
                 if (ChaosConsole.DebugExceptions) {
-                    ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosGlitchHooks class.", false);
+                    ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosShaders class.", false);
                     ETGModConsole.Log(ex.Message + ex.Source, false);
                     ETGModConsole.Log(ex.StackTrace, false);
                 }
@@ -97,29 +120,69 @@ namespace ChaosGlitchMod {
             }
         }
 
-        public void BecomeGlitchedTest(BraveBehaviour gameObject) {
-            tk2dBaseSprite sprite = null;
-            try {
-                if (!(gameObject.sprite is tk2dBaseSprite)) return;
-                sprite = gameObject.sprite;
-            } catch { };
+        public void BecomeCosmicHorror(tk2dBaseSprite sprite) {
+            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
 
-            ApplyGlitchShader(null, sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+            ApplyCosmicHorrorShader(sprite);
         }
+        public void BecomeParadoxGlitch(tk2dBaseSprite sprite, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f, float WaveIntensity = 1f, float AdditionalTime = 0f) {
+            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
 
+            ApplyParadoxGlitchShader(sprite, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity, WaveIntensity, AdditionalTime);
+        }
+        public void BecomeGalaxy(tk2dBaseSprite sprite) {
+            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
 
-        /*public static Material SetSpaceShader(tk2dBaseSprite sprite, float Zoom = 0.8f, float Tile = 0.85f, float Speed = 0.01f) {
-            Material m_cachedSpaceMaterial = new Material(Shader.Find("Brave/Internal/StarNest_Derivative"));
-            sprite.renderer.material.shader = Shader.Find("Brave/Internal/StarNest_Derivative");
-            m_cachedSpaceMaterial.SetFloat("_Zoom", Zoom);
-            m_cachedSpaceMaterial.SetFloat("_Tile", Tile);
-            m_cachedSpaceMaterial.SetFloat("_Speed", Speed);
-            sprite.renderer.material = m_cachedSpaceMaterial;
-            return m_cachedSpaceMaterial;
-        }*/
+            ApplyGalaxyShader(sprite);
+        }
+        public void BecomeSpace(tk2dBaseSprite sprite) {
+            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+
+            ApplySpaceShader(sprite);
+        }
+        public void BecomeRainbow(AIActor aiActor, tk2dBaseSprite sprite, bool usesOverrideMaterial = true) {
+            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+
+            if (aiActor != null) {
+                ApplyRainbowShader(aiActor, sprite);
+            } else {
+                ApplyRainbowShader(sprite, usesOverrideMaterial);
+            }
+        }
 
         public void ApplyCosmicHorrorShader(tk2dBaseSprite sprite) {
             Material m_cachedEeveeMaterial = new Material(ShaderCache.Acquire("Brave/PlayerShaderEevee"));
+            m_cachedEeveeMaterial.name = "CosmicHorrorMaterial";
             Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
@@ -131,9 +194,9 @@ namespace ChaosGlitchMod {
             spriteComponent.sharedMaterials = sharedMaterials;
             sprite.usesOverrideMaterial = m_cachedEeveeMaterial;
         }
-
         public void ApplyParadoxGlitchShader(tk2dBaseSprite sprite, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f, float WaveIntensity = 1f, float AdditionalTime = 0f) {
             Material m_cachedParadoxGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/GlitchEevee"));
+            m_cachedParadoxGlitchMaterial.name = "ParadoxMaterial";
             Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
             m_cachedParadoxGlitchMaterial.SetFloat("_GlitchInterval", GlitchInterval);
             m_cachedParadoxGlitchMaterial.SetFloat("_DispProbability", DispProbability);
@@ -152,10 +215,9 @@ namespace ChaosGlitchMod {
             spriteComponent.sharedMaterials = sharedMaterials;
             sprite.usesOverrideMaterial = m_cachedParadoxGlitchMaterial;
         }
-
-
         public void ApplyGalaxyShader(tk2dBaseSprite sprite) {
             Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Effects/SimplicityDerivativeShader"));
+            m_cachedGalaxyMaterial.name = "GalaxyMaterial";
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
@@ -166,16 +228,17 @@ namespace ChaosGlitchMod {
             sprite.usesOverrideMaterial = m_cachedGalaxyMaterial;
         }
         public void ApplySpaceShader(tk2dBaseSprite sprite) {
-            Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"));
+            Material m_cachedSpaceMaterial = new Material(ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"));
+            m_cachedSpaceMaterial.name = "SpaceMaterial";
             // Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/SpaceFogShader"));            
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            Material CustomMaterial = Instantiate(m_cachedGalaxyMaterial);
+            Material CustomMaterial = Instantiate(m_cachedSpaceMaterial);
             CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
             sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
             spriteComponent.sharedMaterials = sharedMaterials;
-            sprite.usesOverrideMaterial = m_cachedGalaxyMaterial;
+            sprite.usesOverrideMaterial = m_cachedSpaceMaterial;
         }
         public void ApplyBasicShader(AIActor aiActor, tk2dBaseSprite sprite) {
             // Material m_cachedBasicMaterial = new Material(ShaderCache.Acquire("Brave/LitTk2dCustomFalloffTiltedCutoutFast"));
@@ -193,6 +256,7 @@ namespace ChaosGlitchMod {
         }        
         public void ApplyGlitchShader(AIActor aiActor, tk2dBaseSprite sprite, bool usesOverrideMaterial = true, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) {
             Material m_cachedGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/Glitch"));
+            m_cachedGlitchMaterial.name = "GlitchMaterial";
             m_cachedGlitchMaterial.SetFloat("_GlitchInterval", GlitchInterval);
             m_cachedGlitchMaterial.SetFloat("_DispProbability", DispProbability);
             m_cachedGlitchMaterial.SetFloat("_DispIntensity", DispIntensity);
@@ -314,6 +378,7 @@ namespace ChaosGlitchMod {
         public void ApplyHologramShader(tk2dBaseSprite sprite, bool isGreen = false, bool usesOverrideMaterial = true) {
             Shader m_cachedShader = Shader.Find("Brave/Internal/HologramShader");
             Material m_cachedMaterial = new Material(Shader.Find("Brave/Internal/HologramShader"));
+            m_cachedMaterial.name = "HologramMaterial";
             Material m_cachedSharedMaterial = m_cachedMaterial;
 
             m_cachedMaterial.SetTexture("_MainTex", sprite.renderer.material.GetTexture("_MainTex"));
@@ -388,6 +453,7 @@ namespace ChaosGlitchMod {
 
                 sprite.renderer.material.shader = OverrideShader;
                 sprite.renderer.material = AiActorMaterial;
+                sprite.renderer.material.name = "RainbowMaterial";
                 sprite.renderer.materials = AiActorMaterials;
                 sprite.renderer.sharedMaterial = AiActorSharedMaterialSingle;
                 sprite.renderer.sharedMaterials = AiActorSharedMaterials;
@@ -425,12 +491,14 @@ namespace ChaosGlitchMod {
                 aiActor.CurrentGun.sprite.renderer.sharedMaterial = AiActorGunSharedMaterial;
                 aiActor.CurrentGun.sprite.renderer.sharedMaterials = AiActorGunSharedMaterials;
                 aiActor.CurrentGun.sprite.renderer.material = AiActorGunMaterial;
+                aiActor.CurrentGun.sprite.renderer.material.name = "RainbowMaterial";
                 aiActor.CurrentGun.sprite.renderer.materials = AiActorGunMaterials;
                 aiActor.CurrentGun.sprite.usesOverrideMaterial = AiActorGunMaterial;
             } catch (Exception) { }
         }
         public void ApplyRainbowShader(tk2dBaseSprite sprite, bool usesOverrideMaterial = true) {
             Material m_cachedGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/RainbowChestShader"));
+            m_cachedGlitchMaterial.name = "RainbowMaterial";
             MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
