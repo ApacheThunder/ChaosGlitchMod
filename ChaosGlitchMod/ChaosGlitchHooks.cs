@@ -13,11 +13,10 @@ namespace ChaosGlitchMod {
                 return m_instance;
             }
         }
-
         private static ChaosGlitchHooks m_instance;
 
         // Hook HammerController to apply GlitchShader.
-        public static void HammerHookGlitch(Action<ForgeHammerController> orig, ForgeHammerController self) {
+        private void HammerHookGlitch(Action<ForgeHammerController> orig, ForgeHammerController self) {
             orig(self);
             ChaosShaders.Instance.ApplyGlitchShader(null, self.sprite, true);
         }

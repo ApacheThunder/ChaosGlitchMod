@@ -2,9 +2,12 @@ The following files need to be present here. Be sure Assembly-CSharp.dll is from
 
 Assembly-CSharp.Base.mm.dll
 Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
 MonoMod.RuntimeDetour.dll
 MonoMod.Utils.dll
+PlayMaker.dll
 UnityEngine.CoreModule.Base.dll
+UnityEngine.dll
 UnityEngine.ImageConversionModule.dll
 UnityEngine.ParticleSystemModule.dll
 

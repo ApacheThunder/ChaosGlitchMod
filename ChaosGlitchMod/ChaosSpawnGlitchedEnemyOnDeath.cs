@@ -32,7 +32,7 @@ namespace ChaosGlitchMod {
             IsGlitchedLJ = true;
             ActorTargetOverrideCanShoot = true;
             ActorPrefabSpawnCount = 1;
-            ActorObjectTarget = ChaosGlitchedEnemies.LordOfTheJammedPrefab;
+            ActorObjectTarget = ChaosGlitchedEnemies.Instance.LordOfTheJammedPrefab;
         }
 
         public AIActor GenerateGlitchedActorPrefab(GameObject CachedTargetEnemyObject = null, GameObject SourceEnemyOverride = null, bool isGlitchedLJ = true, bool SourceActorCanShoot = true) {
@@ -48,28 +48,28 @@ namespace ChaosGlitchMod {
                 SpecialSourceEnemies.Clear();
                 
                 if (SourceActorCanShoot) {
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.AshBulletShotgunManPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletManDevilPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletManShroomedPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletSkeletonHelmetPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletShotgunManSawedOffPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletShotgunManMutantPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletShotgunManRedPrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletShotgunManBluePrefab);
-                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.BulletShotgrubManPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.AshBulletShotgunManPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletManDevilPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletManShroomedPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletSkeletonHelmetPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletShotgunManSawedOffPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletShotgunManMutantPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletManKaliberPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletShotgunManCowboyPrefab);
+                    ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.BulletShotgrubManPrefab);
                 }
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.JamromancerPrefab);
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.NecromancerPrefab);
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.LeadWizardBluePrefab);
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.JamromancerPrefab);
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.NecromancerPrefab);
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.LeadWizardBluePrefab);
 
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.PowderSkullBlackPrefab);
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.IceCubeGuyPrefab);
-                ValidSourceEnemies.Add(ChaosGlitchedEnemies.GrenadeGuyPrefab);               
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.PowderSkullBlackPrefab);
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.IceCubeGuyPrefab);
+                ValidSourceEnemies.Add(ChaosGlitchedEnemies.Instance.GrenadeGuyPrefab);               
                 ValidSourceEnemies = ValidSourceEnemies.Shuffle();
 
                 SourceEnemyOverride = BraveUtility.RandomElement(ValidSourceEnemies).gameObject;
             } else if (isGlitchedLJ) {
-                SourceEnemyOverride = ChaosGlitchedEnemies.LordOfTheJammedPrefab.gameObject;
+                SourceEnemyOverride = ChaosGlitchedEnemies.Instance.LordOfTheJammedPrefab.gameObject;
             }
 
             if (SourceEnemyOverride == null) {
@@ -86,15 +86,8 @@ namespace ChaosGlitchMod {
             }
 
             if (!isGlitchedLJ) {
-                try {
-                    if (CachedEnemyActor.aiShooter != null) {
-                        AIBulletBank CachedGlitchEnemyBulletBank = CachedGlitchEnemyActor.GetComponent<AIBulletBank>();
-                        CachedGlitchEnemyBulletBank = CachedEnemyActor.bulletBank;
-                        CachedGlitchEnemyActor.bulletBank.Bullets = CachedEnemyActor.bulletBank.Bullets;
-                        CachedGlitchEnemyActor.bulletBank.useDefaultBulletIfMissing = true;
-                        if (CachedGlitchEnemyActor.aiShooter == null) { CachedGlitchEnemyActor.gameObject.AddComponent<AIShooter>(); }
-                    }
-                } catch (Exception) { }
+
+                ChaosGlitchedEnemies.Instance.AddOrReplaceAIActorConfig(CachedGlitchEnemyActor, CachedEnemyActor);
 
                 CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
                 CachedGlitchEnemyActor.KnockbackVelocity = CachedEnemyActor.KnockbackVelocity;
@@ -112,22 +105,6 @@ namespace ChaosGlitchMod {
                 CachedGlitchEnemyActor.SpeculatorDelayTime = CachedEnemyActor.SpeculatorDelayTime;
 
                 try {
-                    CachedGlitchEnemyActor.behaviorSpeculator.MovementBehaviors.Clear();
-                    CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviors.Clear();
-                    CachedGlitchEnemyActor.behaviorSpeculator.TargetBehaviors.Clear();
-                    CachedGlitchEnemyActor.behaviorSpeculator.OtherBehaviors.Clear();
-                    CachedGlitchEnemyActor.behaviorSpeculator.OverrideBehaviors.Clear();
-
-                    CachedGlitchEnemyActor.behaviorSpeculator.MovementBehaviors = CachedEnemyActor.behaviorSpeculator.MovementBehaviors;
-                    CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviors = CachedEnemyActor.behaviorSpeculator.AttackBehaviors;
-                    CachedGlitchEnemyActor.behaviorSpeculator.TargetBehaviors = CachedEnemyActor.behaviorSpeculator.TargetBehaviors;
-                    CachedGlitchEnemyActor.behaviorSpeculator.OtherBehaviors = CachedEnemyActor.behaviorSpeculator.OtherBehaviors;
-                    CachedGlitchEnemyActor.behaviorSpeculator.OverrideBehaviors = CachedEnemyActor.behaviorSpeculator.OverrideBehaviors;
-
-                    AttackBehaviorGroup CachedTargetAttackBehaviorGroup = CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviorGroup;
-                    AttackBehaviorGroup CachedSourceAttackBehaviorGroup = CachedEnemyActor.behaviorSpeculator.AttackBehaviorGroup;
-                    CachedTargetAttackBehaviorGroup = CachedSourceAttackBehaviorGroup;
-
                     if (CachedEnemyActor.EnemyGuid == "4d37ce3d666b4ddda8039929225b7ede") {
                         CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
                         ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
@@ -141,14 +118,7 @@ namespace ChaosGlitchMod {
                     CachedGlitchEnemyActor.BehaviorOverridesVelocity = CachedEnemyActor.BehaviorOverridesVelocity;
                     CachedGlitchEnemyActor.behaviorSpeculator.RefreshBehaviors();
                     CachedGlitchEnemyActor.behaviorSpeculator.RegenerateCache();
-                } catch (Exception) { }
-
-                SpeculativeRigidbody specRigidbody = CachedGlitchEnemyActor.gameObject.GetComponent<SpeculativeRigidbody>();
-                specRigidbody.PrimaryPixelCollider.Enabled = true;
-                specRigidbody.HitboxPixelCollider.Enabled = true;
-                specRigidbody.ClearFrameSpecificCollisionExceptions();
-                specRigidbody.ClearSpecificCollisionExceptions();
-                specRigidbody.RemoveCollisionLayerIgnoreOverride(CollisionMask.LayerToMask(CollisionLayer.PlayerHitBox, CollisionLayer.PlayerCollider));
+                } catch (Exception) { }                
             }
 
             if (!isGlitchedLJ) {
@@ -192,7 +162,7 @@ namespace ChaosGlitchMod {
                 TeleportBehavior LJTeleportor = LJSpeculator.AttackBehaviors[1] as TeleportBehavior;
                 LJTeleportor.MaxUsages = 1;
 
-                // Destroy(CachedGlitchEnemyActor.GetComponent<SuperReaperController>());
+                Destroy(CachedGlitchEnemyActor.GetComponent<SuperReaperController>());
                 CachedGlitchEnemyActor.healthHaver.SetHealthMaximum(150f, 0f, true);
                 CachedGlitchEnemyActor.healthHaver.minimumHealth = 50f;
                 CachedGlitchEnemyActor.healthHaver.OnlyAllowSpecialBossDamage = false;
@@ -202,6 +172,17 @@ namespace ChaosGlitchMod {
                 CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
                 ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
                 CachedExploder.deathType = DeathType.Death;
+
+                SpeculativeRigidbody specRigidbody = CachedGlitchEnemyActor.gameObject.GetComponentInChildren<SpeculativeRigidbody>();
+                if (specRigidbody != null) {
+                    specRigidbody.GroundPixelCollider.Enabled = true;
+                    specRigidbody.CollideWithTileMap = true;
+                    // specRigidbody.PrimaryPixelCollider.Enabled = true;
+                    // specRigidbody.HitboxPixelCollider.Enabled = true;
+                    // specRigidbody.ClearFrameSpecificCollisionExceptions();
+                    // specRigidbody.ClearSpecificCollisionExceptions();
+                    // specRigidbody.RemoveCollisionLayerIgnoreOverride(CollisionMask.LayerToMask(CollisionLayer.PlayerHitBox, CollisionLayer.PlayerCollider));
+                }
             }
 
             // if (ChaosConsole.randomEnemySizeEnabled) { CachedGlitchEnemyActor.EnemyScale = new Vector2(1, 1); }
@@ -479,8 +460,8 @@ namespace ChaosGlitchMod {
                 if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
                     GlitchedLJRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
                 }
-                AIActor LJActor = spawnedActor.GetComponent<AIActor>();
-                LJActor.PathableTiles |= CellTypes.WALL;
+                // AIActor LJActor = spawnedActor.GetComponent<AIActor>();
+                // LJActor.PathableTiles |= CellTypes.WALL;
             }
         }
 

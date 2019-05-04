@@ -269,7 +269,14 @@ namespace ChaosGlitchMod {
                 }
             }
 
-            ChaosDungeonFlow.flowOverride = false;
+            ChaosDungeonFlows.isGlitchFlow = false;
+            if (ChaosDungeonFlows.Custom_GlitchChest_Flow.sharedInjectionData.Count > 0) {
+                ChaosDungeonFlows.Custom_GlitchChest_Flow.sharedInjectionData.Clear();
+            }
+
+            if (ChaosDungeonFlows.Custom_Glitch_Flow.sharedInjectionData.Count > 0) {
+                ChaosDungeonFlows.Custom_Glitch_Flow.sharedInjectionData.Clear();
+            }            
 
             if (!isGlitchFloor) { return; }
 
@@ -363,8 +370,7 @@ namespace ChaosGlitchMod {
                     GameManager.Instance.LoadCustomLevel("tt_nakatomi");
                 } else {
                     GameManager.Instance.LoadCustomLevel("tt_forge");
-                }
-                
+                }                
                 yield break;
             }
 
@@ -376,6 +382,7 @@ namespace ChaosGlitchMod {
                         GameUIRoot.Instance.UpdatePlayerConsumables(PrimaryPlayer.carriedConsumables);
                         break;
                     }
+                    yield return null;
                 }                
             }
 
@@ -885,7 +892,7 @@ namespace ChaosGlitchMod {
 
             try {
                 TK2DDungeonAssembler.RuntimeResizeTileMap(component, a.x + num2 * 2, a.y + num2 * 2, m_tilemap.partitionSizeX, m_tilemap.partitionSizeY);
-                TK2DDungeonAssembler.RuntimeResizeTileMap(Minimap.Instance.tilemap, a.x + num2 * 2, a.y + num2 * 2, m_tilemap.partitionSizeX, m_tilemap.partitionSizeY);
+                // TK2DDungeonAssembler.RuntimeResizeTileMap(Minimap.Instance.tilemap, a.x + num2 * 2, a.y + num2 * 2, m_tilemap.partitionSizeX, m_tilemap.partitionSizeY);
                 for (int num3 = 0; num3 < prototypeDungeonRoomArray.Length; num3++) {
                     IntVector2 intVector5 = new IntVector2(prototypeDungeonRoomArray[num3].Width, prototypeDungeonRoomArray[num3].Height);
                     IntVector2 b3 = basePositions[num3] + b;
@@ -1022,7 +1029,6 @@ namespace ChaosGlitchMod {
         }
 
         public void PostProcessWallCleanup(RoomHandler target) {
-            // if (target.area.prototypeRoom != prototypeDungeonRoomArray[1]) { return; }
             DungeonData data = GameManager.Instance.Dungeon.data;
             for (int i = 0; i < target.area.dimensions.x; i++) {
                 for (int j = 0; j < target.area.dimensions.y + 2; j++) {
@@ -1786,12 +1792,12 @@ namespace ChaosGlitchMod {
             IntVector2 GlitchedEnemyPosition5 = new IntVector2(12, 18);
             IntVector2 GlitchedEnemyPosition6 = new IntVector2(2, 8);
 
-            GameObject CachedActor1 = Instantiate(ChaosGlitchedEnemies.BulletManPrefab);
-            GameObject CachedActor2 = Instantiate(ChaosGlitchedEnemies.BulletCardinalPrefab);
-            GameObject CachedActor3 = Instantiate(ChaosGlitchedEnemies.BulletShotgunManMutantPrefab);
-            GameObject CachedActor4 = Instantiate(ChaosGlitchedEnemies.CultistPrefab);
-            GameObject CachedActor5 = Instantiate(ChaosGlitchedEnemies.BirdPrefab);
-            GameObject CachedActor6 = Instantiate(ChaosGlitchedEnemies.BulletShotgunManSawedOffPrefab);
+            GameObject CachedActor1 = Instantiate(ChaosGlitchedEnemies.Instance.BulletManPrefab);
+            GameObject CachedActor2 = Instantiate(ChaosGlitchedEnemies.Instance.BulletCardinalPrefab);
+            GameObject CachedActor3 = Instantiate(ChaosGlitchedEnemies.Instance.BulletShotgunManMutantPrefab);
+            GameObject CachedActor4 = Instantiate(ChaosGlitchedEnemies.Instance.CultistPrefab);
+            GameObject CachedActor5 = Instantiate(ChaosGlitchedEnemies.Instance.BirdPrefab);
+            GameObject CachedActor6 = Instantiate(ChaosGlitchedEnemies.Instance.BulletShotgunManSawedOffPrefab);
 
             GameObject PlacedGlitchEnemyObject1 = CustomGlitchDungeonPlacable(GenerateGlitchedActorPrefab(CachedActor1).gameObject, false, true).InstantiateObject(targetRooms[2], GlitchedEnemyPosition1);
             GameObject PlacedGlitchEnemyObject2 = CustomGlitchDungeonPlacable(GenerateGlitchedActorPrefab(CachedActor2).gameObject, false, true).InstantiateObject(targetRooms[2], GlitchedEnemyPosition2);
@@ -2073,26 +2079,26 @@ namespace ChaosGlitchMod {
 
             if (OverrideArray == null) {
                 GameObject[] ValidSourceEnemies = new GameObject[] {
-                    ChaosGlitchedEnemies.GhostPrefab,
-                    ChaosGlitchedEnemies.CultistPrefab,
-                    ChaosGlitchedEnemies.ArrowheadManPrefab,
-                    ChaosGlitchedEnemies.BulletRifleManPrefab,
-                    ChaosGlitchedEnemies.AshBulletManPrefab,
-                    ChaosGlitchedEnemies.AshBulletShotgunManPrefab,
-                    ChaosGlitchedEnemies.BulletMachineGunManPrefab,
-                    ChaosGlitchedEnemies.BulletManDevilPrefab,
-                    ChaosGlitchedEnemies.BulletManShroomedPrefab,
-                    ChaosGlitchedEnemies.BulletSkeletonHelmetPrefab,
-                    ChaosGlitchedEnemies.BulletShotgunManSawedOffPrefab,
-                    ChaosGlitchedEnemies.BulletShotgunManMutantPrefab,
-                    ChaosGlitchedEnemies.JamromancerPrefab,
-                    ChaosGlitchedEnemies.NecromancerPrefab,
-                    ChaosGlitchedEnemies.LeadWizardBluePrefab,
-                    ChaosGlitchedEnemies.BulletShotgunManRedPrefab,
-                    ChaosGlitchedEnemies.BulletShotgunManBluePrefab,
-                    ChaosGlitchedEnemies.BulletShotgrubManPrefab,
-                    ChaosGlitchedEnemies.BulletManBandanaPrefab,
-                    ChaosGlitchedEnemies.FloatingEyePrefab
+                    ChaosGlitchedEnemies.Instance.GhostPrefab,
+                    ChaosGlitchedEnemies.Instance.CultistPrefab,
+                    ChaosGlitchedEnemies.Instance.ArrowheadManPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletRifleManPrefab,
+                    ChaosGlitchedEnemies.Instance.AshBulletManPrefab,
+                    ChaosGlitchedEnemies.Instance.AshBulletShotgunManPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletMachineGunManPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletManDevilPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletManShroomedPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletSkeletonHelmetPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletShotgunManSawedOffPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletShotgunManMutantPrefab,
+                    ChaosGlitchedEnemies.Instance.JamromancerPrefab,
+                    ChaosGlitchedEnemies.Instance.NecromancerPrefab,
+                    ChaosGlitchedEnemies.Instance.LeadWizardBluePrefab,
+                    ChaosGlitchedEnemies.Instance.BulletManKaliberPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletShotgunManCowboyPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletShotgrubManPrefab,
+                    ChaosGlitchedEnemies.Instance.BulletManBandanaPrefab,
+                    ChaosGlitchedEnemies.Instance.FloatingEyePrefab
                 };
 
                 SourceEnemyOverride = ValidSourceEnemies[UnityEngine.Random.Range(0, ValidSourceEnemies.Length)].gameObject;
@@ -2115,15 +2121,7 @@ namespace ChaosGlitchMod {
                 ETGModConsole.Log("The enemy spawned has it's behaviors replaced with the enemy: '" + CachedEnemyActor.ActorName + "' with GUID: " + CachedEnemyActor.EnemyGuid + " .", false);
             }
 
-            try {
-                if (CachedEnemyActor.aiShooter != null) {
-                    AIBulletBank CachedGlitchEnemyBulletBank = CachedGlitchEnemyActor.GetComponent<AIBulletBank>();
-                    CachedGlitchEnemyBulletBank = CachedEnemyActor.bulletBank;
-                    CachedGlitchEnemyActor.bulletBank.Bullets = CachedEnemyActor.bulletBank.Bullets;
-                    CachedGlitchEnemyActor.bulletBank.useDefaultBulletIfMissing = true;
-                    if (CachedGlitchEnemyActor.aiShooter == null) { CachedGlitchEnemyActor.gameObject.AddComponent<AIShooter>(); }
-                }
-            } catch (Exception) { }
+            ChaosGlitchedEnemies.Instance.AddOrReplaceAIActorConfig(CachedGlitchEnemyActor, CachedEnemyActor);
 
             CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
             CachedGlitchEnemyActor.KnockbackVelocity = CachedEnemyActor.KnockbackVelocity;
@@ -2141,21 +2139,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.SpeculatorDelayTime = CachedEnemyActor.SpeculatorDelayTime;
 
             try {
-                CachedGlitchEnemyActor.behaviorSpeculator.MovementBehaviors.Clear();
-                CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviors.Clear();
-                CachedGlitchEnemyActor.behaviorSpeculator.TargetBehaviors.Clear();
-                CachedGlitchEnemyActor.behaviorSpeculator.OtherBehaviors.Clear();
-
-                CachedGlitchEnemyActor.behaviorSpeculator.MovementBehaviors = CachedEnemyActor.behaviorSpeculator.MovementBehaviors;
-                CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviors = CachedEnemyActor.behaviorSpeculator.AttackBehaviors;
-                CachedGlitchEnemyActor.behaviorSpeculator.TargetBehaviors = CachedEnemyActor.behaviorSpeculator.TargetBehaviors;
-                CachedGlitchEnemyActor.behaviorSpeculator.OtherBehaviors = CachedEnemyActor.behaviorSpeculator.OtherBehaviors;
-                
-                AttackBehaviorGroup CachedTargetAttackBehaviorGroup = CachedGlitchEnemyActor.behaviorSpeculator.AttackBehaviorGroup;
-                AttackBehaviorGroup CachedSourceAttackBehaviorGroup = CachedEnemyActor.behaviorSpeculator.AttackBehaviorGroup;
-                CachedTargetAttackBehaviorGroup = CachedSourceAttackBehaviorGroup;
-
-                if (CachedEnemyActor.EnemyGuid == "4d37ce3d666b4ddda8039929225b7ede") {
+               if (CachedEnemyActor.EnemyGuid == "4d37ce3d666b4ddda8039929225b7ede") {
                     CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
                     ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
                 } else {

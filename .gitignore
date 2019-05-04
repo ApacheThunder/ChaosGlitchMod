@@ -10,14 +10,17 @@
 *.sln.docstates
 
 # Dependencies end user must provide
-UnityEngine.ImageConversionModule.dll
 Assembly-CSharp.Base.mm.dll
 Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
 MonoMod.RuntimeDetour.dll
 MonoMod.Utils.dll
-UnityEngine.Base.mm.dll
+PlayMaker.dll
+UnityEngine.CoreModule.Base.mm.dll
 UnityEngine.CoreModule.dll
+UnityEngine.dll
 UnityEngine.ParticleSystemModule.dll
+
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)

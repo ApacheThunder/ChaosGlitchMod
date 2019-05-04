@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace ChaosGlitchMod {
-    
+
     class ChaosShaders : MonoBehaviour {
 
         public static ChaosShaders Instance {
@@ -13,7 +15,27 @@ namespace ChaosGlitchMod {
         }
         private static ChaosShaders m_instance;
 
-        
+
+        public void GlitchScreenForDuration(float ActivationOdds = 1f, float Duration = 1f, float DispIntensity = 0.1f, float ColorIntensity = 0.04f) {
+            StartCoroutine(m_GlitchedScreen(ActivationOdds, Duration, DispIntensity, ColorIntensity));
+        }
+
+        private IEnumerator m_GlitchedScreen(float ActivationOdds = 1f, float Duration = 1f, float DispIntensity = 0.1f, float ColorIntensity = 0.04f) {
+            if (UnityEngine.Random.value <= ActivationOdds) {
+                Material m_glitchpass = new Material(Shader.Find("Brave/Internal/GlitchUnlit"));
+                m_glitchpass.SetFloat("_GlitchInterval", 0.07f);
+                m_glitchpass.SetFloat("_DispIntensity", DispIntensity);
+                m_glitchpass.SetFloat("_ColorIntensity", ColorIntensity);
+                Pixelator.Instance.RegisterAdditionalRenderPass(m_glitchpass);
+                yield return new WaitForSeconds(Duration);
+                yield return null;
+                Pixelator.Instance.DeregisterAdditionalRenderPass(m_glitchpass);
+                yield break;
+            } else {
+                yield break;
+            }
+        }
+
         public void BecomeGlitchedTest(BraveBehaviour gameObject) {
             tk2dBaseSprite sprite = null;
             try {
@@ -24,22 +46,38 @@ namespace ChaosGlitchMod {
             ApplyGlitchShader(null, sprite, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
         }
 
-		// Glitch Everything Function (mostly written by Abeclancy with a dash of code from old Rainbow mod)
+        // Glitch Everything Function (mostly written by Abeclancy with a dash of code from old Rainbow mod)
         // Used for applying Glitch shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
-        public void BecomeGlitched(GameObject gameObject, bool usesOverrideMaterial = true, bool ignoreAIActors = false, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) { try {
+        public void BecomeGlitched(BraveBehaviour gameObject, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) { try {
                 if (gameObject == null) { return; }
-                if (ignoreAIActors && gameObject.GetComponent<AIActor>() != null) { return; }
-                if (ignoreAIActors && gameObject.GetComponentInChildren<AIActor>() != null) { return; }
-                if (gameObject.GetComponent<PlayerController>()) { return; }
-                if (gameObject.GetComponentInChildren<PlayerController>()) { return; }
 
-
-                tk2dBaseSprite sprite = gameObject.GetComponentInChildren<tk2dBaseSprite>();
-
-                if (sprite == null) { sprite = gameObject.GetComponent<tk2dBaseSprite>(); }
+                tk2dBaseSprite sprite = null;
+                try {
+                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                    sprite = gameObject.sprite;
+                } catch { };
                 if (sprite == null) { return; }
 
+                if (gameObject.GetComponent<AIActor>() != null) { return; }
+                if (gameObject.GetComponentInChildren<AIActor>() != null) { return; }
+
+                if (gameObject.GetComponent<PlayerController>() != null ) { return; }
+                if (gameObject.GetComponentInChildren<PlayerController>() != null) { return; }
+                if (gameObject.transform != null && gameObject.transform.position.GetAbsoluteRoom() != null) {
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("doublebeholsterroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("bossstatuesroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("boss foyer")) { return; }
+                    if (GameManager.Instance.Dungeon.data.Entrance != null) {
+                        if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(GameManager.Instance.Dungeon.data.Entrance.GetRoomName())) {
+                            return;
+                        }
+                    }
+                }
+                if (gameObject.name.StartsWith("player")) { return; }
+                if (gameObject.name.StartsWith("BossStatuesDummy")) { return; }
+                if (gameObject.GetComponentInChildren<BossStatueController>(true) != null | gameObject.GetComponent<BossStatueController>() != null) { return; }
+                if (gameObject.GetComponentInChildren<BossStatuesController>(true) != null | gameObject.GetComponent<BossStatuesController>() != null) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
@@ -47,30 +85,100 @@ namespace ChaosGlitchMod {
                 if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
-
                 if (gameObject.GetComponent<AIActor>() != null) {
-                    ApplyGlitchShader(gameObject.GetComponent<AIActor>(), sprite, usesOverrideMaterial, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
-                } else {
-                    ApplyGlitchShader(null, sprite, usesOverrideMaterial, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
+                    AIActor m_AIActor = gameObject.GetComponent<AIActor>();
+                    if (m_AIActor.GetActorName().StartsWith("Glitched") | 
+                        m_AIActor.ActorName.ToLower().StartsWith("glitched") |
+                        ChaosLists.DontGlitchMeList.Contains(m_AIActor.EnemyGuid) |
+                        m_AIActor.IsBlackPhantom |
+                        m_AIActor.ActorName.StartsWith("Statue"))
+                    {
+                        return;
+                    } else {
+                        m_AIActor.ActorName = "Glitched " + m_AIActor.ActorName;
+                    }
                 }
 
+                ApplyGlitchShader(null, sprite, true, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
+
             } catch (Exception ex) {
-                if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosShaders class.", false); }
-                Debug.Log("Exception Caught at[BecomeHologram] in ChaosShaders class");
-                Debug.LogException(ex);
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [BecomeGlitched] in ChaosShaders class.", false);
+                    Debug.Log("Exception Caught at[BecomeGlitched] in ChaosShaders class");
+                    Debug.LogException(ex);
+                }                
+                return;
+            }
+        }
+        public void BecomeGlitched(AIActor aiActor, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f) { try {
+                if (aiActor == null) { return; }
+                if (aiActor.gameObject == null) { return; }
+
+                /*tk2dBaseSprite sprite = gameObject.GetComponentInChildren<tk2dBaseSprite>();
+
+                if (sprite == null) { sprite = gameObject.GetComponent<tk2dBaseSprite>(); }*/
+
+                if (aiActor.sprite == null) { return; }
+
+                if (gameObject.transform != null && gameObject.transform.position.GetAbsoluteRoom() != null) {
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("doublebeholsterroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("bossstatuesroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("boss foyer")) { return; }
+                    if (GameManager.Instance.Dungeon.data.Entrance != null) {
+                        if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(GameManager.Instance.Dungeon.data.Entrance.GetRoomName())) {
+                            return;
+                        }
+                    }
+                }
+                if (aiActor.gameObject.GetComponent<PlayerController>() != null) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<PlayerController>() != null) { return; }
+                if (aiActor.gameObject.name.StartsWith("player")) { return; }
+                if (aiActor.gameObject.name.StartsWith("BossStatuesDummy")) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatueController>(true) != null | aiActor.gameObject.GetComponent<BossStatueController>() != null) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatuesController>(true) != null | aiActor.gameObject.GetComponent<BossStatuesController>() != null) { return; }                
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+                if (aiActor.GetActorName().StartsWith("Glitched") | aiActor.ActorName.ToLower().StartsWith("glitched")) {
+                    return;
+                } else {
+                    aiActor.ActorName = "Glitched " + aiActor.ActorName;
+                }
+                
+
+                ApplyGlitchShader(aiActor, aiActor.sprite, true, GlitchInterval, DispProbability, DispIntensity, ColorProbability, ColorIntensity);
+
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [BecomeGlitched] in ChaosShaders class.", false);
+                    Debug.Log("Exception Caught at[BecomeGlitched] in ChaosShaders class");
+                    Debug.LogException(ex);
+                }  
                 return;
             }
         }
 
         // Used for applying Hologram shader to random objects.
         // If adding shader to AiActors specifically, use ApplyOverrideShader instead.
-        public void BecomeHologram(GameObject gameObject, bool usesOverrideMaterial = true, bool isGreen = false, bool ignoreAIActors = false) { try {
+        public void BecomeHologram(BraveBehaviour gameObject, bool isGreen = false) { try {
+                if (gameObject == null) { return; }
+
+                tk2dBaseSprite sprite = null;
+                try {
+                    if (!(gameObject.sprite is tk2dBaseSprite)) return;
+                    sprite = gameObject.sprite;
+                } catch { };
+                if (sprite == null) { return; }  
                 if (gameObject == null | gameObject.GetComponent<PickupObject>() != null | gameObject.GetComponent<PressurePlate>() != null) {
                     return;
                 }
 
-                if (ignoreAIActors && gameObject.GetComponent<AIActor>() != null) { return; }
-                if (ignoreAIActors && gameObject.GetComponentInChildren<AIActor>() != null) { return; }
+                if (gameObject.GetComponent<AIActor>() != null) { return; }
+                if (gameObject.GetComponentInChildren<AIActor>() != null) { return; }
 
                 if (gameObject.name.ToLower().StartsWith("boss") | gameObject.name.ToLower().StartsWith("door") |
                     gameObject.name.ToLower().StartsWith("shellcasing") | gameObject.name.ToLower().StartsWith("5") |
@@ -78,14 +186,31 @@ namespace ChaosGlitchMod {
                     gameObject.name.ToLower().StartsWith("outline") | gameObject.name.ToLower().StartsWith("braveoutline") |
                     gameObject.name.ToLower().StartsWith("defaultshadow") | gameObject.name.ToLower().StartsWith("shadow") |
                     gameObject.name.ToLower().StartsWith("elevator") | gameObject.name.ToLower().StartsWith("floor") |
-                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)"))
-                { return; }
+                    gameObject.name.ToLower().EndsWith("shadow") | gameObject.name.ToLower().EndsWith("shadow(clone)") |
+                    gameObject.name.ToLower().EndsWith("statues_collection") | gameObject.name.ToLower().StartsWith("bossstatues") |
+                    gameObject.name.ToLower().EndsWith("deserteagle") | gameObject.name.ToLower().EndsWith("ak47") |
+                    gameObject.name.ToLower().EndsWith("statues_animation") | gameObject.name.ToLower().EndsWith("explode") |
+                    gameObject.name.ToLower().EndsWith("uzi") | gameObject.name.ToLower().EndsWith("shotgun") |
+                    gameObject.name.ToLower().StartsWith("chunk_bossstatue") | gameObject.name.ToLower().StartsWith("dragunfloor") |
+                    gameObject.name.ToLower().StartsWith("dragunroom"))
+                { return; }              
 
-                tk2dBaseSprite sprite = gameObject.GetComponentInChildren<tk2dBaseSprite>();
-
-                if (sprite == null) { sprite = gameObject.GetComponent<tk2dBaseSprite>(); }
-                if (sprite == null) { return; }
-
+                if (gameObject.GetComponent<PlayerController>() != null ) { return; }
+                if (gameObject.GetComponentInChildren<PlayerController>() != null) { return; }
+                if (gameObject.transform != null && gameObject.transform.position.GetAbsoluteRoom() != null) {
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("doublebeholsterroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("bossstatuesroom01")) { return; }
+                    if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("boss foyer")) { return; }
+                    if (GameManager.Instance.Dungeon.data.Entrance != null) {
+                        if (gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(GameManager.Instance.Dungeon.data.Entrance.GetRoomName())) {
+                            return;
+                        }
+                    }
+                }
+                if (gameObject.name.StartsWith("player")) { return; }
+                if (gameObject.name.StartsWith("BossStatuesDummy")) { return; }
+                if (gameObject.GetComponentInChildren<BossStatueController>(true) != null | gameObject.GetComponent<BossStatueController>() != null) { return; }
+                if (gameObject.GetComponentInChildren<BossStatuesController>(true) != null | gameObject.GetComponent<BossStatuesController>() != null) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
@@ -94,7 +219,7 @@ namespace ChaosGlitchMod {
                 if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
                 if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
 
-                ApplyHologramShader(sprite, isGreen, usesOverrideMaterial);
+                ApplyHologramShader(sprite, isGreen, true);
 
                 if (gameObject.GetComponent<SpeculativeRigidbody>() != null) {
                     SpeculativeRigidbody CurrentObjectRigidBody = gameObject.GetComponent<SpeculativeRigidbody>();
@@ -110,6 +235,63 @@ namespace ChaosGlitchMod {
                     }
                 }
 
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosShaders class.", false);
+                    ETGModConsole.Log(ex.Message + ex.Source, false);
+                    ETGModConsole.Log(ex.StackTrace, false);
+                }
+                return;
+            }
+        }
+        public void BecomeHologram(AIActor aiActor, bool isGreen = false) { try {
+                if (aiActor == null) { return; }
+                if (aiActor.gameObject == null) { return; }
+                if (aiActor.sprite == null) { return; }
+
+                if (aiActor.gameObject.transform != null && aiActor.gameObject.transform.position.GetAbsoluteRoom() != null) {
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("doublebeholsterroom01")) { return; }
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("bossstatuesroom01")) { return; }
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("boss foyer")) { return; }
+                    if (GameManager.Instance.Dungeon.data.Entrance != null) {
+                        if (aiActor.gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(GameManager.Instance.Dungeon.data.Entrance.GetRoomName())) {
+                            return;
+                        }
+                    }
+                }
+                if (aiActor.GetActorName().StartsWith("Glitched")) { return; }
+                if (aiActor.ActorName.StartsWith("Glitched")) { return; }
+                if (aiActor.gameObject.name.StartsWith("BossStatuesDummy")) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatueController>(true) != null | aiActor.gameObject.GetComponent<BossStatueController>() != null) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatuesController>(true) != null | aiActor.gameObject.GetComponent<BossStatuesController>() != null) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+                
+
+                ApplyHologramShader(aiActor.sprite, isGreen, true);
+
+                if (aiActor.CurrentGun != null && aiActor.CurrentGun.sprite != null) {
+                    ApplyHologramShader(aiActor.CurrentGun.sprite, isGreen, true);
+                }
+
+                if (aiActor.gameObject.GetComponent<SpeculativeRigidbody>() != null) {
+                    SpeculativeRigidbody CurrentObjectRigidBody = aiActor.gameObject.GetComponent<SpeculativeRigidbody>();
+                    CurrentObjectRigidBody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                        CurrentObjectRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    }
+                } else if (aiActor.gameObject.GetComponentInChildren<SpeculativeRigidbody>() != null) {
+                    SpeculativeRigidbody CurrentObjectRigidBody = aiActor.gameObject.GetComponentInChildren<SpeculativeRigidbody>();
+                    CurrentObjectRigidBody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                        CurrentObjectRigidBody.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    }
+                }
             } catch (Exception ex) {
                 if (ChaosConsole.DebugExceptions) {
                     ETGModConsole.Log("Exception Caught at [BecomeHologram] in ChaosShaders class.", false);
@@ -164,19 +346,42 @@ namespace ChaosGlitchMod {
 
             ApplySpaceShader(sprite);
         }
-        public void BecomeRainbow(AIActor aiActor, tk2dBaseSprite sprite, bool usesOverrideMaterial = true) {
-            if (sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
-            if (sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+        public void BecomeRainbow(AIActor aiActor) { try {
+                if (aiActor == null) { return; }
+                if (aiActor.gameObject.transform != null && aiActor.gameObject.transform.position.GetAbsoluteRoom() != null) {
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("doublebeholsterroom01")) { return; }
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("bossstatuesroom01")) { return; }
+                    if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("boss foyer")) { return; }
+                    if (GameManager.Instance.Dungeon.data.Entrance != null) {
+                        if (aiActor.gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(GameManager.Instance.Dungeon.data.Entrance.GetRoomName())) {
+                            return;
+                        }
+                    }
+                }
 
-            if (aiActor != null) {
-                ApplyRainbowShader(aiActor, sprite);
-            } else {
-                ApplyRainbowShader(sprite, usesOverrideMaterial);
+                if (aiActor.GetActorName().StartsWith("Glitched")) { return; }
+                if (aiActor.ActorName.StartsWith("Glitched")) { return; }
+                if (aiActor.gameObject.name.StartsWith("BossStatuesDummy")) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatueController>(true) != null | aiActor.gameObject.GetComponent<BossStatueController>() != null) { return; }
+                if (aiActor.gameObject.GetComponentInChildren<BossStatuesController>(true) != null | aiActor.gameObject.GetComponent<BossStatuesController>() != null) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("spacematerial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                if (aiActor.sprite.renderer.material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+
+                if (aiActor != null) {                    
+                    ApplyRainbowShader(aiActor, aiActor.sprite);
+                }
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("Exception Caught at [BecomeRainbow] in ChaosShaders class.", false);
+                    ETGModConsole.Log(ex.Message + ex.Source, false);
+                    ETGModConsole.Log(ex.StackTrace, false);
+                }
+                return;
             }
         }
 
@@ -508,7 +713,6 @@ namespace ChaosGlitchMod {
             spriteComponent.sharedMaterials = sharedMaterials;
             sprite.usesOverrideMaterial = usesOverrideMaterial;
         }
-
     }
 }
 

@@ -16,13 +16,17 @@ namespace ChaosGlitchMod {
             }
         }
 
-        public void ChaosResizeEnemy(AIActor aiActor) {
+        public void ChaosResizeEnemy(AIActor aiActor, bool delayed = false) {
             // AIActor targetAIActor = aiActor.gameObject.GetComponent<AIActor>();
             if (!ChaosConsole.randomEnemySizeEnabled) { return; }
             if (string.IsNullOrEmpty(aiActor.EnemyGuid)) { return; }
             if (aiActor.name.ToLower().StartsWith("glitched") | aiActor.name.ToLower().EndsWith("(clone)(clone)")) { return; }
             if (ChaosLists.BannedEnemyGUIDList.Contains(aiActor.EnemyGuid)) { return; }
             if (!ChaosConsole.randomEnemySizeEnabled) { return; }
+            if (aiActor.GetComponentInParent<BossStatueController>() != null) { return; }
+            try {
+                if (aiActor.transform.position.GetAbsoluteRoom().GetRoomName().ToLower().StartsWith("doublebeholsterroom01")) { return; }
+            } catch (System.Exception) { return; }
             int currentFloor = GameManager.Instance.CurrentFloor;
             // Vector2 currentCorpseScale = new Vector2(1, 1);
             
@@ -43,14 +47,14 @@ namespace ChaosGlitchMod {
                 // Make them tiny bois :P
                 // Don't make cursed bois tiny. It can be a bit much to get hurt by tiny bois that are cursed. :P 
                 if (aiActor.IsBlackPhantom) {
-                    aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(1.5f, 1.5f), false, true));
+                    aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(1.5f, 1.5f), false, true, delayed));
                 } else {
-                    aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(0.5f, 0.5f), false, false));
+                    aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(0.5f, 0.5f), false, false, delayed));
                     // targetAIActor.CollisionKnockbackStrength /= 2f;
                 }
             } else {
                 // Make them big bois :P
-                aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(1.5f, 1.5f), false, true));
+                aiActor.StartCoroutine(ResizeEnemy(aiActor, new Vector2(1.5f, 1.5f), false, delayed));
                 // targetAIActor.CollisionKnockbackStrength *= 1.5f;
             }
             aiActor.placeableWidth += 2;
@@ -58,8 +62,11 @@ namespace ChaosGlitchMod {
             return;
         }
 
-        public IEnumerator ResizeEnemy(AIActor target, Vector2 ScaleValue, bool onlyDoRescale = true, bool isBigEnemy = false) {
+        public IEnumerator ResizeEnemy(AIActor target, Vector2 ScaleValue, bool onlyDoRescale = true, bool isBigEnemy = false, bool delayed = false) {
             if (target == null | ScaleValue == null) { yield break; }
+
+            if (delayed) { yield return new WaitForSeconds(0.8f); }
+
             HealthHaver targetHealthHaver = target.GetComponent<HealthHaver>();
             float knockBackValue = 2f;
 
@@ -120,10 +127,18 @@ namespace ChaosGlitchMod {
             while (elapsed < ShrinkTime) {
                 elapsed += BraveTime.DeltaTime;
                 target.EnemyScale = Vector2.Lerp(startScale, ScaleValue, elapsed / ShrinkTime);
+                if (target.specRigidbody) {
+                    target.specRigidbody.UpdateCollidersOnScale = true;
+                    target.specRigidbody.RegenerateColliders = true;
+                }
                 yield return null;
             }
             /*if (target.CorpseObject != null) {
                 target.CorpseObject.transform.localScale = ScaleValue.ToVector3ZUp(1f);
+                int cachedCorpseLayer = target.CorpseObject.layer;
+                int cachedCorpseOutlineLayer = cachedCorpseLayer;
+                target.CorpseObject.layer = LayerMask.NameToLayer("CorpseUnpixelated");
+                cachedCorpseOutlineLayer = SpriteOutlineManager.ChangeOutlineLayer(target.CorpseObject.GetComponentInChildren<tk2dBaseSprite>(), LayerMask.NameToLayer("CorpseUnpixelated"));
             }*/
             yield break;
         }
@@ -149,8 +164,8 @@ namespace ChaosGlitchMod {
                 specRigidbody.ForceRegenerate(true, true);
                 specRigidbody.RegenerateCache();
             }
-            aiActor.procedurallyOutlined = true;
-            aiActor.SetOutlines(true);
+            // aiActor.procedurallyOutlined = true;
+            // aiActor.SetOutlines(true);
         }
     }
 }

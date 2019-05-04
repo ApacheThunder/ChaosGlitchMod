@@ -274,7 +274,6 @@ namespace ChaosGlitchMod {
             "7ec3e8146f634c559a7d58b19191cd43", // spirat
             "d4dd2b2bbda64cc9bcec534b4e920518", // bullet_kings_toadie_revenge
             "4d37ce3d666b4ddda8039929225b7ede", // grenade_kin
-            "0ff278534abb4fbaaa65d3f638003648", // poopulons_corn
             "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1
             "42432592685e47c9941e339879379d3a", // robots_past_critter_2
             "4254a93fc3c84c0dbe0a8f0dddf48a5a", // robots_past_critter_3
@@ -290,7 +289,7 @@ namespace ChaosGlitchMod {
             "42be66373a3d4d89b91a35c9ff8adfec", // blobulin
             "6b7ef9e5d05b4f96b04f05ef4a0d1b18", // rubber_kin
             "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
-            "c2f902b7cbe745efb3db4399927eab34" // skusket_head
+            "226fd90be3a64958a5b13cb0a4f43e97" // musket_kin
         };
 
         public static string[] PotEnemyGUIDListNoFairies = {
@@ -304,7 +303,6 @@ namespace ChaosGlitchMod {
             "7ec3e8146f634c559a7d58b19191cd43", // spirat
             "d4dd2b2bbda64cc9bcec534b4e920518", // bullet_kings_toadie_revenge
             "4d37ce3d666b4ddda8039929225b7ede", // grenade_kin
-            "0ff278534abb4fbaaa65d3f638003648", // poopulons_corn
             "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1
             "42432592685e47c9941e339879379d3a", // robots_past_critter_2
             "4254a93fc3c84c0dbe0a8f0dddf48a5a", // robots_past_critter_3
@@ -320,13 +318,12 @@ namespace ChaosGlitchMod {
             "42be66373a3d4d89b91a35c9ff8adfec", // blobulin
             "6b7ef9e5d05b4f96b04f05ef4a0d1b18", // rubber_kin
             "98fdf153a4dd4d51bf0bafe43f3c77ff", // tazie
-            "c2f902b7cbe745efb3db4399927eab34" // skusket_head
+            "226fd90be3a64958a5b13cb0a4f43e97" // musket_kin
         };
 
         public static string[] ContactOverrideGUIDList = {
             "6ad1cafc268f4214a101dca7af61bc91", // rat
             "14ea47ff46b54bb4a98f91ffcffb656d", // rat_candle
-            "1386da0f42fb4bcabc5be8feb16a7c38", // snake
             "95ea1a31fc9e4415a5f271b9aedf9b15", // robots_past_critter_1
             "42432592685e47c9941e339879379d3a", // robots_past_critter_2
             "4254a93fc3c84c0dbe0a8f0dddf48a5a" // robots_past_critter_3
@@ -585,8 +582,8 @@ namespace ChaosGlitchMod {
 
         public static string[] DontGlitchMeList = {
             "c0260c286c8d4538a697c5bf24976ccf", // dynamite_kin
-            // "128db2f0781141bcb505d8f00f9e4d47", // red_shotgun_kin
-            // "b54d89f9e802455cbb2b8a96a31e8259", // blue_shotgun_kin
+            "128db2f0781141bcb505d8f00f9e4d47", // red_shotgun_kin
+            "b54d89f9e802455cbb2b8a96a31e8259", // blue_shotgun_kin
             // "70216cae6c1346309d86d4a0b4603045", // veteran_bullet_kin
             // "2752019b770f473193b08b4005dc781f", // veteran_shotgun_kin
             "45192ff6d6cb43ed8f1a874ab6bef316" // misfire_beast
@@ -694,6 +691,7 @@ namespace ChaosGlitchMod {
             "2d4f8b5404614e7d8b235006acde427a", // shotgat
             "b4666cb6ef4f4b038ba8924fd8adf38f", // grenat
             "7ec3e8146f634c559a7d58b19191cd43", // spirat
+            "226fd90be3a64958a5b13cb0a4f43e97", // musket_kin
             "566ecca5f3b04945ac6ce1f26dedbf4f" // mine_flayers_claymore
         };
 

@@ -35,8 +35,8 @@ namespace ChaosGlitchMod {
         
         public Renderer[] LightningRenderers;
 
-        private Vector3 m_lastCameraPosition;
-        private Transform m_mainCameraTransform;        
+        // private Vector3 m_lastCameraPosition;
+        // private Transform m_mainCameraTransform;        
         private float m_lightningTimer;
 
         public void InitStorm() {

@@ -1,5 +1,4 @@
-﻿using Dungeonator;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,13 +6,20 @@ using UnityEngine;
 namespace ChaosGlitchMod {
 	// A slightly rewritten version of old Anywhere Mod by stellatedHexahedron
 	public class DungeonFlowModule : MonoBehaviour {
+
         private string[] ReturnMatchesFrom(string matchThis, string[] inThis) {
 			List<string> list = new List<string>();
 			foreach (string text in inThis) {
 				bool flag = StringAutocompletionExtensions.AutocompletionMatch(text, matchThis);
 				if (flag) { list.Add(text); }
 			}
-			return list.ToArray();
+            for (int i = 0; i < ChaosDungeonFlows.m_knownFlows.Count; i++) {
+                if (ChaosDungeonFlows.m_knownFlows[i] != null && ChaosDungeonFlows.m_knownFlows[i].name != null && ChaosDungeonFlows.m_knownFlows[i].name != string.Empty) {
+                    bool flag2 = StringAutocompletionExtensions.AutocompletionMatch(ChaosDungeonFlows.m_knownFlows[i].name, matchThis);
+                    if (flag2) { list.Add(ChaosDungeonFlows.m_knownFlows[i].name); }
+                }
+            }
+            return list.ToArray();
 		}
 	
 		private void Init()	{ }
@@ -29,9 +35,7 @@ namespace ChaosGlitchMod {
 					bool flag2 = index == 1;
 					if (flag2) {
 						result = ReturnMatchesFrom(input, knownTilesets);
-					}
-					else
-					{
+					} else {
 						result = new string[0];
 					}
 				}
@@ -42,7 +46,7 @@ namespace ChaosGlitchMod {
 		private void Exit() { }
 	
 		public static void LoadFlowFunction(string[] args) {
-			// bool flag = unwarned || (args.Length != 0 && args[0] == "help");
+            // bool flag = unwarned || (args.Length != 0 && args[0] == "help");
 			bool flag = (args.Length != 0 && args[0] == "help");
 			if (flag) {
 				ETGModConsole.Log("WARNING: this command can crash gungeon! Though post AG&D, this is actually hard to do. \nIf the game hangs on loading screen, use console to load a different level!\nUsage: load_dungeonflow [FLOW NAME] [TILESET NAME]. [TILESET NAME] is optional. Press tab for a list of each.\nOnce you run the command and you press escape, you should see the loading screen. If nothing happens when you use the command, the flow you tried to load doesn't exist or the path to it needs to be manually specified. Example: \"load_dungeonflow NPCParadise\".\nIf it hangs on loading screen then the tileset you tried to use doesn't exist or is no longer functional.\nAlso, you should probably know that if you run this command from the breach, the game never gives you the abilityto shoot or use active items, so you should probably start a run first.\nYou can view this blurb again using the command \"load_dungeonflow help\"");
@@ -50,7 +54,7 @@ namespace ChaosGlitchMod {
 			} else {
 				bool flag2 = args.Length > 1;
 				string text = args[0].Replace('-', ' ');
-                if (text.ToLower().StartsWith("test_west_floor_03a_flow")) { ChaosDungeonFlow.flowOverride = true; }
+                if (text.ToLower().StartsWith("custom_glitchchest_flow") | text.ToLower().StartsWith("custom_glitch_flow")) { ChaosDungeonFlows.isGlitchFlow = true; }
                 bool flag3 = flag2 && !knownTilesets.Contains(args[1]);
 				if (flag3) { ETGModConsole.Log("Not a valid tileset!"); } else {
 					try {
@@ -69,7 +73,7 @@ namespace ChaosGlitchMod {
 					} catch (Exception) {
 						ETGModConsole.Log("WHOOPS! Something went wrong! Most likely you tried to load a broken flow, or the tileset is incomplete and doesn't have the right tiles for the flow.");
 						ETGModConsole.Log("In order to get the game back into working order, the mod is now loading NPCParadise, with the castle tileset.");
-                        ChaosDungeonFlow.flowOverride = false;
+                        ChaosDungeonFlows.isGlitchFlow = false;
                         GameManager.Instance.LoadCustomFlowForDebug("npcparadise", "Base_Castle", "tt_castle");
 					}
 				}
@@ -77,21 +81,19 @@ namespace ChaosGlitchMod {
         }
 	
 		private static string[] knownFlows = new string[] {
-			"npcparadise",
-			"secret_doublebeholster_flow",
-			"bossrush_01_castle",
+            "npcparadise",
+			"secret_doublebeholster_flow"
+			/*"bossrush_01_castle",
 			"bossrush_01a_sewer",
 			"bossrush_02_gungeon",
 			"bossrush_02a_cathedral",
 			"bossrush_03_mines",
 			"bossrush_04_catacombs",
 			"bossrush_05_forge",
-			"bossrush_06_bullethell",
-            "test_west_floor_03a_flow"
+			"bossrush_06_bullethell",*/
         };
 	
-		private static string[] knownTilesets = new string[]
-		{
+		private static string[] knownTilesets = new string[] {
 			"foyer",
 			"castle",
 			"gungeon",
@@ -144,7 +146,6 @@ namespace ChaosGlitchMod {
 			"tt_belly",
 			"tt_future",
 			"tt_jungle",
-			"tt_nakatomi",
 			"tt_phobos",
 			"tt_west"
 		};

@@ -120,7 +120,7 @@ namespace ChaosGlitchMod {
             ChaosUtility chaosUtility = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosUtility>();
             AIActor DummyEnemy = EnemyDatabase.GetOrLoadByGuid(ChaosLists.BulletKinEnemyGUID);
             RoomHandler currentRoom = primaryPlayer.CurrentRoom;
-            IntVector2 newPos = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, primaryPlayer, 5, false);
+            IntVector2 newPos = ChaosUtility.Instance.GetRandomAvailableCellSmart(currentRoom, primaryPlayer, 5, false);
             if (newPos == IntVector2.Zero) {
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);
@@ -137,19 +137,15 @@ namespace ChaosGlitchMod {
                 PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
                 PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
                 Dungeon dungeon = GameManager.Instance.Dungeon;
-                int RoomIndex = UnityEngine.Random.Range(0, ChaosRoomRandomizer.MasterRoomArray.Length);
-
-                // There's over 400 combat rooms in the array. Lets give the non combat rooms a fair chance. :P
-                if (BraveUtility.RandomBool() && RoomIndex > 86) { RoomIndex = UnityEngine.Random.Range(0, 86); }
-
-                if (RoomIndex <= 0) {
-                    Invoke("TentacleRelease", 1f);
-                    Invoke("TentacleShowPlayer", 1.45f);
-                    Invoke("Unfreeze", 2f);
-                    return;
+                int SelectedRoomIndex = UnityEngine.Random.Range(0, ChaosRoomRandomizer.MasterRoomArray.Length);
+                int SelectedCombatRoomIndex = UnityEngine.Random.Range(0, ChaosPrefabs.CustomRoomTable.includedRooms.elements.Count);
+                
+                if (BraveUtility.RandomBool()) {
+                    SelectedPrototypeDungeonRoom = Instantiate(ChaosRoomRandomizer.MasterRoomArray[SelectedRoomIndex]);
+                } else {
+                    SelectedPrototypeDungeonRoom = Instantiate(ChaosPrefabs.CustomRoomTable.includedRooms.elements[SelectedCombatRoomIndex].room);
                 }
-
-                SelectedPrototypeDungeonRoom = Instantiate(ChaosRoomRandomizer.MasterRoomArray[RoomIndex]);
+                
 
                 if (SelectedPrototypeDungeonRoom == null) {
                     Invoke("TentacleRelease", 1f);

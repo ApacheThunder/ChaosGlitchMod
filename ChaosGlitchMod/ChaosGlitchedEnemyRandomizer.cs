@@ -20,9 +20,11 @@ namespace ChaosGlitchMod {
         }
 
         public void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
+            if (dungeon.IsGlitchDungeon) { goto IL_SKIP; }
             if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
             if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
 
+            IL_SKIP:;
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             int RandomEnemiesPlaced = 0;
             int RandomEnemiesSkipped = 0;
@@ -37,6 +39,7 @@ namespace ChaosGlitchMod {
             if (currentFloor == 4) { MaxEnemies = 35; GlitchedBossOdds = 0.27f; BonusGlitchEnemyOdds = 0.2f; }
             if (currentFloor == 5) { MaxEnemies = 55; GlitchedBossOdds = 0.3f; BonusGlitchEnemyOdds = 0.25f; }
             if (currentFloor == 6) { MaxEnemies = 90; GlitchedBossOdds = 0.35f; BonusGlitchEnemyOdds = 0.3f; }
+            if (dungeon.IsGlitchDungeon) { MaxEnemies = 65; GlitchedBossOdds = 0.3f; BonusGlitchEnemyOdds = 0.28f; }
 
             List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
 
@@ -114,6 +117,14 @@ namespace ChaosGlitchMod {
                     if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] Skipping current room...", false);
                     if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log(ex.Message + ex.StackTrace + ex.Source, false); }
                     continue;
+                }
+                AIActor[] spawnedAiActors = FindObjectsOfType<AIActor>();
+                for (int i = 0; i < spawnedAiActors.Length; i++) {
+                    if (spawnedAiActors[i].ActorName.ToLower().StartsWith("glitched")) {
+                        RoomHandler parentRoom = spawnedAiActors[i].GetAbsoluteParentRoom();
+                        spawnedAiActors[i].transform.parent = parentRoom.hierarchyParent;
+
+                    }
                 }
             }
             if (ChaosConsole.debugMimicFlag) {

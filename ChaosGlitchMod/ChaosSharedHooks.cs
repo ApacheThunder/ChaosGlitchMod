@@ -10,19 +10,15 @@ namespace ChaosGlitchMod {
 
     class ChaosSharedHooks : MonoBehaviour {
         public static Hook minorbreakablehook;
-        public static Hook aiActorhook;
+        public static Hook aiActorengagedhook;
         public static Hook doExplodeHook;
-        public static Hook enterRoomHook;
-        public static Hook wallmimichook;
         public static Hook slidehook;
         public static Hook stringhook;
         public static Hook cellhook;
-        public static Hook flowhook;
-        public static Hook loadlevelhook;
-        public static Hook objectstamphook;
-        // public static Hook glitchroomsetuphook;
+        public static Hook elevatorhook;
+        public static Hook wallmimicupdatehook;
 
-        private static SupplyDropItem supplydrop = ETGMod.Databases.Items[77].GetComponent<SupplyDropItem>();
+        private static SupplyDropItem supplydrop = PickupObjectDatabase.GetById(77).GetComponent<SupplyDropItem>();
 
         private static ChaosSharedHooks m_instance;
 
@@ -54,56 +50,72 @@ namespace ChaosGlitchMod {
 
         public static bool IsHooksInstalled = false;
         
-        public static void InstallPrimaryHooks(bool InstallHooks = true) {
-            bool roomFlag = enterRoomHook != null;
-            bool aiHookFlag = aiActorhook != null;
+        public void InstallPrimaryHooks(bool InstallHooks = true) {
+            // bool aiHookFlag = aiActorhook != null;
+            // bool aiDeathHookFlag = aiactordeathhook != null;
+            bool aiEngangedHookFlag = aiActorengagedhook != null;
             bool stringHookFlag = stringhook != null;
             bool cellHookFlag = cellhook != null;
+            bool elevatorHookFlag = elevatorhook != null;
+            bool wallmimicUpdateFlag = wallmimicupdatehook != null;
             // bool glitchRoomSetupHookFlag = glitchroomsetuphook != null;
 
             if (InstallHooks) {
 
-                if (!aiHookFlag) {
-                    aiActorhook = new Hook(
-                        typeof(AIActor).GetMethod("Awake", BindingFlags.Public | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("AwakeHookCustom", BindingFlags.Public | BindingFlags.Static)
+                if (!aiEngangedHookFlag) {
+                    Debug.Log("[ChaosGlitchMod] Installing AIEnganged Hook....");
+                    aiActorengagedhook = new Hook(
+                        typeof(AIActor).GetMethod("OnEngaged", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks).GetMethod("OnEngagedHook", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(AIActor)
                     );
                 }
-
-                if (!roomFlag) {
-                    enterRoomHook = new Hook(
-                        typeof(RoomHandler).GetMethod("OnEntered", BindingFlags.NonPublic | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("EnteredNewRoomHook", BindingFlags.Public | BindingFlags.Static)
-                    );
-                }
-
+                
                 if (!stringHookFlag) {
+                    Debug.Log("[ChaosGlitchMod] Installing GetEnemiesString Hook....");
                     stringhook = new Hook(
                         typeof(StringTableManager).GetMethod("GetEnemiesString", BindingFlags.Public | BindingFlags.Static),
                         typeof(ChaosStringTableManager).GetMethod("GetEnemiesString", BindingFlags.Public | BindingFlags.Static)
                     );
                 }
-
+                
                 if (!cellHookFlag) {
+                    Debug.Log("[ChaosGlitchMod] Installing FlagCells Hook....");
                     cellhook = new Hook(
                         typeof(OccupiedCells).GetMethod("FlagCells", BindingFlags.Public | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("FlagCellsHook", BindingFlags.Public | BindingFlags.Static)
+                        typeof(ChaosSharedHooks).GetMethod("FlagCellsHook", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(OccupiedCells)
+                    );
+                }
+                
+                if (!elevatorHookFlag) {
+                    Debug.Log("[ChaosGlitchMod] Installing TransitionToDepart Hook....");
+                    elevatorhook = new Hook(
+                        typeof(ElevatorDepartureController).GetMethod("TransitionToDepart", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks).GetMethod("TransitionToDepartHook", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(ElevatorDepartureController)
                     );
                 }
 
-                /*Hook PathFinderFixHook = new Hook(
-                        typeof(Pathfinder).GetMethod("Initialize", BindingFlags.Public | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("PathfindingInitializeHook", BindingFlags.Public | BindingFlags.Static)
-                );*/
-
+                if (!wallmimicUpdateFlag) {
+                    Debug.Log("[ChaosGlitchMod] Installing WallMimicController.Update Hook....");
+                    wallmimicupdatehook = new Hook(
+                        typeof(WallMimicController).GetMethod("Update", BindingFlags.Public | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks).GetMethod("WallMimic_UpdateHook", BindingFlags.Public | BindingFlags.Instance),
+                        typeof(WallMimicController)
+                    );
+                }
                 IsHooksInstalled = true;
                 if (!ChaosConsole.autoUltra) { ETGModConsole.Log("Primary hooks installed...", false); }
                 return;
             } else {
-                if (aiHookFlag) { aiActorhook.Dispose(); aiActorhook = null; }
-                if (roomFlag) { enterRoomHook.Dispose(); enterRoomHook = null; }
+                // if (aiHookFlag) { aiActorhook.Dispose(); aiActorhook = null; }
+                if (aiEngangedHookFlag) { aiActorengagedhook.Dispose(); aiActorengagedhook = null; }
+                // if (aiDeathHookFlag) { aiactordeathhook.Dispose(); aiactordeathhook = null; }
                 if (stringHookFlag) { stringhook.Dispose(); stringhook = null; }
                 if (cellHookFlag) { cellhook.Dispose(); cellhook = null; }
+                if (elevatorHookFlag) { elevatorhook.Dispose(); elevatorhook = null; }
+                if (wallmimicUpdateFlag) { wallmimicupdatehook.Dispose(); wallmimicupdatehook = null; }
                 // if (glitchRoomSetupHookFlag) { glitchroomsetuphook.Dispose(); glitchroomsetuphook = null; }
 
                 IsHooksInstalled = false;
@@ -112,152 +124,143 @@ namespace ChaosGlitchMod {
             }
         }
         
-        public static void InstallPlaceWallMimicsHook() {
-            wallmimichook = new Hook(
+        public void InstallRequiredHooks() {
+
+            Debug.Log("[ChaosGlitchMod] Installing PlaceWallMimics Hook....");
+            Hook wallmimichook = new Hook(
                 typeof(Dungeon).GetMethod("PlaceWallMimics", BindingFlags.Public | BindingFlags.Instance),
-                typeof(ChaosPlaceWallMimic).GetMethod("ChaosPlaceWallMimics", BindingFlags.Public | BindingFlags.Static)
+                typeof(ChaosPlaceWallMimic).GetMethod("ChaosPlaceWallMimics", BindingFlags.NonPublic | BindingFlags.Instance),
+                GameManager.Instance.Dungeon
             );
-            
-            flowhook = new Hook(
+
+            Debug.Log("[ChaosGlitchMod] Installing FlowDatabase.GetOrLoadByName Hook....");
+            Hook flowhook = new Hook(
                 typeof(FlowDatabase).GetMethod("GetOrLoadByName", BindingFlags.Public | BindingFlags.Static),
-                typeof(ChaosDungeonFlow).GetMethod("LoadCustomFlow", BindingFlags.Public | BindingFlags.Static)
+                typeof(ChaosDungeonFlows).GetMethod("LoadCustomFlow", BindingFlags.Public | BindingFlags.Static)
             );
 
-            loadlevelhook = new Hook(
-                typeof(GameManager).GetMethod("LoadNextLevel", BindingFlags.Public | BindingFlags.Instance),
-                typeof(ChaosSharedHooks).GetMethod("LoadNextLevelHook", BindingFlags.Public | BindingFlags.Static)
-            );
-
-            objectstamphook = new Hook(
+            Debug.Log("[ChaosGlitchMod] Installing ApplyObjectStamp Hook....");
+            Hook objectstamphook = new Hook(
                 typeof(TK2DDungeonAssembler).GetMethod("ApplyObjectStamp", BindingFlags.Public | BindingFlags.Static),
                 typeof(ChaosSharedHooks).GetMethod("ApplyObjectStampHook", BindingFlags.Public | BindingFlags.Static)
             );
+
+            Debug.Log("[ChaosGlitchMod] Installing LoadNextLevel Hook....");
+            Hook loadlevelhook = new Hook(
+                typeof(GameManager).GetMethod("LoadNextLevel", BindingFlags.Public | BindingFlags.Instance),
+                typeof(ChaosSharedHooks).GetMethod("LoadNextLevelHook", BindingFlags.Public | BindingFlags.Instance),
+                GameManager.Instance
+            );           
+
+            Debug.Log("[ChaosGlitchMod] Installing RoomHandler.OnEntered Hook....");
+            Hook enterRoomHook = new Hook(
+                typeof(RoomHandler).GetMethod("OnEntered", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(ChaosSharedHooks).GetMethod("EnteredNewRoomHook", BindingFlags.NonPublic | BindingFlags.Static)
+            );
             return;
-        }        
+        }       
 
-        /*public static void PathfindingInitializeHook(Action<Pathfinder, DungeonData> orig, Pathfinder self, DungeonData d) {
-            try { orig(self, d); } catch (Exception) { }
-            // orig(self, d);
-        }*/
-
-        public static void LoadNextLevelHook(Action<GameManager> orig, GameManager self) {
-            if (GameManager.Instance.InjectedFlowPath == "Core Game Flows/Secret_DoubleBeholster_Flow") {
-                ChaosDungeonFlow.flowOverride = true;
-                GameManager.Instance.LoadCustomFlowForDebug("test_west_floor_03a_flow", "Base_Nakatomi", "tt_nakatomi");
-                return;
-            } else {
-                try {
-                    orig(self);
-                } catch (Exception ex) {
-                    ETGModConsole.Log("WARNING: Exception during LoadNextLevelHook!");
-                    Debug.Log("WARNING: Exception during LoadNextLevelHook!");
+        private void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) {
+            try { orig(self); } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("[DEBUG] Warning: Exception caught in OccupiedCells.FlagCells!");
+                    Debug.Log("Warning: Exception caught in OccupiedCells.FlagCells!");
                     Debug.LogException(ex);
-                    if (GameManager.Instance.InjectedFlowPath == "Core Game Flows/Secret_DoubleBeholster_Flow") {
-                        GameManager.Instance.LoadCustomFlowForDebug("test_west_floor_03a_flow", "Base_Nakatomi", "tt_nakatomi");
-                    } else {
-                        orig(self);
-                    }                    
                 }
+                return;
             }
         }
 
-        public static void FlagCellsHook(Action<OccupiedCells> orig, OccupiedCells self) { try { orig(self); } catch (Exception) { return; } }
+        private void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) { return; }
 
-        public static void SlideAwakeHook(Action<SlideSurface> orig, SlideSurface self) { return; /*orig(self);*/ }
-        
-        // Hook method for AIActor (enemies). Made with help from KyleTheScientist
-        public static void AwakeHookCustom(Action<AIActor> orig, AIActor self) {
+        private void OnEngagedHook(Action<AIActor, bool> orig, AIActor self, bool isReinforcement) {
+            // FieldInfo field = typeof(AIActor).GetField("m_hasBeenEngaged", BindingFlags.Instance | BindingFlags.NonPublic);
+            orig(self, isReinforcement);
             try {
-                orig(self);
-            } catch (Exception) {
-                if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("[DEBUG] Exception caught in method 'Awake' in AIActor class!", false); }
-            }
+                if (self != null && self.EnemyGuid != string.Empty) {
 
-            if (self.EnemyGuid == "796a7ed4ad804984859088fc91672c7f" && 
-                 GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON | 
-                 GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.RATGEON
-               ) {
-                self.AdditionalSafeItemDrops.Clear();
-            }
+                    if (ChaosLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
 
-            if (ChaosLists.DieOnContactOverrideList.Contains(self.EnemyGuid)) { self.DiesOnCollison = true; }
-
-            if (ChaosLists.ContactOverrideGUIDList.Contains(self.EnemyGuid) && !self.ActorName.StartsWith("Glitched") && !self.name.StartsWith("Glitched")) { try {
-                    self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
-                    self.specRigidbody.PrimaryPixelCollider.Enabled = false;
-                    if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
-                        self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    if (ChaosLists.ContactOverrideGUIDList.Contains(self.EnemyGuid) && !self.ActorName.ToLower().StartsWith("glitched") && !self.GetActorName().ToLower().StartsWith("glitched")) {
+                        try {
+                            self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
+                            self.specRigidbody.PrimaryPixelCollider.Enabled = false;
+                            if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
+                                self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                            }
+                        } catch (Exception) { }
                     }
-                } catch (Exception) { }
-            }
 
-            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
-                if (ChaosLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) { self.PreventBlackPhantom = true; }
-                if (ChaosLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
-                if (self.EnemyGuid == "eeb33c3a5a8e4eaaaaf39a743e8767bc") { self.AlwaysShowOffscreenArrow = true; }
-                
-                if (UnityEngine.Random.value <= 0.2f && !self.IsBlackPhantom) {
-                    ChaosShaders.Instance.BecomeHologram(self.gameObject, true, BraveUtility.RandomBool());
-                    try {
-                        self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.PrimaryPlayer.specRigidbody);
-                        if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
-                            self.specRigidbody.RegisterSpecificCollisionException(GameManager.Instance.SecondaryPlayer.specRigidbody);
+                    if (ChaosLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid) && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | minorbreakablehook != null) {
+                        self.DiesOnCollison = true;
+                        self.IgnoreForRoomClear = true;
+                    }
+
+                    if (ChaosConsole.randomEnemySizeEnabled) { ChaosEnemyResizer.Instance.ChaosResizeEnemy(self, true); }
+
+                    if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
+
+                        if (self.EnemyGuid == "796a7ed4ad804984859088fc91672c7f" && GameManager.Instance.Dungeon.IsGlitchDungeon) {
+                            self.AdditionalSafeItemDrops.Clear();
                         }
-                        ChaosShaders.Instance.BecomeHologram(self.CurrentGun.gameObject, true, BraveUtility.RandomBool());
-                    } catch (Exception) { }
-                } else if (UnityEngine.Random.value <= 0.16f && !self.IsBlackPhantom) {
-                    ChaosShaders.Instance.ApplySpaceShader(self.sprite);
-                } else if (UnityEngine.Random.value <= 0.15f && !self.IsBlackPhantom) {
-                    ChaosShaders.Instance.BecomeRainbow(self, self.sprite);
-                } else if (UnityEngine.Random.value <= 0.1f && !self.IsBlackPhantom) {
-                    ChaosShaders.Instance.BecomeCosmicHorror(self.sprite);
-                } else if (UnityEngine.Random.value <= 0.05f && !self.IsBlackPhantom) {
-                    ChaosShaders.Instance.BecomeGalaxy(self.sprite);
-                }
-            }
 
-            if (UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors && ChaosConsole.GlitchEnemies && !self.IsBlackPhantom) {
-                float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
-                float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
-                float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
-                float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
-                float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
+                        if (self.EnemyGuid == "479556d05c7c44f3b6abb3b2067fc778") {
+                            self.AdditionalSafeItemDrops.Clear();
+                        }
 
-                
-                if (!self.sprite.usesOverrideMaterial && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid) &&
-                    GameManager.Instance.Dungeon.tileIndices.tilesetId != GlobalDungeonData.ValidTilesets.OFFICEGEON)
-                {
-                    ChaosShaders.Instance.ApplyGlitchShader(self, self.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
-                    if (!self.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(self.EnemyGuid) && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
-                        if (UnityEngine.Random.value <= 0.25) { self.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
+                        if (ChaosLists.PreventBeingJammedOverrideList.Contains(self.EnemyGuid)) { self.PreventBlackPhantom = true; }
+                        if (ChaosLists.PreventDeathOnBossKillList.Contains(self.EnemyGuid)) { self.PreventAutoKillOnBossDeath = true; }
+                        if (self.EnemyGuid == "eeb33c3a5a8e4eaaaaf39a743e8767bc") { self.AlwaysShowOffscreenArrow = true; }
+                        
+                        if (UnityEngine.Random.value <= 0.2f && !self.IsBlackPhantom) {
+                            ChaosShaders.Instance.BecomeHologram(self, BraveUtility.RandomBool());                                
+                        } else if (UnityEngine.Random.value <= 0.16f && !self.IsBlackPhantom) {
+                            ChaosShaders.Instance.ApplySpaceShader(self.sprite);
+                        } else if (UnityEngine.Random.value <= 0.15f && !self.IsBlackPhantom) {
+                            ChaosShaders.Instance.BecomeRainbow(self);
+                        } else if (UnityEngine.Random.value <= 0.1f && !self.IsBlackPhantom) {
+                            ChaosShaders.Instance.BecomeCosmicHorror(self.sprite);
+                        } else if (UnityEngine.Random.value <= 0.05f && !self.IsBlackPhantom) {
+                            ChaosShaders.Instance.BecomeGalaxy(self.sprite);
+                        }
                     }
-                    ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(self);
-                    if (!ChaosConsole.randomEnemySizeEnabled) {
-                        if (self.healthHaver != null) {
-                            if (!self.healthHaver.IsBoss) {
-                                self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.5f, null, false);
-                            } else {
-                                self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.25f, null, false);
+
+                    if (UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors && ChaosConsole.GlitchEnemies && !self.IsBlackPhantom) {
+                        float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
+                        float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
+                        float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
+                        float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
+                        float RnadomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
+
+                        
+                        if (!self.sprite.usesOverrideMaterial && !ChaosLists.DontGlitchMeList.Contains(self.EnemyGuid)) {
+                            ChaosShaders.Instance.BecomeGlitched(self, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RnadomColorIntensityFloat);
+                            if (!self.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(self.EnemyGuid) && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
+                                if (UnityEngine.Random.value <= 0.25) { self.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
+                            }
+                            ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(self);
+                            if (!ChaosConsole.randomEnemySizeEnabled) {
+                                if (self.healthHaver != null) {
+                                    if (!self.healthHaver.IsBoss) {
+                                        self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.5f, null, false);
+                                    } else {
+                                        self.healthHaver.SetHealthMaximum(self.healthHaver.GetMaxHealth() / 1.25f, null, false);
+                                    }
+                                }
+                            }                        
+                            if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchEnemyOnDeath>() == null) {
+                                try { self.gameObject.AddComponent<ChaosExplodeOnDeath>(); } catch (Exception) { }
                             }
                         }
-                    }                        
-                    if (UnityEngine.Random.value <= 0.1f && self.EnemyGuid != "4d37ce3d666b4ddda8039929225b7ede" && self.EnemyGuid != "19b420dec96d4e9ea4aebc3398c0ba7a" && self.GetComponent<ExplodeOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null && self.GetComponent<ChaosSpawnGlitchEnemyOnDeath>() == null) {
-                        try { self.gameObject.AddComponent<ChaosExplodeOnDeath>(); } catch (Exception) { }
                     }
                 }
-                            
-            }
-
-            if (ChaosLists.skusketHeadEnemyGUID.Contains(self.EnemyGuid) && ChaosConsole.isHardMode | ChaosConsole.isUltraMode | minorbreakablehook != null) {
-                AIActor target = self.gameObject.GetComponent<AIActor>();
-                target.DiesOnCollison = true;
-                target.IgnoreForRoomClear = true;
-            }
+            } catch (Exception) { return; }
         }
-        
-        private static void PotsTelefragRoom(RoomHandler currentRoom) {
+
+        private void PotsTelefragRoom(RoomHandler currentRoom) {
             try {
                 List<AIActor> activeEnemies = currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All);
+                if (activeEnemies == null) { return; }
                 if (activeEnemies.Count <= 0) { return; }
                 for (int i = 0; i < activeEnemies.Count; i++) {
                     if (ChaosLists.KillOnRoomClearList.Contains(activeEnemies[i].EnemyGuid) && activeEnemies[i].IsNormalEnemy && activeEnemies[i].healthHaver && !activeEnemies[i].healthHaver.IsBoss)
@@ -274,43 +277,37 @@ namespace ChaosGlitchMod {
                 return;
             }
             return;
-        }
+        }        
 
 
-        public void NonStaticResizer() {
-            RoomHandler currentRoom = GameManager.Instance.BestActivePlayer.CurrentRoom;
-            if (currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All) == null) { return; }
-            List<AIActor> activeEnemies = currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All);
-            if (activeEnemies.Count <= 0) { return; }
-            for (int i = 0; i < activeEnemies.Count; i++) {
-                ChaosEnemyResizer.Instance.ChaosResizeEnemy(activeEnemies[i]);
-            }
-            return;
-        }
-
-        private void ResizeEnemiesInRoom() { Invoke("NonStaticResizer", 0.8f); }
-
-        public static void KillPotEnemiesOnRoomClear() {
+        private void KillPotEnemiesOnRoomClear() {
             PotsTelefragRoom(GameManager.Instance.BestActivePlayer.CurrentRoom);
             return;
         }
 
-        public void RevealRoom(RoomHandler CurrentRoom) { StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(CurrentRoom, true, true, true)); }
+        private void RevealRoom(RoomHandler CurrentRoom) {
+            if (!CurrentRoom.OverrideTilemap) { return; }
+            StartCoroutine(Minimap.Instance.RevealMinimapRoomInternal(CurrentRoom, true, true, true));
+        }
 
-        public static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
-            orig(self, player);            
+        private static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
+            orig(self, player);
+
+            if (ChaosConsole.GlitchEnemies | ChaosConsole.isHardMode | GameManager.Instance.Dungeon.IsGlitchDungeon) {
+                if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { ChaosGlitchedEnemies.Instance.StunGlitchedEnemiesInRoom(self, 0.5f); }
+            }
+
+            /*if (GameManager.Instance.Dungeon.IsGlitchDungeon && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
+                ChaosShaders.Instance.GlitchScreenForDuration(UnityEngine.Random.Range(0.35f,0.5f), UnityEngine.Random.Range(0.2f, 0.6f), UnityEngine.Random.Range(0.05f, 0.07f), UnityEngine.Random.Range(0.01f, 0.025f));
+            }*/
 
             if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] Player entered room with name '" + player.CurrentRoom.GetRoomName() + "' .", false); }            
 
-            if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { Instance.ResizeEnemiesInRoom(); }
+            // if (ChaosConsole.randomEnemySizeEnabled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { Instance.ResizeEnemiesInRoom(); }
 
             if (self.OverrideTilemap && ChaosConsole.allowGlitchFloor) { Instance.RevealRoom(self); }
 
-            if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && minorbreakablehook != null) { player.CurrentRoom.OnEnemiesCleared += KillPotEnemiesOnRoomClear; }
-
-            if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && ChaosConsole.GlitchEnemies | ChaosConsole.isHardMode) {
-                ChaosGlitchedEnemies.Instance.StunGlitchedEnemiesInRoom(self, 0.5f);
-            }
+            if (self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear) && minorbreakablehook != null) { player.CurrentRoom.OnEnemiesCleared += Instance.KillPotEnemiesOnRoomClear; }
 
             if (player.CurrentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS && UnityEngine.Random.value <= ChaosConsole.TentacleTimeChances && ChaosConsole.isUltraMode && !ChaosConsole.hasBeenTentacled && self.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
                 if (GameManager.Instance.CurrentFloor != 6 && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.RESOURCEFUL_RAT && GameManager.Instance.CurrentLevelOverrideState != GameManager.LevelOverrideState.TUTORIAL) {
@@ -336,8 +333,8 @@ namespace ChaosGlitchMod {
                 string SelectedEnemy = ChaosLists.RoomEnemyGUIDList.RandomString();
                 AIActor SelectedActor = EnemyDatabase.GetOrLoadByGuid(SelectedEnemy);
                 
-                IntVector2 RoomVector = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, 2, true);
-                IntVector2 RoomVectorForEnemy = ChaosUtility.GetRandomAvailableCellSmart(currentRoom, player, 2, false);
+                IntVector2 RoomVector = ChaosUtility.Instance.GetRandomAvailableCellSmart(currentRoom, player, 2, true);
+                IntVector2 RoomVectorForEnemy = ChaosUtility.Instance.GetRandomAvailableCellSmart(currentRoom, player, 2, false);
 
                 int currentCurse = PlayerStats.GetTotalCurse();
                 int currentCoolness = PlayerStats.GetTotalCoolness();
@@ -419,7 +416,10 @@ namespace ChaosGlitchMod {
 
                 if (UnityEngine.Random.value <= BonusEnemyChances && !BonusEnemiesBannedRooms.Contains(player.CurrentRoom.GetRoomName()) && !self.IsMaintenanceRoom() && !self.IsShop && !self.IsGunslingKingChallengeRoom && !self.IsWinchesterArcadeRoom && !self.IsSecretRoom && RoomVectorForEnemy != IntVector2.Zero) {
                     if (self.GetRoomName().StartsWith("BulletBrosRoom") && UnityEngine.Random.value <= 0.2) {
-                        LootCrate.Instance.SpawnAirDrop(RoomVectorForEnemy, null, 1f, 0f, false, false, ChaosLists.TriggerTwinsGUIDList.RandomString());
+                        // LootCrate.Instance.SpawnAirDrop(RoomVectorForEnemy, null, 1f, 0f, false, false, ChaosLists.TriggerTwinsGUIDList.RandomString());
+                        IntVector2 BossPosition = ChaosUtility.Instance.GetRandomAvailableCellSmart(currentRoom, player, 4, true);
+                        AIActor triggertwin = AIActor.Spawn(EnemyDatabase.GetOrLoadByGuid(ChaosLists.TriggerTwinsGUIDList.RandomString()), BossPosition, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
+                        triggertwin.HandleReinforcementFallIntoRoom(8);
                     } else {
                         LootCrate.Instance.SpawnAirDrop(RoomVectorForEnemy, null, 1f, EnemyCrateExplodeChances, false, false, ChaosLists.RoomEnemyGUIDList.RandomString());
                     }
@@ -428,7 +428,7 @@ namespace ChaosGlitchMod {
         }
 
         // SayNoToPots Mod - Now with ability to spawn more then one different type of enemy randomly! :D
-        public static void SpawnAnnoyingEnemy(Action<MinorBreakable> orig, MinorBreakable self) {
+        private void SpawnAnnoyingEnemy(Action<MinorBreakable> orig, MinorBreakable self) {
             orig(self);
 
             PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
@@ -442,7 +442,6 @@ namespace ChaosGlitchMod {
             AIActor CritterList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.CritterGUIDList.RandomString());
             AIActor PestList = EnemyDatabase.GetOrLoadByGuid(ChaosLists.PestGUIDList.RandomString());
             AIActor Tombstoners = EnemyDatabase.GetOrLoadByGuid(ChaosLists.tombstonerEnemyGUID);
-            // AIActor SkusketHeads = EnemyDatabase.GetOrLoadByGuid(ChaosLists.skusketHeadEnemyGUID);
             AIActor MusketKins = EnemyDatabase.GetOrLoadByGuid("226fd90be3a64958a5b13cb0a4f43e97");
             AIActor Poisbuloids = EnemyDatabase.GetOrLoadByGuid(ChaosLists.poisbuloidEnemyGUID);
             AIActor Funguns = EnemyDatabase.GetOrLoadByGuid(ChaosLists.fungunEnemyGUID);
@@ -644,6 +643,102 @@ namespace ChaosGlitchMod {
                     Debug.LogException(ex);
                 }
                 return null;
+            }
+        }
+
+        public void LoadNextLevelHook(Action<GameManager> orig, GameManager self) { try {
+                if (GameManager.Instance.InjectedFlowPath != null) {
+                    if (GameManager.Instance.InjectedFlowPath.ToLower().EndsWith("secret_doublebeholster_flow")) {
+                        ChaosDungeonFlows.isGlitchFlow = true;
+                        string flowPath = "custom_glitchchest_flow";
+                        if (BraveUtility.RandomBool()) { flowPath = "custom_glitch_flow"; }
+                        string floorPath = "Base_Castle";
+
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.CASTLEGEON) { floorPath = "Base_Gungeon"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.SEWERGEON) { floorPath = "Base_Gungeon"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.GUNGEON) { floorPath = "Base_Mines"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.CATHEDRALGEON) { floorPath = "Base_Mines"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.MINEGEON) { floorPath = "Base_Catacombs"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.RATGEON) { floorPath = "Base_Catacombs"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.CATACOMBGEON) { floorPath = "Base_Forge"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) { floorPath = "Base_Forge"; }
+                        if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.FORGEGEON) { floorPath = string.Empty; }                        
+
+                        ChaosDungeonFlows.Custom_Glitch_Flow.sharedInjectionData = ChaosDungeonFlows.RetrieveSharedInjectionDataListFromSpecificFloor(floorPath);
+                        ChaosDungeonFlows.Custom_GlitchChest_Flow.sharedInjectionData = ChaosDungeonFlows.RetrieveSharedInjectionDataListFromSpecificFloor(floorPath);
+                        GameManager.Instance.InjectedFlowPath = flowPath;
+                    }
+                }
+                orig(self);
+            } catch (Exception ex) {
+                ETGModConsole.Log("ERROR: Exception occured in LoadNextLevelHook!");
+                Debug.Log("ERROR: Exception occured in LoadNextLevelHook!");
+                Debug.LogException(ex);
+                return;
+            }
+        }
+
+        private void TransitionToDepartHook(Action<ElevatorDepartureController, tk2dSpriteAnimator, tk2dSpriteAnimationClip> orig, ElevatorDepartureController self, tk2dSpriteAnimator animator, tk2dSpriteAnimationClip clip) {
+            // orig(self, animator, clip);
+            bool m_depatureIsPlayerless = ReflectionHelpers.ReflectGetField<bool>(typeof(ElevatorDepartureController), "m_depatureIsPlayerless", self);
+
+            GameManager.Instance.MainCameraController.DoDelayedScreenShake(self.departureShake, 0.25f, null);
+
+            if (!m_depatureIsPlayerless) {
+                for (int i = 0; i < GameManager.Instance.AllPlayers.Length; i++) { GameManager.Instance.AllPlayers[i].PrepareForSceneTransition(); }
+                Pixelator.Instance.FadeToBlack(0.5f, false, 0f);
+                GameUIRoot.Instance.HideCoreUI(string.Empty);
+                GameUIRoot.Instance.ToggleLowerPanels(false, false, string.Empty);
+                float delay = 0.5f;
+                if (self.ReturnToFoyerWithNewInstance) {
+                    GameManager.Instance.DelayedReturnToFoyer(delay);
+                } else if (GameManager.Instance.CurrentGameMode == GameManager.GameMode.SUPERBOSSRUSH) {
+                    GameManager.Instance.DelayedLoadBossrushFloor(delay);
+                } else if (GameManager.Instance.CurrentGameMode == GameManager.GameMode.BOSSRUSH) {
+                    GameManager.Instance.DelayedLoadBossrushFloor(delay);
+                } else {
+                    if (!GameManager.Instance.IsFoyer && GameManager.Instance.CurrentLevelOverrideState == GameManager.LevelOverrideState.NONE) {
+                        GlobalDungeonData.ValidTilesets nextTileset = GameManager.Instance.GetNextTileset(GameManager.Instance.Dungeon.tileIndices.tilesetId);
+                        GameManager.DoMidgameSave(nextTileset);
+                    }
+                    if (self.UsesOverrideTargetFloor) {
+                        GlobalDungeonData.ValidTilesets overrideTargetFloor = self.OverrideTargetFloor;
+                        if (overrideTargetFloor == GlobalDungeonData.ValidTilesets.CATACOMBGEON) {
+                            GameManager.Instance.DelayedLoadCustomLevel(delay, "tt_catacombs");
+                        } else if (overrideTargetFloor == GlobalDungeonData.ValidTilesets.FORGEGEON) {
+                            GameManager.Instance.DelayedLoadCustomLevel(delay, "tt_forge");
+                        } else if (overrideTargetFloor == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                            ChaosConsole.elevatorHasBeenUsed = true;
+                            if (BraveUtility.RandomBool()) {
+                                ChaosUtility.Instance.LoadGlitchFlow();
+                                GameManager.Instance.DelayedLoadNextLevel(delay);
+                            } else {
+                                ChaosUtility.Instance.DelayedLoadGlitchFloor(delay);
+                            }                            
+                        } else {
+                            GameManager.Instance.DelayedLoadNextLevel(delay);
+                        }
+                    } else {
+                        GameManager.Instance.DelayedLoadNextLevel(delay);
+                    }
+                    AkSoundEngine.PostEvent("Stop_MUS_All", self.gameObject);
+                }
+            }
+            self.elevatorFloor.SetActive(false);
+            animator.AnimationCompleted = (Action<tk2dSpriteAnimator, tk2dSpriteAnimationClip>)Delegate.Remove(animator.AnimationCompleted, new Action<tk2dSpriteAnimator, tk2dSpriteAnimationClip>(TransitionToDepart));
+            animator.PlayAndDisableObject(self.elevatorDepartAnimName, null);
+        }       
+
+        private void TransitionToDepart(tk2dSpriteAnimator animator, tk2dSpriteAnimationClip clip) { }
+
+        public void WallMimic_UpdateHook(Action<WallMimicController>orig, WallMimicController self) {
+            foreach (PlayerController playerController in GameManager.Instance.AllPlayers) {
+                orig(self);
+                bool itemWasRemoved = false;
+                if (self.aiActor.AdditionalSafeItemDrops != null && self.aiActor.AdditionalSafeItemDrops.Count > 0 && !ChaosConsole.WallMimicsUseRewardManager && !itemWasRemoved) {
+                    self.aiActor.AdditionalSafeItemDrops.Clear();
+                    itemWasRemoved = true;
+                }
             }
         }
     }

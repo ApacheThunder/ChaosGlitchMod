@@ -33,6 +33,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\Dependencies\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\Dependencies\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp.Base.mm">
       <HintPath>..\Dependencies\Assembly-CSharp.Base.mm.dll</HintPath>
     </Reference>
@@ -42,12 +45,18 @@
     <Reference Include="MonoMod.Utils">
       <HintPath>..\Dependencies\MonoMod.Utils.dll</HintPath>
     </Reference>
+    <Reference Include="PlayMaker">
+      <HintPath>..\Dependencies\PlayMaker.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\Dependencies\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\Dependencies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -59,7 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChaosDungeonFlow.cs" />
+    <Compile Include="DungeonFlows\ChaosDungeonFlows.cs" />
     <Compile Include="ChaosEnemyReplacements.cs" />
     <Compile Include="ChaosEnemyResizer.cs" />
     <Compile Include="ChaosGlitchFloorGenerator.cs" />
@@ -67,6 +76,7 @@
     <Compile Include="ChaosMinimap.cs" />
     <Compile Include="ChaosMirrorController.cs" />
     <Compile Include="ChaosPitRandomizer.cs" />
+    <Compile Include="ChaosPrefabs.cs" />
     <Compile Include="ChaosRoomRandomizer.cs" />
     <Compile Include="ChaosShaders.cs" />
     <Compile Include="ChaosSpawnGlitchedEnemyOnDeath.cs" />
@@ -87,6 +97,14 @@
     <Compile Include="ChaosObjectRandomizer.cs" />
     <Compile Include="ChaosKickableObject.cs" />
     <Compile Include="ChaosLootCrate.cs" />
+    <Compile Include="DungeonFlows\BossrushFlows.cs" />
+    <Compile Include="DungeonFlows\complex_flow_test.cs" />
+    <Compile Include="DungeonFlows\custom_glitchchest_flow.cs" />
+    <Compile Include="DungeonFlows\custom_glitch_flow.cs" />
+    <Compile Include="DungeonFlows\dave_fucking_around_flow.cs" />
+    <Compile Include="DungeonFlows\demo_stage_flow.cs" />
+    <Compile Include="DungeonFlows\test_west_floor_03a_flow.cs" />
+    <Compile Include="FlowHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChaosSharedHooks.cs" />
     <Compile Include="ChaosTentacleTeleport.cs" />

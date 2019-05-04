@@ -87,6 +87,7 @@ namespace ChaosGlitchMod {
             // Normal Floors with 1 = Keep, 2 = Gungeon Proper, and so on
             // Floor 1 guranteed to have 1 mimic per room.
             if (currentFloor == 1) {
+                ChaosConsole.elevatorHasBeenUsed = false;
                 ChaosConsole.MaxWallMimicsPerRoom = 1;
                 ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(5, 15);
                 if (currentCurse >= 6) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(15, 25); }
@@ -123,24 +124,15 @@ namespace ChaosGlitchMod {
                 ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(30, 40);
                 if (currentCurse >= 5) { ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(35, 50); }
             }
-
-            if (ChaosConsole.NormalWallMimicMode) {
-                ChaosConsole.MaxWallMimicsPerRoom = 1;
-                ChaosConsole.MaxWallMimicsForFloor = UnityEngine.Random.Range(10, 40);
-            }
             return;
         }
 
-        public static void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler) {
+        private void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler) {
         	int currentFloor = GameManager.Instance.CurrentFloor;
             int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
 
-            var levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+            GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
         	
-        	if (currentFloor < 3) ChaosConsole.ShaderPass = 0;
-        	if (currentFloor > 3) ChaosConsole.ShaderPass = 18;
-        	if (currentFloor == -1) ChaosConsole.ShaderPass = 10;
-        
         	// Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
         	SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
 
@@ -166,22 +158,25 @@ namespace ChaosGlitchMod {
         		}
         	}	
         	
-        	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE)
-        	{
+        	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
         		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional objects.", false); }
         	} else {
         		ChaosObjectRandomizer.Instance.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
-        	}                
-        	
-        	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE)
-        	{
+        	}
+
+            try { InitObjectMods(dungeon); } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    ETGModConsole.Log("[DEBUG] Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
+                    Debug.Log("Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
+                    Debug.LogException(ex);
+                }
+            }
+
+            if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
         		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional glitch enemies.", false); }
         	} else {
         		ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
         	}
-
-            Instance.InitObjectMods(dungeon);
-
 
             if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }
         	
@@ -221,7 +216,7 @@ namespace ChaosGlitchMod {
         	
         	if (roomHandler != null) { roomList = new List<int>(new int[] { dungeon.data.rooms.IndexOf(roomHandler) }); }
         	
-        	List<Tuple<IntVector2, DungeonData.Direction>> validWalls = new List<Tuple<IntVector2, DungeonData.Direction>>();        
+        	List<Tuple<IntVector2, DungeonData.Direction>> validWalls = new List<Tuple<IntVector2, DungeonData.Direction>>();
         	List<AIActor> enemiesList = new List<AIActor>();
 
         	while (iterations < roomList.Count && WallMimicsPlaced < numWallMimicsForFloor) {
@@ -376,38 +371,65 @@ namespace ChaosGlitchMod {
         
         
         private void InitObjectMods(Dungeon dungeon) {
+            // Assign pitfall destination to entrance on Floor 1 if in Bossrush mode and special entrance room to Miniboss room path is available.
+            if (GameManager.Instance.CurrentGameMode == GameManager.GameMode.BOSSRUSH |
+                GameManager.Instance.CurrentGameMode == GameManager.GameMode.SUPERBOSSRUSH)
+            {
+                List<RoomHandler> RoomList = dungeon.data.rooms;
+                RoomHandler MinibossEntrance = null;
+                foreach (RoomHandler specificRoom in RoomList) {
+                    if (specificRoom.GetRoomName().ToLower().StartsWith("elevatormaintenance") && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.CASTLEGEON) {
+                        MinibossEntrance = specificRoom;
+                        if (dungeon.data.Entrance != null && dungeon.data.Entrance.GetRoomName().ToLower().StartsWith("elevator entrance")) {
+                            dungeon.data.Entrance.TargetPitfallRoom = specificRoom;
+                            dungeon.data.Entrance.ForcePitfallForFliers = true;
+                        }
+                    }
+                }
+            }
+
+
             if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
-            GameObject[] m_CachedObjects = FindObjectsOfType<GameObject>();
-            if (ChaosDungeonFlow.flowOverride && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON && !ChaosConsole.GlitchEverything) {
-                for (int i = 0; i < m_CachedObjects.Length; i++) {
-                    if (m_CachedObjects[i].GetComponentInChildren<PlayerController>() == null && !m_CachedObjects[i].name.ToLower().StartsWith("player")) {
-                        if (UnityEngine.Random.value < 0.45f && m_CachedObjects[i].GetComponentInChildren<AIActor>() == null) {
-                            ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-                        } else if (m_CachedObjects[i].GetComponentInChildren<AIActor>() != null && UnityEngine.Random.value < 0.65f) {
-                            AIActor m_cachedAIActor = m_CachedObjects[i].GetComponentInChildren<AIActor>();
-                            if (!ChaosLists.DontGlitchMeList.Contains(m_cachedAIActor.EnemyGuid) && !m_cachedAIActor.IsBlackPhantom && !m_cachedAIActor.healthHaver.IsBoss && !m_cachedAIActor.name.EndsWith("Glitched")) {
-                                ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, false, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-                                if (UnityEngine.Random.value <= 0.25 && !m_cachedAIActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(m_cachedAIActor.EnemyGuid) && m_cachedAIActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
-                                    m_CachedObjects[i].AddComponent<ChaosSpawnGlitchObjectOnDeath>();
-                                }
+            if (dungeon.IsGlitchDungeon | ChaosDungeonFlows.isGlitchFlow && !ChaosConsole.GlitchEverything) {
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
+                    if (UnityEngine.Random.value < 0.25f) {
+                        ChaosShaders.Instance.BecomeGlitched(gameObject, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+                    }
+                }
+                foreach (AIActor aiActor in FindObjectsOfType<AIActor>()) {
+                    if (!ChaosLists.DontGlitchMeList.Contains(aiActor.EnemyGuid) && !aiActor.IsBlackPhantom && !aiActor.healthHaver.IsBoss) {
+                        if (UnityEngine.Random.value < 0.65f && !aiActor.healthHaver.IsBoss) { ChaosShaders.Instance.BecomeGlitched(aiActor, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f); }
+                        ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(aiActor);
+                        if (UnityEngine.Random.value <= 0.25 && !aiActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(aiActor.EnemyGuid) && aiActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
+                            aiActor.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
+                        }
+                    }
+                }
+            } else if (ChaosConsole.GlitchEverything | ChaosConsole.GlitchEnemies) {
+                if (ChaosConsole.GlitchEverything) {
+                    foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
+                        if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && ChaosConsole.GlitchEverything) {
+                            ChaosShaders.Instance.BecomeGlitched(gameObject, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
+                        }
+                    }
+                }
+                if (ChaosConsole.GlitchEnemies) {
+                    foreach (AIActor aiActor in FindObjectsOfType<AIActor>()) {
+                        if (!ChaosLists.DontGlitchMeList.Contains(aiActor.EnemyGuid) && !aiActor.IsBlackPhantom && !aiActor.healthHaver.IsBoss) {
+                            if (UnityEngine.Random.value < 0.65f && !aiActor.healthHaver.IsBoss) { ChaosShaders.Instance.BecomeGlitched(aiActor, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f); }
+                            ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(aiActor);
+                            if (UnityEngine.Random.value <= 0.25 && !aiActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(aiActor.EnemyGuid) && aiActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
+                                aiActor.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
                             }
                         }
                     }
                 }
-            } else if (ChaosConsole.GlitchEverything) {
-                for (int i = 0; i < m_CachedObjects.Length; i++) {
-                    if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && !m_CachedObjects[i].name.ToLower().StartsWith("player")) {
-                        ChaosShaders.Instance.BecomeGlitched(m_CachedObjects[i], true, true, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-                    }
-                }
             }
             if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
-                for (int i = 0; i < m_CachedObjects.Length; i++) {
-                    if (UnityEngine.Random.value < 0.1f && !m_CachedObjects[i].name.ToLower().StartsWith("player") && m_CachedObjects[i].GetComponentInChildren<AIActor>() == null) {
-                        ChaosShaders.Instance.BecomeHologram(m_CachedObjects[i]);
-                    }
+                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
+                    if (UnityEngine.Random.value < 0.05f) { ChaosShaders.Instance.BecomeHologram(gameObject, BraveUtility.RandomBool()); }
                 }                
-            }
+            }            
         }
         
         // Adds Teleporter to entrance room on first floor so that player can teleport back if teleported via Tentacle Teleporter.

@@ -389,10 +389,10 @@ namespace ChaosGlitchMod {
             Destroy(AdditiveCircSprite.gameObject);
             yield break;
         }
-    
+
         private IEnumerator HandleExplosion(Vector3 position, ExplosionData data, Vector2 sourceNormal, Action onExplosionBegin, bool ignoreQueues, CoreDamageTypes damageTypes, bool ignoreDamageCaps) {
             if (data.usesComprehensiveDelay) { yield return new WaitForSeconds(data.comprehensiveDelay); }
-            if (OnExplosionTriggered != null) { OnExplosionTriggered(); }
+            Exploder.OnExplosionTriggered?.Invoke();
             bool addFireGoop = (damageTypes | CoreDamageTypes.Fire) == damageTypes;
             bool addFreezeGoop = (damageTypes | CoreDamageTypes.Ice) == damageTypes;
             bool addPoisonGoop = (damageTypes | CoreDamageTypes.Poison) == damageTypes;
@@ -412,7 +412,7 @@ namespace ChaosGlitchMod {
                     ChaosExplosionManager.Instance.StartCoroutine(HandleCurrentExplosionNotification(0.5f));
                 }
             }
-            if (onExplosionBegin != null) { onExplosionBegin(); }
+            onExplosionBegin?.Invoke();
             float damageRadius = data.GetDefinedDamageRadius();
             float pushSqrRadius = data.pushRadius * data.pushRadius;
             float bulletDeletionSqrRadius = damageRadius * damageRadius;
@@ -420,15 +420,24 @@ namespace ChaosGlitchMod {
                 DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultFreezeGoop).TimedAddGoopCircle(position.XY(), damageRadius, 0.5f, false);
                 DeadlyDeadlyGoopManager.FreezeGoopsCircle(position.XY(), damageRadius);
             }
-            if (addFireGoop) { DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultFireGoop).TimedAddGoopCircle(position.XY(), damageRadius, 0.5f, false); }
-            if (addPoisonGoop) { DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultPoisonGoop).TimedAddGoopCircle(position.XY(), damageRadius, 0.5f, false); }
-            if (!isFreezeExplosion) { DeadlyDeadlyGoopManager.IgniteGoopsCircle(position.XY(), damageRadius); }
+            if (addFireGoop) {
+                DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultFireGoop).TimedAddGoopCircle(position.XY(), damageRadius, 0.5f, false);
+            }
+            if (addPoisonGoop) {
+                DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultPoisonGoop).TimedAddGoopCircle(position.XY(), damageRadius, 0.5f, false);
+            }
+            if (!isFreezeExplosion) {
+                DeadlyDeadlyGoopManager.IgniteGoopsCircle(position.XY(), damageRadius);
+            }
             if (data.effect) {
                 GameObject gameObject;
                 if (data.effect.GetComponent<ParticleSystem>() != null || data.effect.GetComponentInChildren<ParticleSystem>() != null) {
                     gameObject = SpawnManager.SpawnVFX(data.effect, position, Quaternion.identity);
                 } else {
                     gameObject = SpawnManager.SpawnVFX(data.effect, position, Quaternion.identity);
+                }
+                if (data.rotateEffectToNormal && gameObject) {
+                    gameObject.transform.rotation = Quaternion.Euler(0f, 0f, sourceNormal.ToAngle());
                 }
                 tk2dBaseSprite component = gameObject.GetComponent<tk2dBaseSprite>();
                 if (component) {
@@ -439,18 +448,24 @@ namespace ChaosGlitchMod {
                 Vector3 position2 = gameObject.transform.position.WithZ(gameObject.transform.position.y);
                 GameObject gameObject2 = new GameObject("SoundSource");
                 gameObject2.transform.position = position2;
-                if (data.playDefaultSFX) { AkSoundEngine.PostEvent("Play_WPN_grenade_blast_01", gameObject2); }
+                if (data.playDefaultSFX) {
+                    AkSoundEngine.PostEvent("Play_WPN_grenade_blast_01", gameObject2);
+                }
                 Destroy(gameObject2, 5f);
                 for (int i = 0; i < componentsInChildren.Length; i++) {
                     if (componentsInChildren[i]) {
-                        if (sourceNormal == Vector2.zero) { componentsInChildren[i].Launch(); } else { componentsInChildren[i].Launch(sourceNormal); }
+                        if (sourceNormal == Vector2.zero) {
+                            componentsInChildren[i].Launch();
+                        } else {
+                            componentsInChildren[i].Launch(sourceNormal);
+                        }
                     }
                 }
                 if (gameObject) {
                     Transform transform = gameObject.transform.Find("scorch");
                     if (transform) { transform.gameObject.SetLayerRecursively(LayerMask.NameToLayer("BG_Critical")); }
                 }
-                if (data.doExplosionRing) { /* Why is this blank? - [Apache Thunder] */ }
+                if (data.doExplosionRing) { }
             }
             yield return new WaitForSeconds(data.explosionDelay);
             List<HealthHaver> allHealth = StaticReferenceManager.AllHealthHavers;
@@ -458,82 +473,85 @@ namespace ChaosGlitchMod {
                 for (int j = 0; j < allHealth.Count; j++) {
                     HealthHaver healthHaver = allHealth[j];
                     if (healthHaver) {
-                        if (!healthHaver || !healthHaver.aiActor || healthHaver.aiActor.HasBeenEngaged) {
-                            if (!data.ignoreList.Contains(healthHaver.specRigidbody)) {
-                                if (position.GetAbsoluteRoom() == allHealth[j].transform.position.GetAbsoluteRoom()) {
-                                    for (int k = 0; k < healthHaver.NumBodyRigidbodies; k++) {
-                                        SpeculativeRigidbody bodyRigidbody = healthHaver.GetBodyRigidbody(k);
-                                        PlayerController playerController = (!bodyRigidbody) ? null : (bodyRigidbody.gameActor as PlayerController);
-                                        Vector2 a = healthHaver.transform.position.XY();
-                                        Vector2 vector = a - position.XY();
-                                        bool flag = false;
-                                        float num;
-                                        if (bodyRigidbody.HitboxPixelCollider != null) {
-                                            a = bodyRigidbody.HitboxPixelCollider.UnitCenter;
-                                            vector = a - position.XY();
-                                            num = BraveMathCollege.DistToRectangle(position.XY(), bodyRigidbody.HitboxPixelCollider.UnitBottomLeft, bodyRigidbody.HitboxPixelCollider.UnitDimensions);
-                                        } else {
-                                            a = healthHaver.transform.position.XY();
-                                            vector = a - position.XY();
-                                            num = vector.magnitude;
+                        if (healthHaver && healthHaver.aiActor) {
+                            if (!healthHaver.aiActor.HasBeenEngaged) { goto IL_A82; }
+                            if (healthHaver.aiActor.CompanionOwner && data.damageToPlayer == 0f) { goto IL_A82; }
+                        }
+                        if (!data.ignoreList.Contains(healthHaver.specRigidbody)) {
+                            if (position.GetAbsoluteRoom() == allHealth[j].transform.position.GetAbsoluteRoom()) {
+                                for (int k = 0; k < healthHaver.NumBodyRigidbodies; k++) {
+                                    SpeculativeRigidbody bodyRigidbody = healthHaver.GetBodyRigidbody(k);
+                                    PlayerController playerController = (!bodyRigidbody) ? null : (bodyRigidbody.gameActor as PlayerController);
+                                    Vector2 a = healthHaver.transform.position.XY();
+                                    Vector2 vector = a - position.XY();
+                                    bool flag = false;
+                                    float num;
+                                    if (bodyRigidbody.HitboxPixelCollider != null) {
+                                        a = bodyRigidbody.HitboxPixelCollider.UnitCenter;
+                                        vector = a - position.XY();
+                                        num = BraveMathCollege.DistToRectangle(position.XY(), bodyRigidbody.HitboxPixelCollider.UnitBottomLeft, bodyRigidbody.HitboxPixelCollider.UnitDimensions);
+                                    } else {
+                                        a = healthHaver.transform.position.XY();
+                                        vector = a - position.XY();
+                                        num = vector.magnitude;
+                                    }
+                                    if (!playerController || ((!data.doDamage || num >= damageRadius) && (!isFreezeExplosion || num >= data.freezeRadius) && (!data.doForce || num >= data.pushRadius)) || !IsPlayerBlockedByWall(playerController, position)) {
+                                        if (playerController) {
+                                            if (!bodyRigidbody.CollideWithOthers) { goto IL_A6E; }
+                                            if (playerController.DodgeRollIsBlink && playerController.IsDodgeRolling) { goto IL_A6E; }
                                         }
-                                        if (!playerController || ((!data.doDamage || num >= damageRadius) && (!isFreezeExplosion || num >= data.freezeRadius) && (!data.doForce || num >= data.pushRadius)) || !IsPlayerBlockedByWall(playerController, position)) {
+                                        if (data.doDamage && num < damageRadius) {
                                             if (playerController) {
-                                                if (!bodyRigidbody.CollideWithOthers) { goto IL_9FE; }
-                                                if (playerController.DodgeRollIsBlink && playerController.IsDodgeRolling) { goto IL_9FE; }
-                                            }
-                                            if (data.doDamage && num < damageRadius) {
-                                                if (playerController) {
-                                                    bool flag2 = true;
-                                                    if (PassiveItem.ActiveFlagItems.ContainsKey(playerController) && PassiveItem.ActiveFlagItems[playerController].ContainsKey(typeof(HelmetItem)) && num > damageRadius * HelmetItem.EXPLOSION_RADIUS_MULTIPLIER) {
-                                                        flag2 = false;
-                                                    }
-                                                    if (flag2 && !playerController.IsEthereal) {
-                                                        HealthHaver healthHaver2 = healthHaver;
-                                                        float damage = data.damageToPlayer;
-                                                        Vector2 direction = vector;
-                                                        string enemiesString = StringTableManager.GetEnemiesString("#EXPLOSION", -1);
-                                                        CoreDamageTypes damageTypes2 = CoreDamageTypes.None;
-                                                        DamageCategory damageCategory = DamageCategory.Normal;
-                                                        healthHaver2.ApplyDamage(damage, direction, enemiesString, damageTypes2, damageCategory, false, null, ignoreDamageCaps);
-                                                    }
-                                                } else {
-                                                    HealthHaver healthHaver3 = healthHaver;
-                                                    float damage = data.damage;
+                                                bool flag2 = true;
+                                                if (PassiveItem.ActiveFlagItems.ContainsKey(playerController) && PassiveItem.ActiveFlagItems[playerController].ContainsKey(typeof(HelmetItem)) && num > damageRadius * HelmetItem.EXPLOSION_RADIUS_MULTIPLIER) {
+                                                    flag2 = false;
+                                                }
+                                                if (flag2 && !playerController.IsEthereal) {
+                                                    HealthHaver healthHaver2 = healthHaver;
+                                                    float damage = data.damageToPlayer;
                                                     Vector2 direction = vector;
                                                     string enemiesString = StringTableManager.GetEnemiesString("#EXPLOSION", -1);
                                                     CoreDamageTypes damageTypes2 = CoreDamageTypes.None;
                                                     DamageCategory damageCategory = DamageCategory.Normal;
-                                                    healthHaver3.ApplyDamage(damage, direction, enemiesString, damageTypes2, damageCategory, false, null, ignoreDamageCaps);
-                                                    if (data.IsChandelierExplosion && (!healthHaver || healthHaver.healthHaver.IsDead)) {
-                                                        GameStatsManager.Instance.RegisterStatChange(TrackedStats.ENEMIES_KILLED_WITH_CHANDELIERS, 1f);
-                                                    }
+                                                    healthHaver2.ApplyDamage(damage, direction, enemiesString, damageTypes2, damageCategory, false, null, ignoreDamageCaps);
                                                 }
-                                                flag = true;
-                                            }
-                                            if (isFreezeExplosion && num < data.freezeRadius) {
-                                                if (healthHaver && healthHaver.gameActor != null && !healthHaver.IsDead && (!healthHaver.aiActor || !healthHaver.aiActor.IsGone)) {
-                                                    healthHaver.gameActor.ApplyEffect(data.freezeEffect, 1f, null);
+                                            } else {
+                                                HealthHaver healthHaver3 = healthHaver;
+                                                float damage = data.damage;
+                                                Vector2 direction = vector;
+                                                string enemiesString = StringTableManager.GetEnemiesString("#EXPLOSION", -1);
+                                                CoreDamageTypes damageTypes2 = CoreDamageTypes.None;
+                                                DamageCategory damageCategory = DamageCategory.Normal;
+                                                healthHaver3.ApplyDamage(damage, direction, enemiesString, damageTypes2, damageCategory, false, null, ignoreDamageCaps);
+                                                if (data.IsChandelierExplosion && (!healthHaver || healthHaver.healthHaver.IsDead)) {
+                                                    GameStatsManager.Instance.RegisterStatChange(TrackedStats.ENEMIES_KILLED_WITH_CHANDELIERS, 1f);
                                                 }
-                                                flag = true;
                                             }
-                                            if (data.doForce && num < data.pushRadius) {
-                                                KnockbackDoer knockbackDoer = healthHaver.knockbackDoer;
-                                                if (knockbackDoer) {
-                                                    float num2 = 1f - num / data.pushRadius;
-                                                    if (data.preventPlayerForce && healthHaver.GetComponent<PlayerController>()) { num2 = 0f; }
-                                                    knockbackDoer.ApplyKnockback(vector.normalized, num2 * data.force, false);
-                                                }
-                                                flag = true;
-                                            }
-                                            if (flag) { break; }
+                                            flag = true;
                                         }
-                                        IL_9FE:;
+                                        if (isFreezeExplosion && num < data.freezeRadius) {
+                                            if (healthHaver && healthHaver.gameActor != null && !healthHaver.IsDead && (!healthHaver.aiActor || !healthHaver.aiActor.IsGone)) {
+                                                healthHaver.gameActor.ApplyEffect(data.freezeEffect, 1f, null);
+                                            }
+                                            flag = true;
+                                        }
+                                        if (data.doForce && num < data.pushRadius) {
+                                            KnockbackDoer knockbackDoer = healthHaver.knockbackDoer;
+                                            if (knockbackDoer) {
+                                                float num2 = 1f - num / data.pushRadius;
+                                                if (data.preventPlayerForce && healthHaver.GetComponent<PlayerController>()) { num2 = 0f; }
+                                                knockbackDoer.ApplyKnockback(vector.normalized, num2 * data.force, false);
+                                            }
+                                            flag = true;
+                                        }
+                                        if (flag) { break; }
                                     }
+                                    IL_A6E:;
                                 }
                             }
                         }
                     }
+                    IL_A82:;
                 }
             }
             List<MinorBreakable> allBreakables = StaticReferenceManager.AllMinorBreakables;
@@ -568,9 +586,7 @@ namespace ChaosGlitchMod {
                                 if (!majorBreakable.IgnoreExplosions) {
                                     Vector2 sourceDirection = majorBreakable.CenterPoint - position.XY();
                                     if (sourceDirection.sqrMagnitude < pushSqrRadius && (!majorBreakable.IsSecretDoor || !data.forcePreventSecretWallDamage)) {
-                                        if (data.doDamage) {
-                                            majorBreakable.ApplyDamage(data.damage, sourceDirection, false, true, false);
-                                        }
+                                        if (data.doDamage) { majorBreakable.ApplyDamage(data.damage, sourceDirection, false, true, false); }
                                         if (data.breakSecretWalls && majorBreakable.IsSecretDoor) {
                                             StaticReferenceManager.AllMajorBreakables[m].ApplyDamage(1E+10f, Vector2.zero, false, true, true);
                                             StaticReferenceManager.AllMajorBreakables[m].ApplyDamage(1E+10f, Vector2.zero, false, true, true);
@@ -583,7 +599,7 @@ namespace ChaosGlitchMod {
                     }
                 }
             }
-            if (data.doForce) { DoRadialPush(position, data.debrisForce, data.pushRadius); }
+            if (data.doForce) { Exploder.DoRadialPush(position, data.debrisForce, data.pushRadius); }
             if (data.doScreenShake && GameManager.Instance.MainCameraController != null) {
                 GameManager.Instance.MainCameraController.DoScreenShake(data.ss, new Vector2?(position), false);
             }
@@ -597,6 +613,5 @@ namespace ChaosGlitchMod {
             yield break;
         }
     }
-
 }
 

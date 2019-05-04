@@ -35,7 +35,7 @@ namespace ChaosGlitchMod {
             if (!ChaosConsole.isUltraMode) { return; }
             if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
 
-            if (dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) { return; }
+            if (dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON | dungeon.IsGlitchDungeon) { return; }
 
             int LocalRandomPitsPerRoom = ChaosConsole.RandomPitsPerRoom;
             int RandomPitsPlaced = 0;

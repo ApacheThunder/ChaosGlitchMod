@@ -2,11 +2,14 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Dungeonator;
+using HutongGames.PlayMaker;
+using System;
+using System.Collections.Generic;
 
 namespace ChaosGlitchMod {
-
+    
     class ChaosConsole : MonoBehaviour {
-
+        
         public static float GlitchRandomActors = 0.3f;
         public static float GlitchRandomAll = 0.09f;
         public static float RandomResizedEnemies = 0.4f;
@@ -33,7 +36,6 @@ namespace ChaosGlitchMod {
         public static bool GlitchEnemies = false;
         public static bool potDebug = false;
         public static bool DebugExceptions = false;
-        public static bool NormalWallMimicMode = false;
         public static bool WallMimicsUseRewardManager = true;
         public static bool addRandomEnemy = false;
         public static bool randomEnemySizeEnabled = false;
@@ -41,12 +43,13 @@ namespace ChaosGlitchMod {
         public static bool isUltraMode = false;
         public static bool hasBeenTentacled = false;
         public static bool hasBeenTentacledToAnotherRoom = false;
+        public static bool elevatorHasBeenUsed = false;
 
         public static int MaxWallMimicsPerRoom = 1;
         public static int MaxWallMimicsForFloor = 2;
         public static int RandomPits = 0;
         public static int RandomPitsPerRoom = 0;
-        public static int ShaderPass = 0;
+        // public static int ShaderPass = 0;
 
         private void Start() {
 
@@ -58,36 +61,51 @@ namespace ChaosGlitchMod {
                 isHardMode = true;
                 isUltraMode = true;
                 isExplosionHookActive = true;
-                // NormalWallMimicMode = false;
-                // WallMimicsUseRewardManager = false;
-                ChaosSharedHooks.InstallPrimaryHooks();
+                WallMimicsUseRewardManager = false;
+                ChaosSharedHooks.Instance.InstallPrimaryHooks();
                 ChaosSharedHooks.minorbreakablehook = new Hook(
-                        typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                        typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                    typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
+                    typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic),
+                    typeof(ChaosSharedHooks)
                 );
                 ChaosGlitchHooks.hammerhookGlitch = new Hook(
-                    typeof(ForgeHammerController).GetMethod("Activate"),
-                    typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch")
+                    typeof(ForgeHammerController).GetMethod("Activate", BindingFlags.Instance | BindingFlags.Public),
+                    typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch", BindingFlags.Instance | BindingFlags.NonPublic),
+                    typeof(ChaosGlitchHooks)
                 );
                 ChaosSharedHooks.doExplodeHook = new Hook(
                     typeof(Exploder).GetMethod("Explode", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static),
-                    typeof(ChaosExploder).GetMethod("Explode")
+                    typeof(ChaosExploder).GetMethod("Explode"),
+                    typeof(ChaosExploder)
                 );
                 autoUltra = false;
             }
 
             ETGModConsole.Commands.AddGroup("chaos", delegate (string[] e) {
-                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\nglitch\nglitch_all\nglitch_test\nglitch_randomizer\nbonus\npots\npots_debug\ntinybigmode\nnormal\nextreme\nultra\nultra_glitched\nspawnbulletkin\nspawnlootcrate\nspawnlootrandom\ntentacletime\ndebug\nenableglitchfloor\ntogglehooks\nreset\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
+                ETGModConsole.Log("[Chaos Mode]  The following options are available for Chaos Mode:\n", false);
+                string[] AvailableCommands = ETGModConsole.Commands.GetGroup("chaos").GetAllUnitNames();
+                foreach (string Command in AvailableCommands) { ETGModConsole.Log(Command + "\n", false); }
+
+                ETGModConsole.Log("\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
                 /*ChaosGlitchFloorGenerator.isGlitchFloor = true;
                 ChaosGlitchFloorGenerator.debugMode = true;
                 ChaosGlitchFloorGenerator.Instance.Init();*/
-                NPCCellKeyItem CellKey = PickupObjectDatabase.GetById(392).GetComponent<NPCCellKeyItem>();
-                GameManager.Instance.PrimaryPlayer.AcquirePuzzleItem(CellKey);
-                GameUIRoot.Instance.UpdatePlayerConsumables(GameManager.Instance.PrimaryPlayer.carriedConsumables);
-                // DropPuzzleItem
+                // GameManager.Instance.InjectedFlowPath = "MiniBossRush_01";
+                RoomHandler CurrentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
+                PlayerController Player = GameManager.Instance.PrimaryPlayer;
+                IntVector2 position = ChaosUtility.Instance.GetRandomAvailableCellSmart(CurrentRoom, Player, 3);
+                IntVector2 position2 = ChaosUtility.Instance.GetRandomAvailableCellSmart(CurrentRoom, Player, 3);
+                Vector2 PlayerPosition = Player.transform.position;
+                IntVector2 FallBackPosition = PlayerPosition.ToIntVector2(VectorConversions.Floor) - CurrentRoom.area.basePosition;
+                if (position == IntVector2.Zero) {
+                    position = FallBackPosition + new IntVector2(0, 4);
+                } else {
+                    position -= CurrentRoom.area.basePosition;
+                }
+                ChaosGlitchedEnemies.Instance.SpawnGlitchedBabyShelleton(CurrentRoom, position, true);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {
@@ -100,7 +118,7 @@ namespace ChaosGlitchMod {
                         ETGModConsole.Log("Bonus Enemy Spawns enabled...", false);
                     }
                 }
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("pots", delegate (string[] e) {
@@ -111,7 +129,8 @@ namespace ChaosGlitchMod {
                     if (!potFlag) {
                         ChaosSharedHooks.minorbreakablehook = new Hook(
                             typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic),
+                            typeof(ChaosSharedHooks)
                         );
                     }
 
@@ -129,34 +148,17 @@ namespace ChaosGlitchMod {
                 }
             });
 
-            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls", delegate (string[] e) {
-                if (NormalWallMimicMode) {
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls", delegate (string[] e) {
+                if (WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already untrusted!", false);
                 } else {
                     ETGModConsole.Log("The Walls can no longer be trusted...", false);
                 }
-                NormalWallMimicMode = true;
                 WallMimicsUseRewardManager = false;
-            });
-
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls_ultra", delegate (string[] e) {
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
-                    ETGModConsole.Log("The Walls are already closing in! Use 'chaos reset' to disable it!", false);
-                } else {
-                    ETGModConsole.Log("The Walls are closing in...", false);
-                }
-                NormalWallMimicMode = false;
-                WallMimicsUseRewardManager = false;
-            });
-
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls_disabled", delegate (string[] e) {
-                if (WallMimicsUseRewardManager) { ETGModConsole.Log("Extra Wall Mimics are already disabled! Use 'chaos reset' to reset!", false); }
-                WallMimicsUseRewardManager = true;
-                ETGModConsole.Log("Extra Wall Mimics have been disabled. Only Wall Mimics assigned by Reward Manager may appear.", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tinybigmode", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
 
                 if (randomEnemySizeEnabled) {
                     randomEnemySizeEnabled = false;
@@ -167,10 +169,10 @@ namespace ChaosGlitchMod {
                         ETGModConsole.Log("TinyBig mode enabled enabled...", false);
                     }
                 }
-            });*/
+            });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("normal", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
 
                 bool potFlag = ChaosSharedHooks.minorbreakablehook != null;
                 if (potFlag) {
@@ -179,11 +181,11 @@ namespace ChaosGlitchMod {
                     if (!potFlag) {
                         ChaosSharedHooks.minorbreakablehook = new Hook(
                             typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic),
+                            typeof(ChaosSharedHooks)
                         );
                     }
                 }
-                NormalWallMimicMode = false;
                 allowGlitchFloor = true;
                 addRandomEnemy = false;
                 randomEnemySizeEnabled = true;
@@ -194,7 +196,7 @@ namespace ChaosGlitchMod {
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("extreme", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
 
                 bool potFlag = ChaosSharedHooks.minorbreakablehook != null;
                 if (potFlag) {
@@ -203,27 +205,23 @@ namespace ChaosGlitchMod {
                     if (!potFlag) {
                         ChaosSharedHooks.minorbreakablehook = new Hook(
                             typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic), 
+                            typeof(ChaosSharedHooks)
                         );
                     }
-                }
-
-                if (NormalWallMimicMode && !WallMimicsUseRewardManager) { ETGModConsole.Log("The Walls are already untrusted!", false); }
-
-                // NormalWallMimicMode = true;
-                NormalWallMimicMode = false;
+                }                
+                
+                WallMimicsUseRewardManager = true;
                 addRandomEnemy = true;
                 allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
-                isUltraMode = false;
-                // WallMimicsUseRewardManager = false;
-                WallMimicsUseRewardManager = true;
+                isUltraMode = false;                
                 ETGModConsole.Log("Prepare to have an extremely bad time! :D", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("ultra", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
 
                 bool potFlag = ChaosSharedHooks.minorbreakablehook != null;
                 if (potFlag) {
@@ -232,28 +230,26 @@ namespace ChaosGlitchMod {
                     if (!potFlag) {
                         ChaosSharedHooks.minorbreakablehook = new Hook(
                             typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic),
+                            typeof(ChaosSharedHooks)
                         );
                     }
                 }
 
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
+                if (!WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already closing in!", false);
-                }
-
-                NormalWallMimicMode = false;
+                }                
+                WallMimicsUseRewardManager = false;
                 addRandomEnemy = true;
                 allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
-                isUltraMode = true;
-                // WallMimicsUseRewardManager = false;
-                WallMimicsUseRewardManager = true;                
+                isUltraMode = true;                
                 ETGModConsole.Log("Prepare to have an ultra bad time! :D", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("ultra_glitched", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
                 bool hammerFlag = ChaosGlitchHooks.hammerhookGlitch != null;
                 bool potFlag = ChaosSharedHooks.minorbreakablehook != null;
                 if (potFlag) {
@@ -262,12 +258,13 @@ namespace ChaosGlitchMod {
                     if (!potFlag) {
                         ChaosSharedHooks.minorbreakablehook = new Hook(
                             typeof(MinorBreakable).GetMethod("OnBreakAnimationComplete", BindingFlags.Instance | BindingFlags.NonPublic),
-                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy")
+                            typeof(ChaosSharedHooks).GetMethod("SpawnAnnoyingEnemy", BindingFlags.Instance | BindingFlags.NonPublic),
+                            typeof(ChaosSharedHooks)
                         );
                     }
                 }
 
-                if (!NormalWallMimicMode && !WallMimicsUseRewardManager) {
+                if (!WallMimicsUseRewardManager) {
                     ETGModConsole.Log("The Walls are already closing in!", false);
                 }
 
@@ -275,21 +272,20 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log("Hammers already glitched!", false);
                 } else {
                     ChaosGlitchHooks.hammerhookGlitch = new Hook(
-                        typeof(ForgeHammerController).GetMethod("Activate"),
-                        typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch")
+                        typeof(ForgeHammerController).GetMethod("Activate", BindingFlags.Instance | BindingFlags.Public),
+                        typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch", BindingFlags.Instance | BindingFlags.NonPublic),
+                        typeof(ChaosGlitchHooks)
                     );
                 }
-
+                                
+                WallMimicsUseRewardManager = false;
                 GlitchEnemies = true;
-                GlitchEverything = true;
-                NormalWallMimicMode = false;
+                GlitchEverything = true;                
                 addRandomEnemy = true;
                 allowGlitchFloor = true;
                 randomEnemySizeEnabled = true;
                 isHardMode = true;
                 isUltraMode = true;
-                // WallMimicsUseRewardManager = false;
-                WallMimicsUseRewardManager = true;
                 ETGModConsole.Log("Glitched Ultra mode is active...\n", false);
                 ETGModConsole.Log("Prepare to have an ultra bad time! :D", false);
             });
@@ -330,7 +326,8 @@ namespace ChaosGlitchMod {
                 if (!slideHookFlag) {
                     ChaosSharedHooks.slidehook = new Hook(
                         typeof(SlideSurface).GetMethod("Awake", BindingFlags.Public | BindingFlags.Instance),
-                        typeof(ChaosSharedHooks).GetMethod("SlideAwakeHook", BindingFlags.Public | BindingFlags.Static)
+                        typeof(ChaosSharedHooks).GetMethod("SlideAwakeHook", BindingFlags.NonPublic | BindingFlags.Instance),
+                        typeof(ChaosSharedHooks)
                     );                    
                     isExplosionHookActive = true;
                     ETGModConsole.Log("Table sliding is dead!", false);
@@ -343,7 +340,7 @@ namespace ChaosGlitchMod {
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("enableglitchfloor", delegate (string[] e) {
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
                 if (!allowGlitchFloor) {
                     allowGlitchFloor = true;
                     ETGModConsole.Log("A secret floor has now been added!", false);
@@ -370,7 +367,7 @@ namespace ChaosGlitchMod {
                 GenericLootTable lootTableItems = itemReward.ItemsLootTable;
                 GenericLootTable lootTableGuns = itemReward.GunsLootTable;
                 IntVector2 RoomVector = (GameManager.Instance.PrimaryPlayer.CenterPosition.ToIntVector2(VectorConversions.Floor));
-                if(Random.value <= 0.5f) {
+                if(UnityEngine.Random.value <= 0.5f) {
                     LootCrate.Instance.SpawnAirDrop(RoomVector, lootTableItems, playSoundFX: true, usePlayerPosition: true);
                 } else {
                     LootCrate.Instance.SpawnAirDrop(RoomVector, lootTableGuns, playSoundFX: true, usePlayerPosition: true);
@@ -399,12 +396,7 @@ namespace ChaosGlitchMod {
                 ChaosTentacleTeleport.Instance.TentacleTime();
                 ETGModConsole.Log("Time for a suprise teleport!", false);
                 return;
-            });
-
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_test", delegate (string[] e) {
-                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) { ChaosShaders.Instance.BecomeGlitchedTest(gameObject); }
-                ETGModConsole.Log("One time glitch all. Enjoy the mess!", false);
-            });
+            });            
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("superdebug", delegate (string[] e) {
                 if (!DebugExceptions) {
@@ -439,13 +431,14 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log("Hammers already glitched!", false);
                 } else {
                     ChaosGlitchHooks.hammerhookGlitch = new Hook(
-                        typeof(ForgeHammerController).GetMethod("Activate"),
-                        typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch")
+                        typeof(ForgeHammerController).GetMethod("Activate", BindingFlags.Instance | BindingFlags.Public),
+                        typeof(ChaosGlitchHooks).GetMethod("HammerHookGlitch", BindingFlags.Instance | BindingFlags.NonPublic),
+                        typeof(ChaosGlitchHooks)
                     );
                     ETGModConsole.Log("Glitched Enemies Mode Activated...", false);
                 }
                 GlitchEnemies = true;
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch_all", delegate (string[] e) {
@@ -453,7 +446,7 @@ namespace ChaosGlitchMod {
                 GlitchEnemies = true;
                 GlitchEverything = true;
 
-                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
 
                 if (hammerFlag) {
                     ETGModConsole.Log("Hammers already glitched!", false);
@@ -508,13 +501,13 @@ namespace ChaosGlitchMod {
                 isHardMode = false;
                 isUltraMode = false;
                 WallMimicsUseRewardManager = true;
-                NormalWallMimicMode = false;
                 addRandomEnemy = false;
                 debugMimicFlag = false;
                 potDebug = false;
                 DebugExceptions = false;
                 hasBeenTentacled = false;
                 hasBeenTentacledToAnotherRoom = false;
+                elevatorHasBeenUsed = false;
                 GlitchRandomActors = 0.3f;
                 GlitchRandomAll = 0.2f;
                 RandomResizedEnemies = 0.3f;
@@ -533,13 +526,13 @@ namespace ChaosGlitchMod {
                 TentacleTimeChances = 0.1f;
                 TentacleTimeRandomRoomChances = 0.1f;
 
-                if (ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(false); }
+                if (ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(false); }
 
                 ETGModConsole.Log("Everything has returned to normal...", false);
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("togglehooks", delegate (string[] e) {
-                if (ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(false); } else { ChaosSharedHooks.InstallPrimaryHooks(); }
+                if (ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.Instance.InstallPrimaryHooks(false); } else { ChaosSharedHooks.Instance.InstallPrimaryHooks(); }
             });
         }
     }

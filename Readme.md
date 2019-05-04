@@ -1,4 +1,4 @@
-Chaos Glitch Mod - v 2.3 by Apache Thunder.
+Chaos Glitch Mod - v 2.6 by Apache Thunder.
 Credits to KyleTheScientist, Zatherz, Abe Clancy, and PlaguedPixel for their help/code for improving/making certain features possible.
 
 
