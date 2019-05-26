@@ -473,7 +473,7 @@ namespace ChaosGlitchMod {
 
             if (spawnObjectOnSelfDestruct && SpawnedObject != null && !m_objectSpawned) {
                 m_objectSpawned = true;
-                GameObject PlacedGlitchObject = ChaosGlitchFloorGenerator.Instance.CustomGlitchDungeonPlacable(SpawnedObject, false, true).InstantiateObject(transform.position.GetAbsoluteRoom(), (specRigidbody.GetUnitCenter(ColliderType.HitBox) - transform.position.GetAbsoluteRoom().area.basePosition.ToVector2()).ToIntVector2(VectorConversions.Floor));
+                GameObject PlacedGlitchObject = ChaosUtility.CustomGlitchDungeonPlacable(SpawnedObject, false, true).InstantiateObject(transform.position.GetAbsoluteRoom(), (specRigidbody.GetUnitCenter(ColliderType.HitBox) - transform.position.GetAbsoluteRoom().area.basePosition.ToVector2()).ToIntVector2(VectorConversions.Floor));
                 PlacedGlitchObject.transform.parent = transform.position.GetAbsoluteRoom().hierarchyParent;
 
                 if (PlacedGlitchObject.GetComponent<PickupObject>() != null) {

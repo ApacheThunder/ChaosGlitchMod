@@ -12,6 +12,21 @@ namespace ChaosGlitchMod {
 
     class ChaosLists : MonoBehaviour {
 
+        public static List<string> InvalidRatFloorRainRooms = new List<string>() {
+            ChaosRoomPrefabs.SecretBossRoom.name,
+            ChaosRoomPrefabs.SpecialMaintenanceRoom.name,
+            ChaosRoomPrefabs.ThwompCrossingVerticalNoRain.name,
+            ChaosRoomPrefabs.SecretRewardRoom.name,
+            ChaosPrefabs.DragunBossFoyerRoom.name,
+            ChaosPrefabs.DraGunExitRoom.name,
+            ChaosPrefabs.DraGunEndTimesRoom.name,
+            ChaosPrefabs.BlacksmithShop.name,
+            "Zelda Puzzle Room 1",
+            "Zelda Puzzle Room 2",
+            "Zelda Puzzle Room 3",
+            "Special Entrance"
+        };
+
         public static List<int> RatChestItems = new List<int>() {
             626, // elimentaler
             662, // partially_eaten_cheese

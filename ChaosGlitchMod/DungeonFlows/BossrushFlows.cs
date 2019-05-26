@@ -6,37 +6,31 @@ using UnityEngine;
 namespace ChaosGlitchMod {
 
     public class BossrushFlows : MonoBehaviour {
-        
+
+        private static AssetBundle sharedAssets2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+
         private static Dungeon TutorialPrefab = DungeonDatabase.GetOrLoadByName("Base_Tutorial");
 
-        // public static DungeonFlow Bossrush_01_Castle = FlowHelpers.DuplicateDungeonFlow(FlowDatabase.GetOrLoadByName("Boss Rush Flows/Bossrush_01_Castle"));
-        public static DungeonFlow Bossrush_01_Castle = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_01_Castle");
-        public static DungeonFlow Bossrush_01a_Sewer = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_01a_Sewer");
-        public static DungeonFlow Bossrush_02_Gungeon = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_02_Gungeon");        
-        public static DungeonFlow Bossrush_02a_Cathedral = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_02a_Cathedral");
-        public static DungeonFlow Bossrush_03_Mines = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_03_Mines");
-        public static DungeonFlow Bossrush_04_Catacombs = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_04_Catacombs");
-        public static DungeonFlow Bossrush_05_Forge = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_05_Forge");
-        public static DungeonFlow Bossrush_06_BulletHell = ChaosDungeonFlows.LoadOfficialFlow("Bossrush_06_BulletHell");
+        public static DungeonFlow Bossrush_01_Castle = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_01_Castle"));
+        public static DungeonFlow Bossrush_01a_Sewer = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_01a_Sewer"));
+        public static DungeonFlow Bossrush_02_Gungeon = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_02_Gungeon"));
+        public static DungeonFlow Bossrush_02a_Cathedral = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_02a_Cathedral"));
+        public static DungeonFlow Bossrush_03_Mines = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_03_Mines"));
+        public static DungeonFlow Bossrush_04_Catacombs = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_04_Catacombs"));
+        public static DungeonFlow Bossrush_05_Forge = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_05_Forge"));
+        public static DungeonFlow Bossrush_06_BulletHell = FlowHelpers.DuplicateDungeonFlow(ChaosDungeonFlows.LoadOfficialFlow("Bossrush_06_BulletHell"));
 
 
         public static DungeonFlow Bossrush_01_Castle_Modded = ScriptableObject.CreateInstance<DungeonFlow>();
         public static DungeonFlow MiniBossrush_01 = ScriptableObject.CreateInstance<DungeonFlow>();
 
-        private static PrototypeDungeonRoom gungeon_entrance_modded = Instantiate(ChaosPrefabs.sharedAssets2.LoadAsset("Gungeon Entrance")) as PrototypeDungeonRoom;
+        private static PrototypeDungeonRoom gungeon_entrance_modded = Instantiate(sharedAssets2.LoadAsset<PrototypeDungeonRoom>("Gungeon Entrance"));
 
         public static void InitBossrushFlows() {
             gungeon_entrance_modded.category = PrototypeDungeonRoom.RoomCategory.CONNECTOR;
             gungeon_entrance_modded.name = "Bossrush Curse Shrine";
             gungeon_entrance_modded.associatedMinimapIcon = null;
-
-            // Bossrush_01_Castle_Modded.name = Bossrush_01_Castle.name.ToLower() + "_modded";
-            /*Bossrush_01_Castle_Modded.name = "Bossrush_01_Castle";
-            Bossrush_01_Castle_Modded.fallbackRoomTable = null;
-            Bossrush_01_Castle_Modded.phantomRoomTable = null;
-            Bossrush_01_Castle_Modded.subtypeRestrictions = new List<DungeonFlowSubtypeRestriction>(0);
-            Bossrush_01_Castle_Modded.flowInjectionData = new List<ProceduralFlowModifierData>(0);
-            Bossrush_01_Castle_Modded.sharedInjectionData = new List<SharedInjectionData>(0);*/
+            
             Bossrush_01_Castle.AllNodes.Clear();
 
             Bossrush_01_Castle.Initialize();
@@ -85,6 +79,7 @@ namespace ChaosGlitchMod {
 
             // Null any Dungeon prefabs when done else game will hang when trying to load another level from then in the future.
             TutorialPrefab = null;
+            sharedAssets2 = null;
         }
 
         private static DungeonFlowNode BossRushCurseShrineNode = new DungeonFlowNode(Bossrush_01_Castle) {
@@ -656,7 +651,7 @@ namespace ChaosGlitchMod {
             roomCategory = PrototypeDungeonRoom.RoomCategory.CONNECTOR,
             percentChance = 1f,
             priority = DungeonFlowNode.NodePriority.MANDATORY,
-            overrideExactRoom = ChaosPrefabs.utiliroom,
+            overrideExactRoom = ChaosRoomPrefabs.Utiliroom,
             overrideRoomTable = null,
             capSubchain = false,
             subchainIdentifier = string.Empty,
@@ -955,7 +950,7 @@ namespace ChaosGlitchMod {
         	roomCategory = PrototypeDungeonRoom.RoomCategory.CONNECTOR,
         	percentChance = 1f,
         	priority = DungeonFlowNode.NodePriority.MANDATORY,
-        	overrideExactRoom = ChaosPrefabs.utiliroom,
+        	overrideExactRoom = ChaosRoomPrefabs.Utiliroom,
         	overrideRoomTable = null,
         	capSubchain = false,
         	subchainIdentifier = string.Empty,

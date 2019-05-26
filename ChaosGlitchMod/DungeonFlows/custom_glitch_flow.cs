@@ -10,7 +10,7 @@ namespace ChaosGlitchMod {
         public static void InitFlow() {
 
             ChaosDungeonFlows.Custom_Glitch_Flow.name = "Custom_Glitch_Flow";
-            ChaosDungeonFlows.Custom_Glitch_Flow.fallbackRoomTable = ChaosPrefabs.CustomRoomTable;
+            ChaosDungeonFlows.Custom_Glitch_Flow.fallbackRoomTable = ChaosPrefabs.CustomRoomTableNoCastle;
             ChaosDungeonFlows.Custom_Glitch_Flow.subtypeRestrictions = new List<DungeonFlowSubtypeRestriction>(0);
             ChaosDungeonFlows.Custom_Glitch_Flow.flowInjectionData = new List<ProceduralFlowModifierData>(0);
             ChaosDungeonFlows.Custom_Glitch_Flow.sharedInjectionData = new List<SharedInjectionData>(0);

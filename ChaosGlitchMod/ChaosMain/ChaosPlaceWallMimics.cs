@@ -30,6 +30,9 @@ namespace ChaosGlitchMod {
         private static void SetStats(int currentFloor, int currentCurse, int currentCoolness) {
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
+            if (ChaosGlitchMod.isGlitchFloor && GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
+                GameManager.Instance.Dungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.CATACOMBGEON;
+            }
 
             if (currentFloor == -1) {
                 ChaosConsole.RandomPits = UnityEngine.Random.Range(40, 60);
@@ -128,245 +131,261 @@ namespace ChaosGlitchMod {
         }
 
         private void ChaosPlaceWallMimics(Action<Dungeon, RoomHandler> orig, Dungeon dungeon, RoomHandler roomHandler) {
-        	int currentFloor = GameManager.Instance.CurrentFloor;
-            int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
-
-            GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
-        	
-        	// Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
-        	SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
-
-            if (!ChaosConsole.WallMimicsUseRewardManager) { numWallMimicsForFloor = ChaosConsole.MaxWallMimicsForFloor; }
-
-            if (ChaosConsole.debugMimicFlag) {
-        		ETGModConsole.Log("[DEBUG] Current Floor: " + currentFloor, false);
-        		ETGModConsole.Log("[DEBUG] Wall Mimics assigned by RewardManager: " + numWallMimicsForFloor, false);
-        	}
-        	
-        	if (ChaosConsole.WallMimicsUseRewardManager) {
-        		ChaosConsole.MaxWallMimicsPerRoom = 1;
-        		ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
-        	}
-        	
-        	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) { if (currentFloor == 1) PlaceTeleporter(dungeon); }
-        	
-        	if (ChaosConsole.isUltraMode) {
-        		if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
-        			if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
-        		} else {
-        			ChaosPitRandomizer.Instance.PlaceRandomPits(dungeon, roomHandler, currentFloor);
-        		}
-        	}	
-        	
-        	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
-        		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional objects.", false); }
-        	} else {
-        		ChaosObjectRandomizer.Instance.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
-        	}
-
-            try { InitObjectMods(dungeon); } catch (Exception ex) {
-                if (ChaosConsole.DebugExceptions) {
-                    ETGModConsole.Log("[DEBUG] Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
-                    Debug.Log("Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
-                    Debug.LogException(ex);
-                }
-            }
-
-            if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
-        		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional glitch enemies.", false); }
-        	} else {
-        		ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
-        	}
-
-            if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }
-        	
-        	// Additional Wall Mimics will not be placed on special Glitch Floor
-        	if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }	
-        	
-        	if (ChaosConsole.MaxWallMimicsForFloor <= 0) {
-        		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] There will be no Wall Mimics assigned to this floor.", false); }
-        		return;
-        	}
-        	
-        	if (levelOverrideState != GameManager.LevelOverrideState.NONE | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) {
-        		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
-        		return;
-        	}
-        	
-        	if (!ChaosConsole.WallMimicsUseRewardManager && levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
-        		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] The Resourceful Rat Maze has been excluded from having wall mimics.", false); }
-        		return;
-        	}
-        	
-        	if (ChaosConsole.debugMimicFlag) {
-        		ETGModConsole.Log("[DEBUG] Wall Mimics Per Room: " + ChaosConsole.MaxWallMimicsPerRoom, false);
-        		ETGModConsole.Log("[DEBUG] Max Wall Mimic assigned to floor if RewardManager overridden: " + ChaosConsole.MaxWallMimicsForFloor, false);
-        	}
-        
-        	// Used for debug read out information
-        	int NorthWallCount = 0;
-        	int SouthWallCount = 0;
-        	int EastWallCount = 0;
-        	int WestWallCount = 0;
-        	int WallMimicsPlaced = 0;
+            // Used for debug read out information
+            int NorthWallCount = 0;
+            int SouthWallCount = 0;
+            int EastWallCount = 0;
+            int WestWallCount = 0;
+            int WallMimicsPlaced = 0;
             int iterations = 0;
 
-            List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
-            roomList = roomList.Shuffle();
-        	
-        	if (roomHandler != null) { roomList = new List<int>(new int[] { dungeon.data.rooms.IndexOf(roomHandler) }); }
-        	
-        	List<Tuple<IntVector2, DungeonData.Direction>> validWalls = new List<Tuple<IntVector2, DungeonData.Direction>>();
-        	List<AIActor> enemiesList = new List<AIActor>();
+            try { 
+                int currentFloor = GameManager.Instance.CurrentFloor;
+                int numWallMimicsForFloor = MetaInjectionData.GetNumWallMimicsForFloor(dungeon.tileIndices.tilesetId);
 
-        	while (iterations < roomList.Count && WallMimicsPlaced < numWallMimicsForFloor) {
-        		RoomHandler currentRoom = dungeon.data.rooms[roomList[iterations]];
-        		if (!currentRoom.IsShop || ChaosConsole.WallMimicsUseRewardManager && !currentRoom.IsMaintenanceRoom()) {
-        			if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
-        				if (currentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || (PlayerStats.GetTotalCurse() >= 5 && !BraveUtility.RandomBool())) {
-        					if (!currentRoom.GetRoomName().StartsWith("DraGunRoom")) {
-        						if (currentRoom.connectedRooms != null) {
-        							for (int i = 0; i < currentRoom.connectedRooms.Count; i++) {
-        								if (currentRoom.connectedRooms[i] == null || currentRoom.connectedRooms[i].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
-        							}
-        						}
-        						if (roomHandler == null && ChaosConsole.WallMimicsUseRewardManager) {
-        							bool MaxMimicCountReached = false;
-        							currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All, ref enemiesList);
-        							for (int j = 0; j < enemiesList.Count; j++) {
-        								AIActor aiactor = enemiesList[j];
-        								if (aiactor && aiactor.EnemyGuid == GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid) {
-                                            MaxMimicCountReached = true;
-                                            break;
+                GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+
+                // Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
+                SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
+
+                if (!ChaosConsole.WallMimicsUseRewardManager) { numWallMimicsForFloor = ChaosConsole.MaxWallMimicsForFloor; }
+
+                if (ChaosConsole.debugMimicFlag) {
+            		ETGModConsole.Log("[DEBUG] Current Floor: " + currentFloor, false);
+            		ETGModConsole.Log("[DEBUG] Wall Mimics assigned by RewardManager: " + numWallMimicsForFloor, false);
+            	}
+            	
+            	if (ChaosConsole.WallMimicsUseRewardManager) {
+            		ChaosConsole.MaxWallMimicsPerRoom = 1;
+            		ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
+            	}
+            	
+            	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) { if (currentFloor == 1) PlaceTeleporter(dungeon); }
+            	
+            	if (ChaosConsole.isUltraMode) {
+            		if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
+            			if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional pits.", false); }
+            		} else {
+            			ChaosPitRandomizer.Instance.PlaceRandomPits(dungeon, roomHandler, currentFloor);
+            		}
+            	}	
+            	
+            	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
+            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional objects.", false); }
+            	} else {
+            		ChaosObjectRandomizer.Instance.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
+            	}
+
+                try { InitObjectMods(dungeon); } catch (Exception ex) {
+                    if (ChaosConsole.DebugExceptions) {
+                        ETGModConsole.Log("[DEBUG] Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
+                        Debug.Log("Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
+                        Debug.LogException(ex);
+                    }
+                }
+
+                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
+            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional glitch enemies.", false); }
+            	} else {
+            		ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
+            	}
+
+                if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }               
+
+            	// Additional Wall Mimics will not be placed on special Glitch Floor
+            	if (ChaosGlitchMod.isGlitchFloor) { return; }	
+            	
+            	if (ChaosConsole.MaxWallMimicsForFloor <= 0) {
+            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] There will be no Wall Mimics assigned to this floor.", false); }
+            		return;
+            	}
+            	
+            	if (levelOverrideState != GameManager.LevelOverrideState.NONE | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) {
+            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having Wall Mimics", false); }
+            		return;
+            	}
+            	
+            	if (!ChaosConsole.WallMimicsUseRewardManager && levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) {
+            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] The Resourceful Rat Maze has been excluded from having wall mimics.", false); }
+            		return;
+            	}
+            	
+            	if (ChaosConsole.debugMimicFlag) {
+            		ETGModConsole.Log("[DEBUG] Wall Mimics Per Room: " + ChaosConsole.MaxWallMimicsPerRoom, false);
+            		ETGModConsole.Log("[DEBUG] Max Wall Mimic assigned to floor if RewardManager overridden: " + ChaosConsole.MaxWallMimicsForFloor, false);
+            	}
+
+                List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
+                roomList = roomList.Shuffle();
+            	
+            	if (roomHandler != null) { roomList = new List<int>(new int[] { dungeon.data.rooms.IndexOf(roomHandler) }); }
+            	
+            	List<Tuple<IntVector2, DungeonData.Direction>> validWalls = new List<Tuple<IntVector2, DungeonData.Direction>>();
+            	List<AIActor> enemiesList = new List<AIActor>();
+
+            	while (iterations < roomList.Count && WallMimicsPlaced < numWallMimicsForFloor) {
+            		RoomHandler currentRoom = dungeon.data.rooms[roomList[iterations]];
+            		if (!currentRoom.IsShop || !ChaosConsole.WallMimicsUseRewardManager) {
+            			if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
+            				if (currentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || (PlayerStats.GetTotalCurse() >= 5 && !BraveUtility.RandomBool())) {
+            					if (!currentRoom.GetRoomName().StartsWith("DraGunRoom") && !currentRoom.IsMaintenanceRoom()) {
+            						if (currentRoom.connectedRooms != null) {
+            							for (int i = 0; i < currentRoom.connectedRooms.Count; i++) {
+            								if (currentRoom.connectedRooms[i] == null || currentRoom.connectedRooms[i].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
+            							}
+            						}
+            						if (roomHandler == null && ChaosConsole.WallMimicsUseRewardManager) {
+            							bool MaxMimicCountReached = false;
+            							currentRoom.GetActiveEnemies(RoomHandler.ActiveEnemyType.All, ref enemiesList);
+            							for (int j = 0; j < enemiesList.Count; j++) {
+            								AIActor aiactor = enemiesList[j];
+            								if (aiactor && aiactor.EnemyGuid == GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid) {
+                                                MaxMimicCountReached = true;
+                                                break;
+                                            }
                                         }
-                                    }
-        							if (MaxMimicCountReached) { goto IL_EXIT; }
-        						}
-        						validWalls.Clear();
-        						for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
-        							for (int Height = -1; Height <= currentRoom.area.dimensions.y; Height++) {
-        								int X = currentRoom.area.basePosition.x + Width;
-        								int Y = currentRoom.area.basePosition.y + Height;
-        								if (dungeon.data.isWall(X, Y) && X % 4 == 0 && Y % 4 == 0) {
-        									int WallCount = 0;
-        									if (!dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
-        										!dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
-        										dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && 
-        										dungeon.data.isWall(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isWall(X + 1, Y - 1) && dungeon.data.isWall(X + 2, Y - 1) &&
-        										!dungeon.data.isPlainEmptyCell(X - 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 3))
-        									{
-        										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.NORTH));
-        										WallCount++;
-        										SouthWallCount++;
-        									} else if (dungeon.data.isWall(X - 1, Y + 2) && dungeon.data.isWall(X, Y + 2) && dungeon.data.isWall(X + 1, Y + 2) && dungeon.data.isWall(X + 2, Y + 2) &&
-        											dungeon.data.isWall(X - 1, Y + 1) && dungeon.data.isWall(X, Y + 1) && dungeon.data.isWall(X + 1, Y + 1) && dungeon.data.isWall(X + 2, Y + 1) && 
-        											dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) &&
-        											dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
-        											!dungeon.data.isPlainEmptyCell(X, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 4))
-        									{
-        										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.SOUTH));
-        										WallCount++;
-        										NorthWallCount++;
-        									} else if (dungeon.data.isWall(X, Y + 2) &&
-        											dungeon.data.isWall(X, Y + 1) &&
-        											dungeon.data.isWall(X - 1, Y) &&
-        											dungeon.data.isWall(X, Y - 1) &&
-        											dungeon.data.isWall(X, Y - 2) &&
-        											!dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && 
-        											!dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && 
-        											!dungeon.data.isPlainEmptyCell(X - 2, Y) &&
-        											dungeon.data.isPlainEmptyCell(X + 1, Y) &&
-        											dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
-        											!dungeon.data.isPlainEmptyCell(X - 2, Y - 1) &&
-        											!dungeon.data.isPlainEmptyCell(X - 2, Y - 2))
-        									{
-        										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.EAST));
-        										WallCount++;
-        										WestWallCount++;
-        									} else if (dungeon.data.isWall(X, Y + 2) && 
-        											dungeon.data.isWall(X, Y + 1) &&
-        											dungeon.data.isWall(X + 1, Y) &&
-        											dungeon.data.isWall(X, Y - 1) &&
-        											dungeon.data.isWall(X, Y - 2) &&
-        											!dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
-        											!dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
-        											!dungeon.data.isPlainEmptyCell(X + 2, Y) &&
-        											dungeon.data.isPlainEmptyCell(X - 1, Y) &&
-        											dungeon.data.isPlainEmptyCell(X - 1, Y - 1) &&
-        											!dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
-        											!dungeon.data.isPlainEmptyCell(X + 2, Y - 2))
-        									{
-        										validWalls.Add(Tuple.Create(new IntVector2(X - 1, Y), DungeonData.Direction.WEST));
-        										WallCount++;
-        										EastWallCount++;
-        									}
-        									if (WallCount > 0) {
-        										bool flag2 = true;
-        										int XPadding = -5;
-        										while (XPadding <= 5 && flag2) {
-        											int YPadding = -5;
-        											while (YPadding <= 5 && flag2) {
-        												int x = X + XPadding;
-        												int y = Y + YPadding;
-        												if (dungeon.data.CheckInBoundsAndValid(x, y)) {
-        													CellData cellData = dungeon.data[x, y];
-        													if (cellData != null) {
-        														if (cellData.type == CellType.PIT || cellData.diagonalWallType != DiagonalWallType.NONE) { flag2 = false; }
-        													}
-        												}
-        												YPadding++;
-        											}
-        											XPadding++;
-        										}
-        										if (!flag2) {
-        											while (WallCount > 0) {
-        												validWalls.RemoveAt(validWalls.Count - 1);
-        												WallCount--;
-        											}
-        										}
-        									}
-        								}
-        							}
-        						}						
-        						if (roomHandler == null) {
-                                    int loopCount = 0;
-                                    while (loopCount < ChaosConsole.MaxWallMimicsPerRoom) {
-                                        // if (!ChaosConsole.WallMimicsUseRewardManager) { if (WallMimicsPlaced >= ChaosConsole.MaxWallMimicsForFloor) { break; } }
-                                        if (validWalls.Count > 0) {
-        								    Tuple<IntVector2, DungeonData.Direction> WallCell = BraveUtility.RandomElement(validWalls);
-        								    IntVector2 Position = WallCell.First;
-        								    DungeonData.Direction Direction = WallCell.Second;
-        								    if (Direction != DungeonData.Direction.WEST) {
-        								    	currentRoom.RuntimeStampCellComplex(Position.x, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
-        								    }
-        								    if (Direction != DungeonData.Direction.EAST) {
-        								    	currentRoom.RuntimeStampCellComplex(Position.x + 1, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
-        								    }
-        								    AIActor orLoadByGuid = EnemyDatabase.GetOrLoadByGuid(GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid);
-        								    AIActor.Spawn(orLoadByGuid, Position, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
-                                            validWalls.Remove(WallCell);
-                                            WallMimicsPlaced++;
+            							if (MaxMimicCountReached) { goto IL_EXIT; }
+            						}
+            						validWalls.Clear();
+            						for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
+            							for (int Height = -1; Height <= currentRoom.area.dimensions.y; Height++) {
+            								int X = currentRoom.area.basePosition.x + Width;
+            								int Y = currentRoom.area.basePosition.y + Height;
+            								if (dungeon.data.isWall(X, Y) && X % 4 == 0 && Y % 4 == 0) {
+            									int WallCount = 0;
+            									if (!dungeon.data.isWall(X - 1, Y + 2) && !dungeon.data.isWall(X, Y + 2) && !dungeon.data.isWall(X + 1, Y + 2) && !dungeon.data.isWall(X + 2, Y + 2) &&
+            										!dungeon.data.isWall(X - 1, Y + 1) && !dungeon.data.isWall(X, Y + 1) && !dungeon.data.isWall(X + 1, Y + 1) && !dungeon.data.isWall(X + 2, Y + 1) &&
+            										dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && 
+            										dungeon.data.isWall(X - 1, Y - 1) && dungeon.data.isWall(X, Y - 1) && dungeon.data.isWall(X + 1, Y - 1) && dungeon.data.isWall(X + 2, Y - 1) &&
+            										!dungeon.data.isPlainEmptyCell(X - 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y - 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y - 3))
+            									{
+            										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.NORTH));
+            										WallCount++;
+            										SouthWallCount++;
+            									} else if (dungeon.data.isWall(X - 1, Y + 2) && dungeon.data.isWall(X, Y + 2) && dungeon.data.isWall(X + 1, Y + 2) && dungeon.data.isWall(X + 2, Y + 2) &&
+            											dungeon.data.isWall(X - 1, Y + 1) && dungeon.data.isWall(X, Y + 1) && dungeon.data.isWall(X + 1, Y + 1) && dungeon.data.isWall(X + 2, Y + 1) && 
+            											dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) &&
+            											dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
+            											!dungeon.data.isPlainEmptyCell(X, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 4))
+            									{
+            										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.SOUTH));
+            										WallCount++;
+            										NorthWallCount++;
+            									} else if (dungeon.data.isWall(X, Y + 2) &&
+            											dungeon.data.isWall(X, Y + 1) &&
+            											dungeon.data.isWall(X - 1, Y) &&
+            											dungeon.data.isWall(X, Y - 1) &&
+            											dungeon.data.isWall(X, Y - 2) &&
+            											!dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && 
+            											!dungeon.data.isPlainEmptyCell(X - 2, Y + 1) && 
+            											!dungeon.data.isPlainEmptyCell(X - 2, Y) &&
+            											dungeon.data.isPlainEmptyCell(X + 1, Y) &&
+            											dungeon.data.isPlainEmptyCell(X + 1, Y - 1) &&
+            											!dungeon.data.isPlainEmptyCell(X - 2, Y - 1) &&
+            											!dungeon.data.isPlainEmptyCell(X - 2, Y - 2))
+            									{
+            										validWalls.Add(Tuple.Create(new IntVector2(X, Y), DungeonData.Direction.EAST));
+            										WallCount++;
+            										WestWallCount++;
+            									} else if (dungeon.data.isWall(X, Y + 2) && 
+            											dungeon.data.isWall(X, Y + 1) &&
+            											dungeon.data.isWall(X + 1, Y) &&
+            											dungeon.data.isWall(X, Y - 1) &&
+            											dungeon.data.isWall(X, Y - 2) &&
+            											!dungeon.data.isPlainEmptyCell(X + 2, Y + 2) &&
+            											!dungeon.data.isPlainEmptyCell(X + 2, Y + 1) &&
+            											!dungeon.data.isPlainEmptyCell(X + 2, Y) &&
+            											dungeon.data.isPlainEmptyCell(X - 1, Y) &&
+            											dungeon.data.isPlainEmptyCell(X - 1, Y - 1) &&
+            											!dungeon.data.isPlainEmptyCell(X + 2, Y - 1) &&
+            											!dungeon.data.isPlainEmptyCell(X + 2, Y - 2))
+            									{
+            										validWalls.Add(Tuple.Create(new IntVector2(X - 1, Y), DungeonData.Direction.WEST));
+            										WallCount++;
+            										EastWallCount++;
+            									}
+            									if (WallCount > 0) {
+            										bool flag2 = true;
+            										int XPadding = -5;
+            										while (XPadding <= 5 && flag2) {
+            											int YPadding = -5;
+            											while (YPadding <= 5 && flag2) {
+            												int x = X + XPadding;
+            												int y = Y + YPadding;
+            												if (dungeon.data.CheckInBoundsAndValid(x, y)) {
+            													CellData cellData = dungeon.data[x, y];
+            													if (cellData != null) {
+            														if (cellData.type == CellType.PIT || cellData.diagonalWallType != DiagonalWallType.NONE) { flag2 = false; }
+            													}
+            												}
+            												YPadding++;
+            											}
+            											XPadding++;
+            										}
+            										if (!flag2) {
+            											while (WallCount > 0) {
+            												validWalls.RemoveAt(validWalls.Count - 1);
+            												WallCount--;
+            											}
+            										}
+            									}
+            								}
+            							}
+            						}						
+            						if (roomHandler == null) {
+                                        int loopCount = 0;
+                                        while (loopCount < ChaosConsole.MaxWallMimicsPerRoom) {
+                                            // if (!ChaosConsole.WallMimicsUseRewardManager) { if (WallMimicsPlaced >= ChaosConsole.MaxWallMimicsForFloor) { break; } }
+                                            if (validWalls.Count > 0) {
+            								    Tuple<IntVector2, DungeonData.Direction> WallCell = BraveUtility.RandomElement(validWalls);
+            								    IntVector2 Position = WallCell.First;
+            								    DungeonData.Direction Direction = WallCell.Second;
+            								    if (Direction != DungeonData.Direction.WEST) {
+            								    	currentRoom.RuntimeStampCellComplex(Position.x, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
+            								    }
+            								    if (Direction != DungeonData.Direction.EAST) {
+            								    	currentRoom.RuntimeStampCellComplex(Position.x + 1, Position.y, CellType.FLOOR, DiagonalWallType.NONE);
+            								    }
+            								    AIActor orLoadByGuid = EnemyDatabase.GetOrLoadByGuid(GameManager.Instance.RewardManager.WallMimicChances.EnemyGuid);
+            								    AIActor.Spawn(orLoadByGuid, Position, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
+                                                validWalls.Remove(WallCell);
+                                                WallMimicsPlaced++;
+                                            }
+                                            ++loopCount;
                                         }
-                                        ++loopCount;
-                                    }
-        						}
-        					}
-        				}
-        			}
-        		}
-        		IL_EXIT:
-        		iterations++;
-        	}
-        	if (WallMimicsPlaced > 0) {
-        		PhysicsEngine.Instance.ClearAllCachedTiles();
-        		if (ChaosConsole.debugMimicFlag) {
-        			ETGModConsole.Log("[DEBUG] Number of Valid North Wall Mimics locations: " + NorthWallCount, false);
-        			ETGModConsole.Log("[DEBUG] Number of Valid South Wall Mimics locations: " + SouthWallCount, false);
-        			ETGModConsole.Log("[DEBUG] Number of Valid East Wall Mimics locations: " + EastWallCount, false);
-        			ETGModConsole.Log("[DEBUG] Number of Valid West Wall Mimics locations: " + WestWallCount, false);
-        			ETGModConsole.Log("[DEBUG] Number of Wall Mimics succesfully placed: " + WallMimicsPlaced, false);
-        		}
-        	}
+            						}
+            					}
+            				}
+            			}
+            		}
+            		IL_EXIT:
+            		iterations++;
+            	}
+            	if (WallMimicsPlaced > 0) {
+            		PhysicsEngine.Instance.ClearAllCachedTiles();
+            		if (ChaosConsole.debugMimicFlag) {
+            			ETGModConsole.Log("[DEBUG] Number of Valid North Wall Mimics locations: " + NorthWallCount, false);
+            			ETGModConsole.Log("[DEBUG] Number of Valid South Wall Mimics locations: " + SouthWallCount, false);
+            			ETGModConsole.Log("[DEBUG] Number of Valid East Wall Mimics locations: " + EastWallCount, false);
+            			ETGModConsole.Log("[DEBUG] Number of Valid West Wall Mimics locations: " + WestWallCount, false);
+            			ETGModConsole.Log("[DEBUG] Number of Wall Mimics succesfully placed: " + WallMimicsPlaced, false);
+            		}
+            	}
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) { ETGModConsole.Log("[DEBUG] Exception occured in Dungeon.PlaceWallMimics!"); }
+                Debug.Log("Exception caught in Dungeon.PlaceWallMimics!");
+                Debug.LogException(ex);
+                if (WallMimicsPlaced > 0) {
+                    PhysicsEngine.Instance.ClearAllCachedTiles();
+                    if (ChaosConsole.debugMimicFlag) {
+                        ETGModConsole.Log("[DEBUG] Number of Valid North Wall Mimics locations: " + NorthWallCount, false);
+                        ETGModConsole.Log("[DEBUG] Number of Valid South Wall Mimics locations: " + SouthWallCount, false);
+                        ETGModConsole.Log("[DEBUG] Number of Valid East Wall Mimics locations: " + EastWallCount, false);
+                        ETGModConsole.Log("[DEBUG] Number of Valid West Wall Mimics locations: " + WestWallCount, false);
+                        ETGModConsole.Log("[DEBUG] Number of Wall Mimics succesfully placed: " + WallMimicsPlaced, false);
+                    }
+                }
+            }            
         }
         
         
@@ -389,7 +408,7 @@ namespace ChaosGlitchMod {
             }
 
 
-            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            if (ChaosGlitchMod.isGlitchFloor) { return; }
             if (dungeon.IsGlitchDungeon | ChaosDungeonFlows.isGlitchFlow && !ChaosConsole.GlitchEverything) {
                 foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
                     if (UnityEngine.Random.value < 0.25f) {

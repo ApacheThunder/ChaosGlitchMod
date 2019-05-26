@@ -15,6 +15,7 @@ namespace ChaosGlitchMod {
         }
         private static ChaosShaders m_instance;
 
+        public static Material GlitchScreenShader = new Material(Shader.Find("Brave/Internal/GlitchUnlit"));
 
         public void GlitchScreenForDuration(float ActivationOdds = 1f, float Duration = 1f, float DispIntensity = 0.1f, float ColorIntensity = 0.04f) {
             StartCoroutine(m_GlitchedScreen(ActivationOdds, Duration, DispIntensity, ColorIntensity));
@@ -471,7 +472,7 @@ namespace ChaosGlitchMod {
             Material[] sharedMaterials = spriteComponent.sharedMaterials;
             Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
             Material CustomMaterial = Instantiate(m_cachedGlitchMaterial);
-            if (aiActor != null) {
+            /*if (aiActor != null) {
                 if (aiActor.optionalPalette != null) {
                     CustomMaterial.SetTexture("_MainTex", aiActor.optionalPalette);
                 } else {
@@ -479,7 +480,8 @@ namespace ChaosGlitchMod {
                 }
             } else {
                 CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
-            }
+            }*/
+            CustomMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
             sharedMaterials[sharedMaterials.Length - 1] = CustomMaterial;
             spriteComponent.sharedMaterials = sharedMaterials;
             sprite.usesOverrideMaterial = usesOverrideMaterial;

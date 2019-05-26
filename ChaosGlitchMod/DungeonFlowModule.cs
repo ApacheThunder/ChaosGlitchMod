@@ -7,150 +7,108 @@ namespace ChaosGlitchMod {
 	// A slightly rewritten version of old Anywhere Mod by stellatedHexahedron
 	public class DungeonFlowModule : MonoBehaviour {
 
-        private string[] ReturnMatchesFrom(string matchThis, string[] inThis) {
-			List<string> list = new List<string>();
-			foreach (string text in inThis) {
-				bool flag = StringAutocompletionExtensions.AutocompletionMatch(text, matchThis);
-				if (flag) { list.Add(text); }
-			}
-            for (int i = 0; i < ChaosDungeonFlows.m_knownFlows.Count; i++) {
-                if (ChaosDungeonFlows.m_knownFlows[i] != null && ChaosDungeonFlows.m_knownFlows[i].name != null && ChaosDungeonFlows.m_knownFlows[i].name != string.Empty) {
-                    bool flag2 = StringAutocompletionExtensions.AutocompletionMatch(ChaosDungeonFlows.m_knownFlows[i].name, matchThis);
-                    if (flag2) { list.Add(ChaosDungeonFlows.m_knownFlows[i].name); }
-                }
+        private static List<string> knownFlows = new List<string>();	
+		private static List<string> knownTilesets = new List<string>();
+        private static List<string> knownScenes = new List<string>();		
+        
+        private string[] ReturnMatchesFromList(string matchThis, List<string> inThis) {
+            List<string> result = new List<string>();
+            string matchString = matchThis.ToLower();
+            foreach (string text in inThis) {
+                string textString = text.ToLower();
+                bool flag = StringAutocompletionExtensions.AutocompletionMatch(textString, matchString);
+                if (flag) { result.Add(textString); }
             }
-            return list.ToArray();
+            return result.ToArray();
 		}
 	
 		private void Init()	{ }
 	
 		private void Start() {
 
-			ETGModConsole.Commands.AddUnit("load_dungeonflow", new Action<string[]>(LoadFlowFunction), new AutocompletionSettings(delegate(int index, string input) {
-				bool flag = index == 0;
-				string[] result;
-				if (flag) {
-                    result = ReturnMatchesFrom(input, knownFlows);
+            if (ChaosDungeonFlows.KnownFlows != null && ChaosDungeonFlows.KnownFlows.Length > 0) {
+                foreach (DungeonFlow flow in ChaosDungeonFlows.KnownFlows) {
+                    if (flow.name != null && flow.name != string.Empty) { knownFlows.Add(flow.name.ToLower()); }
+                }
+            }
+
+            foreach (GameLevelDefinition dungeonFloors in GameManager.Instance.dungeonFloors) {
+                if (dungeonFloors.dungeonPrefabPath != null && dungeonFloors.dungeonPrefabPath != string.Empty) {
+                    knownTilesets.Add(dungeonFloors.dungeonPrefabPath.ToLower());
+                }
+                if (dungeonFloors.dungeonSceneName != null && dungeonFloors.dungeonSceneName != string.Empty) {
+                    knownScenes.Add(dungeonFloors.dungeonSceneName.ToLower());
+                }
+            }
+
+            foreach (GameLevelDefinition customFloors in GameManager.Instance.customFloors) {
+                if (customFloors.dungeonPrefabPath != null && customFloors.dungeonPrefabPath != string.Empty) {
+                    knownTilesets.Add(customFloors.dungeonPrefabPath.ToLower());
+                }
+                if (customFloors.dungeonSceneName != null && customFloors.dungeonSceneName != string.Empty) {
+                    knownScenes.Add(customFloors.dungeonSceneName.ToLower());
+                }                
+            }
+
+            ETGModConsole.Commands.AddUnit("load_flow", new Action<string[]>(LoadFlowFunction), new AutocompletionSettings(delegate(int index, string input) {
+				if (index == 0) {
+                    return ReturnMatchesFromList(input.ToLower(), knownFlows);
+                } else if (index == 1) {
+                    return ReturnMatchesFromList(input.ToLower(), knownTilesets);
+                } else if (index == 2) {
+                    return ReturnMatchesFromList(input.ToLower(), knownScenes);
                 } else {
-					bool flag2 = index == 1;
-					if (flag2) {
-						result = ReturnMatchesFrom(input, knownTilesets);
-					} else {
-						result = new string[0];
-					}
-				}
-				return result;
-			}));
+                    return new string[0];
+                }
+            }));
 		}
 	
 		private void Exit() { }
 	
-		public static void LoadFlowFunction(string[] args) {
-            // bool flag = unwarned || (args.Length != 0 && args[0] == "help");
-			bool flag = (args.Length != 0 && args[0] == "help");
-			if (flag) {
-				ETGModConsole.Log("WARNING: this command can crash gungeon! Though post AG&D, this is actually hard to do. \nIf the game hangs on loading screen, use console to load a different level!\nUsage: load_dungeonflow [FLOW NAME] [TILESET NAME]. [TILESET NAME] is optional. Press tab for a list of each.\nOnce you run the command and you press escape, you should see the loading screen. If nothing happens when you use the command, the flow you tried to load doesn't exist or the path to it needs to be manually specified. Example: \"load_dungeonflow NPCParadise\".\nIf it hangs on loading screen then the tileset you tried to use doesn't exist or is no longer functional.\nAlso, you should probably know that if you run this command from the breach, the game never gives you the abilityto shoot or use active items, so you should probably start a run first.\nYou can view this blurb again using the command \"load_dungeonflow help\"");
-				// unwarned = false;
+		public void LoadFlowFunction(string[] args) {
+			if (args == null | args.Length == 0 | args[0].ToLower() == "help") {
+				ETGModConsole.Log("WARNING: this command can crash gungeon! \nIf the game hangs on loading screen, use console to load a different level!\nUsage: load_flow [FLOW NAME] [TILESET NAME]. [TILESET NAME] is optional. Press tab for a list of each.\nOnce you run the command and you press escape, you should see the loading screen. If nothing happens when you use the command, the flow you tried to load doesn't exist or the path to it needs to be manually specified. Example: \"load_flow NPCParadise\".\nIf it hangs on loading screen then the tileset you tried to use doesn't exist, is no longer functional, or the flow uses rooms that are not compatible with the chosen tileset.\nAlso, you should probably know that if you run this command from the breach, the game never gives you the ability to shoot or use active items, so you should probably start a run first.");
 			} else {
-				bool flag2 = args.Length > 1;
-				string text = args[0].Replace('-', ' ');
-                if (text.ToLower().StartsWith("custom_glitchchest_flow") | text.ToLower().StartsWith("custom_glitch_flow")) { ChaosDungeonFlows.isGlitchFlow = true; }
-                bool flag3 = flag2 && !knownTilesets.Contains(args[1]);
-				if (flag3) { ETGModConsole.Log("Not a valid tileset!"); } else {
+				bool tilesetSpecified = args.Length > 1;
+                bool sceneSpecified = args.Length > 2;
+                bool invalidTileset = tilesetSpecified && !knownTilesets.Contains(args[1]);
+                string flowName = args[0].Replace('-', ' ');
+
+                if (flowName.ToLower().StartsWith("custom_glitchchest_flow") | 
+                    flowName.ToLower().StartsWith("custom_glitchchestalt_flow") |
+                    flowName.ToLower().StartsWith("custom_glitch_flow"))
+                {
+                    ChaosDungeonFlows.isGlitchFlow = true;
+                }                
+				if (invalidTileset) {
+                    ETGModConsole.Log("Not a valid tileset!");
+                } else {
 					try {
-						ETGModConsole.Log("Attempting to load Dungeon Flow \"" + args[0] + (flag2 ? ("\" with tileset " + args[1]) : "") + "\".");
-						bool flag4 = args.Length == 1;
-						if (flag4) {
-                            GameManager.Instance.LoadCustomFlowForDebug(text, "", "");
+						ETGModConsole.Log("Attempting to load Dungeon Flow \"" + args[0] + (tilesetSpecified ? ("\" with tileset \"" + args[1]) : string.Empty) + "\"" + (sceneSpecified ? ("\" and scene " + args[2]) : string.Empty) + "\".");
+                        if (args.Length == 1) {
+                            GameManager.Instance.LoadCustomFlowForDebug(flowName);
+                        } else if (args.Length == 2) {
+                            string tilesetName = args[1];
+                            GameManager.Instance.LoadCustomFlowForDebug(flowName, tilesetName);
+                        } else if (args.Length == 3) {
+                            string tilesetName = args[1];
+                            string sceneName = args[2];
+                            GameManager.Instance.LoadCustomFlowForDebug(flowName, tilesetName, sceneName);
                         } else {
-							bool flag5 = args.Length > 1;
-							if (flag5) {
-                                GameManager.Instance.LoadCustomFlowForDebug(text, "base_" + args[1], "tt_" + args[1]);
-                            } else {
-								ETGModConsole.Log("If you're trying to go nowhere, you're succeeding.");
-							}
-						}
-					} catch (Exception) {
+                            ETGModConsole.Log("If you're trying to go nowhere, you're succeeding.");
+                        }
+                    } catch (Exception ex) {
 						ETGModConsole.Log("WHOOPS! Something went wrong! Most likely you tried to load a broken flow, or the tileset is incomplete and doesn't have the right tiles for the flow.");
 						ETGModConsole.Log("In order to get the game back into working order, the mod is now loading NPCParadise, with the castle tileset.");
+                        Debug.Log("WHOOPS! Something went wrong! Most likely you tried to load a broken flow, or the tileset is incomplete and doesn't have the right tiles for the flow.");
+                        Debug.Log("In order to get the game back into working order, the mod is now loading NPCParadise, with the castle tileset.");
+                        Debug.LogException(ex);
                         ChaosDungeonFlows.isGlitchFlow = false;
                         GameManager.Instance.LoadCustomFlowForDebug("npcparadise", "Base_Castle", "tt_castle");
 					}
 				}
 			}
-        }
-	
-		private static string[] knownFlows = new string[] {
-            "npcparadise",
-			"secret_doublebeholster_flow"
-			/*"bossrush_01_castle",
-			"bossrush_01a_sewer",
-			"bossrush_02_gungeon",
-			"bossrush_02a_cathedral",
-			"bossrush_03_mines",
-			"bossrush_04_catacombs",
-			"bossrush_05_forge",
-			"bossrush_06_bullethell",*/
-        };
-	
-		private static string[] knownTilesets = new string[] {
-			"foyer",
-			"castle",
-			"gungeon",
-			"mines",
-			"catacombs",
-            "nakatomi",
-			"forge",
-			"bullethell",
-			"tutorial",
-			"cathedral",
-			"sewer",
-			"resourcefulrat"
-            // The following tile sets do not work on anything other then the Dungeon Flows they were designed for.
-            // "finalScenario_pilot",
-			// "finalScenario_convict",
-			// "finalScenario_soldier",
-			// "finalScenario_guide",
-			// "finalScenario_coop",
-			// "finalScenario_robot",
-			// "finalScenario_bullet"
-			// The following tile sets are no longer available in AG&D
-			// "belly",
-			// "future",
-			// "jungle",
-			// "phobos",
-			// "west"
-		};
-
-        /*
-		private static string[] knownScenes = new string[]
-		{
-			"tt_foyer",
-			"tt_castle",
-			"tt_mines",
-			"tt_catacombs",
-			"tt_forge",
-			"tt_bullethell",
-			"tt_tutorial",
-			"tt_cathedral",
-			"tt_sewer",
-			"ss_resourcefulrat",
-			"fs_pilot",
-			"fs_convict",
-			"fs_soldier",
-			"fs_guide",
-			"fs_coop",
-			"fs_robot",
-			"fs_bullet",
-			// The following scenes no longer do anything in AG&D
-			"tt_belly",
-			"tt_future",
-			"tt_jungle",
-			"tt_phobos",
-			"tt_west"
-		};
-		public static bool unwarned = false;
-		*/
+        }	
     }
 }
 

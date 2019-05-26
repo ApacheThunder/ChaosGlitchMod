@@ -16,6 +16,9 @@ namespace ChaosGlitchMod {
             minSpawnCount = 1;
             maxSpawnCount = 1;
             allowSpawnOverPit = true;
+            spawnRatCorpse = false;
+            spawnRatKey = false;
+            ratCorpseSpawnsKey = false;
             usesExternalObjectArray = false;
             objectSelection = ObjectSelection.Random;
             objectsToSpawn = new GameObject[] {
@@ -89,6 +92,9 @@ namespace ChaosGlitchMod {
         public int extraPixelWidth;
         public bool allowSpawnOverPit;
         public bool usesExternalObjectArray;
+        public bool ratCorpseSpawnsKey;
+        public bool spawnRatCorpse;
+        public bool spawnRatKey;
 
         private int ObjectPrefabSpawnCount;
         private bool m_hasTriggered;
@@ -100,6 +106,7 @@ namespace ChaosGlitchMod {
 			if (m_hasTriggered) { return; }
             m_hasTriggered = true;
 			if (chanceToSpawn < 1f && UnityEngine.Random.value > chanceToSpawn) { return; }
+            if (spawnRatKey) { SpawnRatKey(); return; }
 			GameObject[] array = null;
 			if (objectSelection == ObjectSelection.All) {
                 array = objectsToSpawn;
@@ -111,6 +118,11 @@ namespace ChaosGlitchMod {
 			}
             SpawnObjects(array);
 		}
+
+        private void SpawnRatKey() {
+            LootEngine.SpawnItem(ChaosPrefabs.RatKeyItem.gameObject, specRigidbody.GetUnitCenter(ColliderType.HitBox), Vector2.zero, 0f, true, false, false);
+            return;
+        }
 
 		private void SpawnObjects(GameObject[] selectedObjects) {
             ObjectPrefabSpawnCount = selectedObjects.Length;
@@ -130,9 +142,14 @@ namespace ChaosGlitchMod {
 		    for (int i = 0; i < ObjectPrefabSpawnCount; i++) {
                 if (objectsToSpawn == null) { return; }
                 GameObject SelectedObject = selectedObjects[i];
+                if (spawnRatCorpse) { SelectedObject = ChaosPrefabs.RatCorpseNPC; }
                 GameObject SpawnedObject = null;
                 if (!usesExternalObjectArray) {
-                    SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);
+                    if (spawnRatCorpse) {
+                        SpawnedObject = Instantiate(SelectedObject, (specRigidbody.GetUnitCenter(ColliderType.HitBox) - new Vector2(0.6f, 0.6f)).ToVector3ZUp(), Quaternion.identity);
+                    } else {
+                        SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);
+                    }                    
                     if (SpawnedObject == null) { return; }
                 }              
 
@@ -150,12 +167,13 @@ namespace ChaosGlitchMod {
                 float RandomColorProbFloat = UnityEngine.Random.Range(0.05f, 0.2f);
                 float RandomColorIntensityFloat = UnityEngine.Random.Range(0.1f, 0.25f);
 
-                if (SpawnedObject.GetComponent<tk2dBaseSprite>() != null) {
-                    ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponent<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
-                } else if(SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null) {
-                    ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponentInChildren<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
+                if (!spawnRatCorpse) {
+                    if (SpawnedObject.GetComponent<tk2dBaseSprite>() != null) {
+                        ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponent<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
+                    } else if (SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null) {
+                        ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponentInChildren<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
+                    }
                 }
-
                 if (SpawnedObject != null) {
 
                     if (!usesExternalObjectArray && SpawnedObject.GetComponent<MysteryMimicManController>() != null) { Destroy(SpawnedObject.GetComponent<MysteryMimicManController>()); }
@@ -163,11 +181,20 @@ namespace ChaosGlitchMod {
                     if (!usesExternalObjectArray && SpawnedObject.GetComponent<TalkDoerLite>() != null) {
                         TalkDoerLite talkdoerComponent = SpawnedObject.GetComponent<TalkDoerLite>();
                         talkdoerComponent.transform.position.XY().GetAbsoluteRoom().RegisterInteractable(talkdoerComponent);
-                        if (SpawnedObject.name == objectsToSpawn[0].name && !usesExternalObjectArray) {
+                        if (SpawnedObject.name == ChaosPrefabs.RatCorpseNPC.name && !usesExternalObjectArray) {
+                            talkdoerComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(talkdoerComponent);
+                        } else if(spawnRatCorpse) {
                             talkdoerComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(talkdoerComponent);
                         }
                         if (SpawnedObject.name.StartsWith(ChaosPrefabs.RatCorpseNPC.name)) {
                             talkdoerComponent.playmakerFsm.SetState("Set Mode");
+                            ChaosUtility.AddHealthHaver(talkdoerComponent.gameObject, 60, flashesOnDamage: false);
+                            if (ratCorpseSpawnsKey) {
+                                HealthHaver ratCorpseHealthHaver = talkdoerComponent.gameObject.GetComponent<HealthHaver>();
+                                ratCorpseHealthHaver.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
+                                ChaosSpawnGlitchObjectOnDeath ratCorpseObjectSpawnOnDeath = ratCorpseHealthHaver.gameObject.GetComponent<ChaosSpawnGlitchObjectOnDeath>();
+                                ratCorpseObjectSpawnOnDeath.spawnRatKey = true;
+                            }
                         }
                     }
 

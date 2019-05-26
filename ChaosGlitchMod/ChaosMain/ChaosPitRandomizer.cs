@@ -33,7 +33,7 @@ namespace ChaosGlitchMod {
 
         public void PlaceRandomPits(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
             if (!ChaosConsole.isUltraMode) { return; }
-            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            if (ChaosGlitchMod.isGlitchFloor) { return; }
 
             if (dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON | dungeon.IsGlitchDungeon) { return; }
 

@@ -2,8 +2,6 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Dungeonator;
-using HutongGames.PlayMaker;
-using System;
 using System.Collections.Generic;
 
 namespace ChaosGlitchMod {
@@ -89,11 +87,9 @@ namespace ChaosGlitchMod {
                 ETGModConsole.Log("\n\nTo turn off all modes, use 'chaos reset'\nNote that changes to wall mimic settings will take effect on next floor load.", false);
             });
 
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
-                /*ChaosGlitchFloorGenerator.isGlitchFloor = true;
-                ChaosGlitchFloorGenerator.debugMode = true;
-                ChaosGlitchFloorGenerator.Instance.Init();*/
-                // GameManager.Instance.InjectedFlowPath = "MiniBossRush_01";
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("dumproomlayout", delegate (string[] e) { RoomFromText.DumpRoomLayoutToText(); });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("spawntest", delegate (string[] e) {
                 RoomHandler CurrentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
                 PlayerController Player = GameManager.Instance.PrimaryPlayer;
                 IntVector2 position = ChaosUtility.Instance.GetRandomAvailableCellSmart(CurrentRoom, Player, 3);
@@ -105,7 +101,22 @@ namespace ChaosGlitchMod {
                 } else {
                     position -= CurrentRoom.area.basePosition;
                 }
-                ChaosGlitchedEnemies.Instance.SpawnGlitchedBabyShelleton(CurrentRoom, position, true);
+
+                ChaosGlitchedEnemies.Instance.SpawnGlitchedSpaceTurtle(CurrentRoom, position, true);
+            });
+
+            ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
+                /*ChaosGlitchFloorGenerator.isGlitchFloor = true;
+                ChaosGlitchFloorGenerator.debugMode = true;
+                ChaosGlitchFloorGenerator.Instance.Init();*/
+                // Color colorBoost = new Color(0.225f, 0.225f, 0.225f);
+                ChaosGlitchTrapDoor.RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");
+                ChaosGlitchTrapDoor.RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
+                ChaosGlitchTrapDoor.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.OFFICEGEON;
+                // GameManager.Instance.InjectedFlowPath = "SecretGlitchFloor_Flow";
+                ChaosGlitchMod.isGlitchFloor = true;
+                ChaosUtility.Instance.DelayedLoadGlitchFloor(1f, "SecretGlitchFloor_Flow", true);
+                // GameManager.Instance.LoadCustomLevel("ss_resourcefulrat");                
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {

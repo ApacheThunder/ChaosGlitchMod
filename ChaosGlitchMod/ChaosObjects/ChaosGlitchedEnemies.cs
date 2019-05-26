@@ -88,7 +88,7 @@ namespace ChaosGlitchMod {
         // public GameObject BulletShotgunManBluePrefab = EnemyDatabase.GetOrLoadByGuid("b54d89f9e802455cbb2b8a96a31e8259").gameObject;
 
 
-        //Glitched Bosses
+        // Glitched Bosses
 
         public GameObject BulletBrosSmileyPrefab = EnemyDatabase.GetOrLoadByGuid("ea40fcc863d34b0088f490f4e57f8913").gameObject;
         public GameObject BulletBrosShadesPrefab = EnemyDatabase.GetOrLoadByGuid("c00390483f394a849c36143eb878998f").gameObject;
@@ -121,24 +121,280 @@ namespace ChaosGlitchMod {
         public GameObject BabyShelletonPrefab = EnemyDatabase.GetOrLoadByGuid("3f40178e10dc4094a1565cd4fdc4af56").gameObject;
         // public static GameObject CuccoPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/Companions/Cucco", ".prefab");
 
-        // Misc Things
+
         public GameObject BulletKingsToadieObject = EnemyDatabase.GetOrLoadByGuid("d4dd2b2bbda64cc9bcec534b4e920518").gameObject; // Bullet King's Toadie Revenge
         public GameObject TinyBlobulordObject = EnemyDatabase.GetOrLoadByGuid("d1c9781fdac54d9e8498ed89210a0238").gameObject; // tiny blobulord
         public GameObject LordOfTheJammedPrefab = EnemyDatabase.GetOrLoadByGuid("0d3f7c641557426fbac8596b61c9fb45").gameObject;
 
-        /*public static CrazedController DefaultCrazedControllerPrefab = new CrazedController() {
-            name = string.Empty,
-            TellAnimation = "selfbuff",
-            SpecifyTellDuration = true,
-            TellDuration = 3f,
-            DoCharge = true,
-            CrazedRunSpeed = 7f,
-            CrazedAnimaton = "craze",
-            EnableBehavior = false,
-            BehaviorName = string.Empty,
-            TriggerWhenLastEnemy = true,
-            DisableHitAnims = false
-        };*/
+        public AIActor GenerateGlitchedActorPrefab(GameObject TargetEnemyObject, GameObject[] OverrideArray = null, Action<AIActor> SpecificEnemyMods = null) {
+            // GameObject CachedTargetEnemyObject = Instantiate(TargetEnemyObject);
+            GameObject SourceEnemyOverride;
+
+            if (TargetEnemyObject == null) {
+                if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] ERROR: Target Actor Prefab to spawn is null!", false);
+                return null;
+            }           
+
+            if (OverrideArray == null) {
+                GameObject[] ValidSourceEnemies = new GameObject[] {
+                    GhostPrefab,
+                    CultistPrefab,
+                    ArrowheadManPrefab,
+                    BulletRifleManPrefab,
+                    AshBulletManPrefab,
+                    AshBulletShotgunManPrefab,
+                    BulletMachineGunManPrefab,
+                    BulletManDevilPrefab,
+                    BulletManShroomedPrefab,
+                    BulletSkeletonHelmetPrefab,
+                    BulletShotgunManSawedOffPrefab,
+                    BulletShotgunManMutantPrefab,
+                    JamromancerPrefab,
+                    NecromancerPrefab,
+                    LeadWizardBluePrefab,
+                    BulletManKaliberPrefab,
+                    BulletShotgunManCowboyPrefab,
+                    BulletShotgrubManPrefab,
+                    BulletManBandanaPrefab,
+                    FloatingEyePrefab
+                };
+
+                SourceEnemyOverride = ValidSourceEnemies[UnityEngine.Random.Range(0, ValidSourceEnemies.Length)].gameObject;
+            } else {
+                SourceEnemyOverride = OverrideArray[UnityEngine.Random.Range(0, OverrideArray.Length)].gameObject;
+            }
+
+            if (SourceEnemyOverride == null | TargetEnemyObject == null) {
+                if (ChaosConsole.debugMimicFlag) {
+                    ETGModConsole.Log("[DEBUG] ERROR: Target or Source enemy object is null!");
+                }
+                return null;
+            }
+
+            AIActor CachedEnemyActor = SourceEnemyOverride.GetComponent<AIActor>();
+            AIActor CachedGlitchEnemyActor = TargetEnemyObject.GetComponent<AIActor>();
+
+            if (ChaosConsole.debugMimicFlag) {
+                ETGModConsole.Log("Spawning '" + CachedGlitchEnemyActor.ActorName + "' with GUID: " + CachedGlitchEnemyActor.EnemyGuid + " .", false);
+                ETGModConsole.Log("The enemy spawned has it's behaviors replaced with the enemy: '" + CachedEnemyActor.ActorName + "' with GUID: " + CachedEnemyActor.EnemyGuid + " .", false);
+            }
+
+            AddOrReplaceAIActorConfig(CachedGlitchEnemyActor, CachedEnemyActor);
+
+            CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
+            CachedGlitchEnemyActor.KnockbackVelocity = CachedEnemyActor.KnockbackVelocity;
+            CachedGlitchEnemyActor.PreventDeathKnockback = CachedEnemyActor.PreventDeathKnockback;
+            CachedGlitchEnemyActor.IsWorthShootingAt = CachedEnemyActor.IsWorthShootingAt;
+            CachedGlitchEnemyActor.CollisionKnockbackStrength = CachedEnemyActor.CollisionKnockbackStrength;
+            CachedGlitchEnemyActor.EnemyCollisionKnockbackStrengthOverride = CachedEnemyActor.EnemyCollisionKnockbackStrengthOverride;
+            CachedGlitchEnemyActor.healthHaver.spawnBulletScript = CachedEnemyActor.healthHaver.spawnBulletScript;
+            CachedGlitchEnemyActor.healthHaver.SuppressDeathSounds = CachedEnemyActor.healthHaver.SuppressDeathSounds;
+
+            CachedGlitchEnemyActor.healthHaver.ManualDeathHandling = CachedEnemyActor.healthHaver.ManualDeathHandling;
+            CachedGlitchEnemyActor.healthHaver.deathEffect = CachedEnemyActor.healthHaver.deathEffect;
+            CachedGlitchEnemyActor.healthHaver.noCorpseWhenBulletScriptDeath = CachedEnemyActor.healthHaver.noCorpseWhenBulletScriptDeath;
+            CachedGlitchEnemyActor.StealthDeath = CachedEnemyActor.StealthDeath;
+            CachedGlitchEnemyActor.SpeculatorDelayTime = CachedEnemyActor.SpeculatorDelayTime;
+
+            try {
+               if (CachedEnemyActor.EnemyGuid == "4d37ce3d666b4ddda8039929225b7ede") {
+                    CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
+                    ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
+                } else {
+                    if (UnityEngine.Random.value <= 0.2f) { CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>(); }
+                    ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
+                }
+
+                CachedGlitchEnemyActor.BehaviorOverridesVelocity = CachedEnemyActor.BehaviorOverridesVelocity;
+                CachedGlitchEnemyActor.behaviorSpeculator.RefreshBehaviors();
+                CachedGlitchEnemyActor.behaviorSpeculator.RegenerateCache();
+            } catch (Exception) { }
+
+            CachedGlitchEnemyActor.healthHaver.SetHealthMaximum(CachedEnemyActor.healthHaver.GetCurrentHealth(), 0f, false);
+            CachedGlitchEnemyActor.healthHaver.minimumHealth = CachedEnemyActor.healthHaver.minimumHealth;
+            CachedGlitchEnemyActor.healthHaver.OnlyAllowSpecialBossDamage = false;
+            CachedGlitchEnemyActor.healthHaver.PreventAllDamage = false;
+            CachedGlitchEnemyActor.IsNormalEnemy = true;
+            CachedGlitchEnemyActor.ImmuneToAllEffects = false;
+
+            CachedGlitchEnemyActor.healthHaver.spawnBulletScript = CachedEnemyActor.healthHaver.spawnBulletScript;
+            CachedGlitchEnemyActor.healthHaver.SuppressDeathSounds = CachedEnemyActor.healthHaver.SuppressDeathSounds;
+
+            CachedGlitchEnemyActor.OnHandleRewards = CachedEnemyActor.OnHandleRewards;
+            CachedGlitchEnemyActor.CustomChestTable = CachedEnemyActor.CustomChestTable;
+            CachedGlitchEnemyActor.CustomLootTable = CachedEnemyActor.CustomLootTable;
+            CachedGlitchEnemyActor.CustomLootTableMinDrops = CachedEnemyActor.CustomLootTableMinDrops;
+            CachedGlitchEnemyActor.SpawnLootAtRewardChestPos = CachedEnemyActor.SpawnLootAtRewardChestPos;
+            CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
+            CachedGlitchEnemyActor.BaseMovementSpeed = CachedEnemyActor.BaseMovementSpeed;
+            CachedGlitchEnemyActor.MovementSpeed = CachedEnemyActor.MovementSpeed;
+            CachedGlitchEnemyActor.OnCorpseVFX = CachedEnemyActor.OnCorpseVFX;
+            CachedGlitchEnemyActor.CollisionVFX = CachedEnemyActor.CollisionVFX;
+            CachedGlitchEnemyActor.CollisionSetsPlayerOnFire = CachedEnemyActor.CollisionSetsPlayerOnFire;
+            CachedGlitchEnemyActor.CollisionDamage = CachedEnemyActor.CollisionDamage;
+            CachedGlitchEnemyActor.CollisionDamageTypes = CachedEnemyActor.CollisionDamageTypes;
+            CachedGlitchEnemyActor.NonActorCollisionVFX = CachedEnemyActor.NonActorCollisionVFX;
+            CachedGlitchEnemyActor.OnEngagedVFX = CachedEnemyActor.OnEngagedVFX;
+            CachedGlitchEnemyActor.OnEngagedVFXAnchor = CachedEnemyActor.OnEngagedVFXAnchor;
+            CachedGlitchEnemyActor.TryDodgeBullets = CachedEnemyActor.TryDodgeBullets;
+            CachedGlitchEnemyActor.AvoidRadius = CachedEnemyActor.AvoidRadius;
+            CachedGlitchEnemyActor.CorpseObject = CachedEnemyActor.CorpseObject;
+            CachedGlitchEnemyActor.HitByEnemyBullets = BraveUtility.RandomBool();
+            CachedGlitchEnemyActor.PreventFallingInPitsEver = CachedEnemyActor.PreventFallingInPitsEver;
+            CachedGlitchEnemyActor.UseMovementAudio = CachedEnemyActor.UseMovementAudio;
+            CachedGlitchEnemyActor.EnemySwitchState = CachedEnemyActor.EnemySwitchState;            
+            
+            // if (ChaosConsole.randomEnemySizeEnabled) { CachedGlitchEnemyActor.EnemyScale = new Vector2(1, 1); }
+
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
+            CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
+            CachedGlitchEnemyActor.CanTargetEnemies = false;
+            CachedGlitchEnemyActor.CanTargetPlayers = true;
+
+            SpecificEnemyMods?.Invoke(CachedGlitchEnemyActor);
+
+            CachedGlitchEnemyActor.EnemyId = 5000;
+            CachedGlitchEnemyActor.EnemyGuid = "ffff0000000066600000000000ffffff";
+
+            tk2dBaseSprite GlitchActorSprite = CachedGlitchEnemyActor.sprite.GetComponent<tk2dBaseSprite>();
+                        
+            ChaosShaders.Instance.ApplySuperGlitchShader(GlitchActorSprite, CachedEnemyActor);
+            return CachedGlitchEnemyActor;
+        }
+
+        public AIActor GenerateGlitchedActorPrefab(GameObject TargetEnemyObject, GameObject SourceEnemy, bool ExplodesOnDeath = false, bool spawnsGlitchedObjectOnDeath = false, Action<AIActor> SpecificEnemyMods = null) {            
+            if (TargetEnemyObject == null) {
+                if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] ERROR: Target Actor Prefab to spawn is null!", false);
+                return null;
+            }           
+            if (SourceEnemy == null) {
+                if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] ERROR: Source Actor Prefab is null!", false);
+                return null;
+            }
+
+            AIActor CachedEnemyActor = SourceEnemy.GetComponent<AIActor>();
+            AIActor CachedGlitchEnemyActor = TargetEnemyObject.GetComponent<AIActor>();
+
+            if (ChaosConsole.debugMimicFlag) {
+                ETGModConsole.Log("Spawning '" + CachedGlitchEnemyActor.ActorName + "' with GUID: " + CachedGlitchEnemyActor.EnemyGuid + " .", false);
+                ETGModConsole.Log("The enemy spawned has it's behaviors replaced with the enemy: '" + CachedEnemyActor.ActorName + "' with GUID: " + CachedEnemyActor.EnemyGuid + " .", false);
+            }
+
+            if (CachedGlitchEnemyActor.EnemyGuid != CachedEnemyActor.EnemyGuid) {
+
+                AddOrReplaceAIActorConfig(CachedGlitchEnemyActor, CachedEnemyActor);
+
+                CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
+                CachedGlitchEnemyActor.KnockbackVelocity = CachedEnemyActor.KnockbackVelocity;
+                CachedGlitchEnemyActor.PreventDeathKnockback = CachedEnemyActor.PreventDeathKnockback;
+                CachedGlitchEnemyActor.IsWorthShootingAt = CachedEnemyActor.IsWorthShootingAt;
+                CachedGlitchEnemyActor.CollisionKnockbackStrength = CachedEnemyActor.CollisionKnockbackStrength;
+                CachedGlitchEnemyActor.EnemyCollisionKnockbackStrengthOverride = CachedEnemyActor.EnemyCollisionKnockbackStrengthOverride;
+                CachedGlitchEnemyActor.healthHaver.spawnBulletScript = CachedEnemyActor.healthHaver.spawnBulletScript;
+                CachedGlitchEnemyActor.healthHaver.SuppressDeathSounds = CachedEnemyActor.healthHaver.SuppressDeathSounds;
+
+                CachedGlitchEnemyActor.healthHaver.ManualDeathHandling = CachedEnemyActor.healthHaver.ManualDeathHandling;
+                CachedGlitchEnemyActor.healthHaver.deathEffect = CachedEnemyActor.healthHaver.deathEffect;
+                CachedGlitchEnemyActor.healthHaver.noCorpseWhenBulletScriptDeath = CachedEnemyActor.healthHaver.noCorpseWhenBulletScriptDeath;
+                CachedGlitchEnemyActor.StealthDeath = CachedEnemyActor.StealthDeath;
+                CachedGlitchEnemyActor.SpeculatorDelayTime = CachedEnemyActor.SpeculatorDelayTime;
+
+                CachedGlitchEnemyActor.BehaviorOverridesVelocity = CachedEnemyActor.BehaviorOverridesVelocity;
+                CachedGlitchEnemyActor.behaviorSpeculator.RefreshBehaviors();
+                CachedGlitchEnemyActor.behaviorSpeculator.RegenerateCache();
+
+                CachedGlitchEnemyActor.healthHaver.SetHealthMaximum(CachedEnemyActor.healthHaver.GetCurrentHealth());
+                CachedGlitchEnemyActor.healthHaver.minimumHealth = CachedEnemyActor.healthHaver.minimumHealth;
+                CachedGlitchEnemyActor.healthHaver.OnlyAllowSpecialBossDamage = false;
+                CachedGlitchEnemyActor.healthHaver.PreventAllDamage = false;
+                CachedGlitchEnemyActor.IsNormalEnemy = true;
+                CachedGlitchEnemyActor.ImmuneToAllEffects = false;
+
+                CachedGlitchEnemyActor.healthHaver.spawnBulletScript = CachedEnemyActor.healthHaver.spawnBulletScript;
+                CachedGlitchEnemyActor.healthHaver.SuppressDeathSounds = CachedEnemyActor.healthHaver.SuppressDeathSounds;
+
+                CachedGlitchEnemyActor.OnHandleRewards = CachedEnemyActor.OnHandleRewards;
+                CachedGlitchEnemyActor.CustomChestTable = CachedEnemyActor.CustomChestTable;
+                CachedGlitchEnemyActor.CustomLootTable = CachedEnemyActor.CustomLootTable;
+                CachedGlitchEnemyActor.CustomLootTableMinDrops = CachedEnemyActor.CustomLootTableMinDrops;
+                CachedGlitchEnemyActor.SpawnLootAtRewardChestPos = CachedEnemyActor.SpawnLootAtRewardChestPos;
+                CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
+                CachedGlitchEnemyActor.BaseMovementSpeed = CachedEnemyActor.BaseMovementSpeed;
+                CachedGlitchEnemyActor.MovementSpeed = CachedEnemyActor.MovementSpeed;
+                CachedGlitchEnemyActor.OnCorpseVFX = CachedEnemyActor.OnCorpseVFX;
+                CachedGlitchEnemyActor.CollisionVFX = CachedEnemyActor.CollisionVFX;
+                CachedGlitchEnemyActor.CollisionSetsPlayerOnFire = CachedEnemyActor.CollisionSetsPlayerOnFire;
+                CachedGlitchEnemyActor.CollisionDamage = CachedEnemyActor.CollisionDamage;
+                CachedGlitchEnemyActor.CollisionDamageTypes = CachedEnemyActor.CollisionDamageTypes;
+                CachedGlitchEnemyActor.NonActorCollisionVFX = CachedEnemyActor.NonActorCollisionVFX;
+                CachedGlitchEnemyActor.OnEngagedVFX = CachedEnemyActor.OnEngagedVFX;
+                CachedGlitchEnemyActor.OnEngagedVFXAnchor = CachedEnemyActor.OnEngagedVFXAnchor;
+                CachedGlitchEnemyActor.TryDodgeBullets = CachedEnemyActor.TryDodgeBullets;
+                CachedGlitchEnemyActor.AvoidRadius = CachedEnemyActor.AvoidRadius;
+                CachedGlitchEnemyActor.CorpseObject = CachedEnemyActor.CorpseObject;                
+                CachedGlitchEnemyActor.PreventFallingInPitsEver = CachedEnemyActor.PreventFallingInPitsEver;
+                CachedGlitchEnemyActor.UseMovementAudio = CachedEnemyActor.UseMovementAudio;
+                CachedGlitchEnemyActor.EnemySwitchState = CachedEnemyActor.EnemySwitchState;
+            }
+
+            CachedGlitchEnemyActor.HitByEnemyBullets = BraveUtility.RandomBool();
+            CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.ActorName);
+            CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
+            CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
+            CachedGlitchEnemyActor.CanTargetEnemies = false;
+            CachedGlitchEnemyActor.CanTargetPlayers = true;
+
+            CachedGlitchEnemyActor.EnemyId = UnityEngine.Random.Range(10000, 99999);
+            CachedGlitchEnemyActor.EnemyGuid = Guid.NewGuid().ToString();
+
+            if (CachedGlitchEnemyActor.EnemyGuid == CachedEnemyActor.EnemyGuid) {
+                if (CachedGlitchEnemyActor.sprite.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
+                    foreach (tk2dBaseSprite actorSprite in CachedGlitchEnemyActor.sprite.GetComponentsInChildren<tk2dBaseSprite>(true)) {
+                        ChaosShaders.Instance.ApplyGlitchShader(null, actorSprite);
+                    }
+                }
+            } else {
+                if (CachedGlitchEnemyActor.sprite != null) {
+                    ChaosShaders.Instance.ApplySuperGlitchShader(CachedGlitchEnemyActor.sprite, CachedEnemyActor);
+                }
+            }
+
+            if (ExplodesOnDeath) { CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>(); }
+            if (spawnsGlitchedObjectOnDeath) { CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>(); }
+
+            SpecificEnemyMods?.Invoke(CachedGlitchEnemyActor);
+
+            return CachedGlitchEnemyActor;
+        }
+
+        public void SpawnGlitchedSuperReaper(RoomHandler targetRoom, IntVector2 SpawnLocation, bool isCursed = false) {
+            GameObject superReaperPrefab = DungeonPlaceableUtility.InstantiateDungeonPlaceable(LordOfTheJammedPrefab, targetRoom, SpawnLocation, true, AIActor.AwakenAnimationType.Awaken, true);
+             
+            if (superReaperPrefab == null) { return; }
+            AIActor m_cachedSuperReaperActor = superReaperPrefab.GetComponent<AIActor>();
+            if (m_cachedSuperReaperActor == null) { return; }
+            
+            Destroy(m_cachedSuperReaperActor.gameObject.GetComponentInChildren<SuperReaperController>(true));
+            m_cachedSuperReaperActor.gameObject.AddComponent<ChaosGlitchedSuperReaperController>();
+            if (isCursed) {
+                ChaosGlitchedSuperReaperController glitchReaperController = m_cachedSuperReaperActor.gameObject.GetComponent<ChaosGlitchedSuperReaperController>();
+                glitchReaperController.becomesBlackPhantom = true;
+            }
+
+            m_cachedSuperReaperActor.EnemyId = 6666;
+            m_cachedSuperReaperActor.EnemyGuid = Guid.NewGuid().ToString();
+            m_cachedSuperReaperActor.ActorName = ("Glitched " + m_cachedSuperReaperActor.GetActorName());
+            m_cachedSuperReaperActor.name = ("Glitched " + m_cachedSuperReaperActor.name);
+            m_cachedSuperReaperActor.CanTargetEnemies = false;
+            m_cachedSuperReaperActor.CanTargetPlayers = true;
+            m_cachedSuperReaperActor.IgnoreForRoomClear = false;
+            m_cachedSuperReaperActor.encounterTrackable.journalData.PrimaryDisplayName = "Glitched Lord of the Jammed";
+            m_cachedSuperReaperActor.encounterTrackable.journalData.NotificationPanelDescription = "Glitched Lord of the Jammed";            
+
+            m_cachedSuperReaperActor.ConfigureOnPlacement(targetRoom);
+            return;
+        }
 
         public void SpawnRandomGlitchEnemy(RoomHandler CurrentRoom, IntVector2 position, bool autoEngage = false, AIActor.AwakenAnimationType awakenAnimType = AIActor.AwakenAnimationType.Awaken) {
 
@@ -394,11 +650,31 @@ namespace ChaosGlitchMod {
                         }
                     }
                 }
-                /*/ Remove host object that BulletLimbContoller is attached to.
-                // (this component is part of a child object)
-                if (source.EnemyGuid == "463d16121f884984abe759de38418e48") {
-                    Destroy(target.gameObject.transform.Find("vfx"));
-                }*/
+
+                // Fix collision of Snake
+                if (target.EnemyGuid == "1386da0f42fb4bcabc5be8feb16a7c38" && target.gameObject.GetComponentInChildren<SpeculativeRigidbody>() != null) {
+                    SpeculativeRigidbody snakeRigidBody = target.gameObject.GetComponent<SpeculativeRigidbody>();
+                    snakeRigidBody.PixelColliders[0].CollisionLayer = CollisionLayer.EnemyCollider;
+                    snakeRigidBody.PixelColliders[1].Enabled = true;
+                    // snakeRigidBody.ForceRegenerate();
+                    if (source.EnemyGuid != "d1c9781fdac54d9e8498ed89210a0238") {
+                        target.IgnoreForRoomClear = false;
+                        target.DiesOnCollison = false;
+                        if (UnityEngine.Random.value < 0.2f) {
+                            target.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
+                            ChaosExplodeOnDeath CachedExploder = target.healthHaver.GetComponent<ChaosExplodeOnDeath>();
+                            CachedExploder.deathType = OnDeathBehavior.DeathType.Death;
+                        }
+                    } else {
+                        target.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
+                        ChaosExplodeOnDeath CachedExploder = target.healthHaver.GetComponent<ChaosExplodeOnDeath>();
+                        CachedExploder.deathType = OnDeathBehavior.DeathType.Death;
+                        target.AlwaysShowOffscreenArrow = true;
+                        target.DiesOnCollison = true;
+                    }
+                    target.behaviorSpeculator.RefreshBehaviors();
+                    target.behaviorSpeculator.RegenerateCache();
+                }
             } catch (Exception) { }
         }
 
@@ -3737,17 +4013,14 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.PreventDeathKnockback = CachedEnemyActor.PreventDeathKnockback;
             CachedGlitchEnemyActor.IsWorthShootingAt = CachedEnemyActor.IsWorthShootingAt;
             CachedGlitchEnemyActor.CollisionKnockbackStrength = CachedEnemyActor.CollisionKnockbackStrength;
-            CachedGlitchEnemyActor.EnemyCollisionKnockbackStrengthOverride = CachedEnemyActor.EnemyCollisionKnockbackStrengthOverride;
-            CachedGlitchEnemyActor.healthHaver.spawnBulletScript = CachedEnemyActor.healthHaver.spawnBulletScript;
-            CachedGlitchEnemyActor.healthHaver.SuppressDeathSounds = CachedEnemyActor.healthHaver.SuppressDeathSounds;
-
-            CachedGlitchEnemyActor.healthHaver.ManualDeathHandling = CachedEnemyActor.healthHaver.ManualDeathHandling;
+            CachedGlitchEnemyActor.EnemyCollisionKnockbackStrengthOverride = CachedEnemyActor.EnemyCollisionKnockbackStrengthOverride;            
+            CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
+            ChaosSpawnGlitchObjectOnDeath ObjectSpawnerComponent = CachedGlitchEnemyActor.healthHaver.gameObject.GetComponent<ChaosSpawnGlitchObjectOnDeath>();
+            ObjectSpawnerComponent.spawnRatCorpse = true;
             CachedGlitchEnemyActor.SpeculatorDelayTime = CachedEnemyActor.SpeculatorDelayTime;
             CachedGlitchEnemyActor.State = AIActor.ActorState.Inactive;
-
-            
-            
-            // if (ChaosConsole.randomEnemySizeEnabled) { ChaosEnemyResizer.Instance.EnemyScale(CachedGlitchEnemyActor, Vector2.one); }
+                        
+            CachedGlitchEnemyActor.StealthDeath = true;
             CachedGlitchEnemyActor.IgnoreForRoomClear = false;
             CachedGlitchEnemyActor.OnHandleRewards = CachedEnemyActor.OnHandleRewards;
             CachedGlitchEnemyActor.CustomChestTable = CachedEnemyActor.CustomChestTable;
@@ -3757,7 +4030,6 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.ManualKnockbackHandling = CachedEnemyActor.ManualKnockbackHandling;
             CachedGlitchEnemyActor.BaseMovementSpeed = CachedEnemyActor.BaseMovementSpeed;
             CachedGlitchEnemyActor.MovementSpeed = CachedEnemyActor.MovementSpeed;
-            CachedGlitchEnemyActor.OnCorpseVFX = CachedEnemyActor.OnCorpseVFX;
             CachedGlitchEnemyActor.CollisionVFX = CachedEnemyActor.CollisionVFX;
             CachedGlitchEnemyActor.CollisionSetsPlayerOnFire = CachedEnemyActor.CollisionSetsPlayerOnFire;
             CachedGlitchEnemyActor.CollisionDamage = CachedEnemyActor.CollisionDamage;
@@ -4447,8 +4719,33 @@ namespace ChaosGlitchMod {
             return;
         }
         public void SpawnGlitchedSnake(RoomHandler CurrentRoom, IntVector2 position, bool autoEngage = false, AIActor.AwakenAnimationType awakenAnimType = AIActor.AwakenAnimationType.Awaken) {
+            List<GameObject> ValidSourceEnemies = new List<GameObject>();
+            ValidSourceEnemies.Add(BulletManPrefab);
+            ValidSourceEnemies.Add(GhostPrefab);
+            ValidSourceEnemies.Add(CultistPrefab);
+            ValidSourceEnemies.Add(ArrowheadManPrefab);
+            ValidSourceEnemies.Add(BulletRifleManPrefab);
+            ValidSourceEnemies.Add(AshBulletManPrefab);
+            ValidSourceEnemies.Add(AshBulletShotgunManPrefab);
+            ValidSourceEnemies.Add(BulletMachineGunManPrefab);
+            ValidSourceEnemies.Add(BulletManDevilPrefab);
+            ValidSourceEnemies.Add(BulletManShroomedPrefab);
+            ValidSourceEnemies.Add(BulletSkeletonHelmetPrefab);
+            ValidSourceEnemies.Add(BulletShotgunManSawedOffPrefab);
+            ValidSourceEnemies.Add(BulletShotgunManMutantPrefab);
+            ValidSourceEnemies.Add(BulletManKaliberPrefab);
+            ValidSourceEnemies.Add(BulletShotgunManCowboyPrefab);
+            ValidSourceEnemies.Add(BulletShotgrubManPrefab);
+            ValidSourceEnemies.Add(BulletManBandanaPrefab);
+            ValidSourceEnemies.Add(FloatingEyePrefab);
+            ValidSourceEnemies.Add(GrenadeGuyPrefab);
+            ValidSourceEnemies.Add(TinyBlobulordObject);
+            ValidSourceEnemies.Add(BulletKingsToadieObject);
+
+            ValidSourceEnemies = ValidSourceEnemies.Shuffle();
+
             GameObject CachedTargetEnemyObject = Instantiate(SnakePrefab);
-            GameObject CachedSourceEnemyObject = TinyBlobulordObject;
+            GameObject CachedSourceEnemyObject = BraveUtility.RandomElement(ValidSourceEnemies);
 
             if (CachedSourceEnemyObject == null) {
                 if (ChaosConsole.debugMimicFlag) ETGModConsole.Log("[DEBUG] ERROR: Source object for random donor enemy is null!", false);
@@ -4465,16 +4762,6 @@ namespace ChaosGlitchMod {
             }
 
             AddOrReplaceAIActorConfig(CachedGlitchEnemyActor, CachedEnemyActor);
-
-            try {
-                CachedGlitchEnemyActor.healthHaver.gameObject.AddComponent<ChaosExplodeOnDeath>();
-                ChaosExplodeOnDeath CachedExploder = CachedGlitchEnemyActor.healthHaver.GetComponent<ChaosExplodeOnDeath>();
-                CachedExploder.deathType = OnDeathBehavior.DeathType.Death;
-                                
-                CachedGlitchEnemyActor.BehaviorOverridesVelocity = CachedEnemyActor.BehaviorOverridesVelocity;
-                CachedGlitchEnemyActor.behaviorSpeculator.RefreshBehaviors();
-                CachedGlitchEnemyActor.behaviorSpeculator.RegenerateCache();
-            } catch (Exception) { }
 
             CachedGlitchEnemyActor.healthHaver.ManualDeathHandling = CachedEnemyActor.healthHaver.ManualDeathHandling;
             CachedGlitchEnemyActor.healthHaver.deathEffect = CachedEnemyActor.healthHaver.deathEffect;
@@ -4504,26 +4791,10 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.OverrideDisplayName = ("Glitched " + CachedEnemyActor.GetActorName());
             CachedGlitchEnemyActor.ActorName = ("Glitched " + CachedGlitchEnemyActor.GetActorName());
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
-            CachedGlitchEnemyActor.AlwaysShowOffscreenArrow = true;
-
-
-            SpeculativeRigidbody specRigidbody = CachedGlitchEnemyActor.GetComponentInChildren<SpeculativeRigidbody>();
-            specRigidbody.PrimaryPixelCollider.Enabled = true;
-            specRigidbody.HitboxPixelCollider.Enabled = true;
-            specRigidbody.CollideWithTileMap = true;
-            specRigidbody.PixelColliders.Add(CachedEnemyActor.specRigidbody.GroundPixelCollider);
-            specRigidbody.GroundPixelCollider.Enabled = true;
-            specRigidbody.ClearFrameSpecificCollisionExceptions();
-            specRigidbody.ClearSpecificCollisionExceptions();
-            specRigidbody.RemoveCollisionLayerIgnoreOverride(CollisionMask.LayerToMask(CollisionLayer.PlayerHitBox, CollisionLayer.PlayerCollider));
-            specRigidbody.PixelColliders[0].Regenerate(CachedGlitchEnemyActor.transform, true, true);
-            specRigidbody.PixelColliders[1].Regenerate(CachedGlitchEnemyActor.transform, true, true);
-            specRigidbody.ForceRegenerate(true, true);
-            specRigidbody.Reinitialize();
-            specRigidbody.RegenerateCache();
+            
+            
 
             // if (ChaosConsole.randomEnemySizeEnabled) { ChaosEnemyResizer.Instance.EnemyScale(CachedGlitchEnemyActor, Vector2.one); }
-            CachedGlitchEnemyActor.IgnoreForRoomClear = true;
             CachedGlitchEnemyActor.CanTargetEnemies = false;
             CachedGlitchEnemyActor.CanTargetPlayers = true;
             CachedGlitchEnemyActor.OnHandleRewards = CachedEnemyActor.OnHandleRewards;
@@ -7583,6 +7854,7 @@ namespace ChaosGlitchMod {
             CachedGlitchEnemyActor.name = ("Glitched " + CachedGlitchEnemyActor.name);
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BulletBroDeathController>());
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BulletBrosIntroDoer>());
+            Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<BroController>());
             Destroy(CachedGlitchEnemyActor.gameObject.GetComponent<GenericIntroDoer>());
             CachedGlitchEnemyActor.healthHaver.bossHealthBar = HealthHaver.BossBarType.None;
             CachedGlitchEnemyActor.healthHaver.OnlyAllowSpecialBossDamage = false;

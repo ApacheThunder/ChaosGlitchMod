@@ -20,8 +20,7 @@ namespace ChaosGlitchMod {
         }
 
         public void PlaceRandomEnemies(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
-            if (dungeon.IsGlitchDungeon) { goto IL_SKIP; }
-            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            if (dungeon.IsGlitchDungeon | ChaosGlitchMod.isGlitchFloor) { goto IL_SKIP; }
             if (!ChaosConsole.isUltraMode && !ChaosConsole.GlitchEnemies) { return; }
 
             IL_SKIP:;

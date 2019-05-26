@@ -27,12 +27,10 @@ namespace ChaosGlitchMod {
         };
         
         public void PlaceRandomObjects(Dungeon dungeon, RoomHandler roomHandler, int currentFloor) {
-
-            // ChaosWeatherController.Instance.InitStorm();
-
+            
             if (!ChaosConsole.isUltraMode) { return; }
 
-            if (ChaosGlitchFloorGenerator.isGlitchFloor) { return; }
+            if (ChaosGlitchMod.isGlitchFloor) { return; }
             
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             bool debugMode = false;
@@ -141,7 +139,7 @@ namespace ChaosGlitchMod {
             NonInteractableObjects.Add(ChaosPrefabs.CultistHoodBowBack);
             NonInteractableObjects.Add(ChaosPrefabs.CultistHoodBowLeft);
             NonInteractableObjects.Add(ChaosPrefabs.CultistHoodBowRight);
-            NonInteractableObjects.Add(ChaosPrefabs.TallGrassStrip);
+            // NonInteractableObjects.Add(ChaosPrefabs.TallGrassStrip);
             NonInteractableObjects.Add(ChaosPrefabs.RatTrapDoorIcon);
             NonInteractableObjects.Add(ChaosPrefabs.NPCHeartDispenser);
             NonInteractableObjects.Add(ChaosPrefabs.MouseTrap1);
@@ -244,22 +242,20 @@ namespace ChaosGlitchMod {
 
                                         if (!hammerPlaced && UnityEngine.Random.value <= 0.1f && currentFloor != 5 && RandomHammerIntVector2 != IntVector2.Zero) {
                                             if (debugMode)ETGModConsole.Log("[DEBUG] Attempting to place a Forge Hammer...", true);
+                                            GameObject hammerObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(ChaosPrefabs.ForgeHammer, currentRoom, RandomHammerIntVector2, true);
+                                            ForgeHammerController hammerComponent = hammerObject.GetComponent<ForgeHammerController>();
+                                            hammerComponent.DamageToEnemies = 100f;
                                             if (BraveUtility.RandomBool()) {
-                                                GameObject cachedActiveHammer = ChaosPrefabs.ForgeHammer.gameObject;
-                                                ForgeHammerController hammerComponent = cachedActiveHammer.GetComponent<ForgeHammerController>();
-                                                hammerComponent.DamageToEnemies = 100f;
-                                                if (BraveUtility.RandomBool()) {
-                                                    hammerComponent.MinTimeBetweenAttacks = 2f;
-                                                    hammerComponent.MaxTimeBetweenAttacks = 3f;
-                                                    hammerComponent.TracksPlayer = false;
-                                                } else {
-                                                    hammerComponent.MinTimeBetweenAttacks = 4f;
-                                                    hammerComponent.MaxTimeBetweenAttacks = 4f;
-                                                }
-                                                DungeonPlaceableUtility.InstantiateDungeonPlaceable(hammerComponent.gameObject, currentRoom, RandomHammerIntVector2, false);
-                                                hammerPlaced = true;
-                                                if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
+                                                hammerComponent.MinTimeBetweenAttacks = 2f;
+                                                hammerComponent.MaxTimeBetweenAttacks = 3f;
+                                                hammerComponent.TracksPlayer = false;
+                                            } else {
+                                                hammerComponent.MinTimeBetweenAttacks = 4f;
+                                                hammerComponent.MaxTimeBetweenAttacks = 4f;
                                             }
+                                            hammerComponent.ConfigureOnPlacement(currentRoom);
+                                            hammerPlaced = true;
+                                            if (debugMode)ETGModConsole.Log("[DEBUG] Success!", true);
                                         }
                                        
                                         if (!VFXObjectPlaced && RandomVFXVector != IntVector2.Zero && BraveUtility.RandomBool() && BraveUtility.RandomBool()) {
@@ -345,15 +341,16 @@ namespace ChaosGlitchMod {
                                             if (UnityEngine.Random.value <= 0.05) {
                                                 GameObject SelectedRatNPCObject = ChaosPrefabs.RatCorpseNPC;
                                                 if (debugMode) ETGModConsole.Log("[DEBUG] Attempting to place rat object: " + SelectedRatNPCObject, true);
-                                                GameObject Random_InteractableRatNPC = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedRatNPCObject, currentRoom, RandomRatNPCVector, false);
-                                                TalkDoerLite RatNPCComponent = Random_InteractableRatNPC.GetComponent<TalkDoerLite>();
+                                                GameObject RatCorpseObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(SelectedRatNPCObject, currentRoom, RandomRatNPCVector, false);
+                                                TalkDoerLite RatNPCComponent = RatCorpseObject.GetComponent<TalkDoerLite>();
                                                 // Spawn him in already dead state. Don't want player to accidently start convo with him during combat.
                                                 // Player would likely die by the time the rat finishes his long sob story. :P
                                                 RatNPCComponent.playmakerFsm.SetState("Set Mode");
                                                 if (RatNPCComponent) {
                                                     currentRoom.RegisterInteractable(RatNPCComponent);
                                                     currentRoom.TransferInteractableOwnershipToDungeon(RatNPCComponent);
-                                                }                                            
+                                                }
+                                                ChaosUtility.AddHealthHaver(RatNPCComponent.gameObject, 40, flashesOnDamage: false);
                                                 RatCorpsePlaced = true;
                                                 RandomObjectsPlaced++;
                                                 if (debugMode) ETGModConsole.Log("[DEBUG] Success!", true);
@@ -762,7 +759,7 @@ namespace ChaosGlitchMod {
         public void PlaceGlitchElevator(Dungeon dungeon, RoomHandler roomHandler) {
             GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
 
-            if (dungeon.IsGlitchDungeon | ChaosGlitchFloorGenerator.isGlitchFloor | ChaosDungeonFlows.isGlitchFlow | ChaosConsole.elevatorHasBeenUsed) { return; }
+            if (dungeon.IsGlitchDungeon | ChaosGlitchMod.isGlitchFloor | ChaosDungeonFlows.isGlitchFlow | ChaosConsole.elevatorHasBeenUsed) { return; }
             if (levelOverrideState == GameManager.LevelOverrideState.FOYER | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) { return; }
             if (levelOverrideState == GameManager.LevelOverrideState.CHARACTER_PAST | levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) { return; }
             if (levelOverrideState == GameManager.LevelOverrideState.END_TIMES) { return; }
