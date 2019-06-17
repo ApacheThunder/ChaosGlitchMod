@@ -1,8 +1,9 @@
+using ChaosGlitchMod.ChaosObjects;
 using Dungeonator;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     public class demo_stage_flow : MonoBehaviour {
 

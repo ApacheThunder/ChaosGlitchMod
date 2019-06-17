@@ -4,7 +4,7 @@ using UnityEngine;
 using Dungeonator;
 using System;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosMain {
 
     class ChaosPitRandomizer : MonoBehaviour {
 

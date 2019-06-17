@@ -1,9 +1,9 @@
 ﻿using Dungeonator;
 using System.Collections;
 using UnityEngine;
-using System.Collections.Generic;
+using ChaosGlitchMod.ChaosObjects;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
     public class ChaosWeatherPlacable : DungeonPlaceableBehaviour, IPlaceConfigurable {
 
@@ -266,7 +266,12 @@ namespace ChaosGlitchMod {
             ChaosWeatherController LightningController = GameObject.Find("ChaosLightning").GetComponent<ChaosWeatherController>();
 
             bool Active = true;
-            if (ChaosLists.InvalidRatFloorRainRooms.Contains(player.CurrentRoom.GetRoomName())) { Active = false; }
+            if (ChaosLists.InvalidRatFloorRainRooms.Contains(player.CurrentRoom.GetRoomName()) | 
+                player.CurrentRoom.IsShop | 
+                player.CurrentRoom.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS)
+            {
+                Active = false;
+            }
             if (!Active) {
                 if (!stormController.enabled && !LightningController.isActive) { yield break; }
                 AkSoundEngine.PostEvent("Stop_ENV_rain_loop_01", stormController.gameObject);

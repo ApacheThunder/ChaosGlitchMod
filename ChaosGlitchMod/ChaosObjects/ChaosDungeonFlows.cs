@@ -1,9 +1,11 @@
+using ChaosGlitchMod.ChaosUtilities;
+using ChaosGlitchMod.DungeonFlows;
 using Dungeonator;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosObjects {
 
     public class ChaosDungeonFlows : MonoBehaviour {
 
@@ -14,6 +16,12 @@ namespace ChaosGlitchMod {
         public static DungeonFlow LoadCustomFlow(string target) {
             string flowName = target;
             if (flowName.Contains("/")) { flowName = target.Substring(target.LastIndexOf("/") + 1); }
+            if (flowName.ToLower() == "secret_doublebeholster_flow") {
+                string[] glitchflows = new string[] { "custom_glitch_flow", "custom_glitchchest_flow", "Custom_GlitchChestAlt_Flow" };
+                flowName = BraveUtility.RandomElement(glitchflows);
+            } else if (flowName.ToLower() == "secret_doublebeholster_flow_orig") {
+                flowName = "secret_doublebeholster_flow";
+            }
             if (KnownFlows != null && KnownFlows.Length > 0) {
                 foreach (DungeonFlow flow in KnownFlows) {
                     if (flow.name != null && flow.name != string.Empty) {
@@ -54,6 +62,7 @@ namespace ChaosGlitchMod {
         public static DungeonFlow Fruit_Loops = ScriptableObject.CreateInstance<DungeonFlow>();
         public static DungeonFlow Custom_GlitchChestAlt_Flow = ScriptableObject.CreateInstance<DungeonFlow>();
         public static DungeonFlow SecretGlitchFloor_Flow = ScriptableObject.CreateInstance<DungeonFlow>();
+        public static DungeonFlow Test_TrapRoom_Flow = ScriptableObject.CreateInstance<DungeonFlow>();
         public static DungeonFlow Foyer_Flow = FlowHelpers.DuplicateDungeonFlow(sharedAssets2.LoadAsset<DungeonFlow>("Foyer Flow"));
         // public static DungeonFlow Dave_Fuckin_Around_Flow = ScriptableObject.CreateInstance<DungeonFlow>();
 
@@ -159,6 +168,7 @@ namespace ChaosGlitchMod {
             fruit_loops.InitFlow();
             custom_glitchchestalt_flow.InitFlow();
             secretglitchfloor_flow.InitFlow();
+            test_traproom_flow.InitFlow();
 
             BossrushFlows.InitBossrushFlows();
 
@@ -171,6 +181,7 @@ namespace ChaosGlitchMod {
             m_knownFlows.Add(Fruit_Loops);
             m_knownFlows.Add(Custom_GlitchChestAlt_Flow);
             m_knownFlows.Add(SecretGlitchFloor_Flow);
+            m_knownFlows.Add(Test_TrapRoom_Flow);
 
             // Fix issues with nodes so that things other then MainMenu can load Foyer flow
             Foyer_Flow.name = "Foyer_Flow";
@@ -238,7 +249,7 @@ namespace ChaosGlitchMod {
             BossrushFlows.Bossrush_05_Forge.AllNodes[1].overrideExactRoom = ChaosPrefabs.DragunBossFoyerRoom;
             BossrushFlows.Bossrush_05_Forge.AllNodes[3].overrideExactRoom = ChaosPrefabs.tiny_exit;
             
-            KnownFlows = m_knownFlows.ToArray();
+            KnownFlows = m_knownFlows.ToArray();            
 
             sharedAssets2 = null;
             TutorialPrefab = null;

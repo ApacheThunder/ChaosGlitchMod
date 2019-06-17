@@ -1,9 +1,10 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosUtilities;
+using Dungeonator;
 using System;
 using System.Collections;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosMain {
 
     class ChaosAssemblerHook : MonoBehaviour {
 

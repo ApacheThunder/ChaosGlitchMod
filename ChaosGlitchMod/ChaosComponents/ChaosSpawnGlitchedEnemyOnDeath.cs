@@ -5,8 +5,9 @@ using Pathfinding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using ChaosGlitchMod.ChaosObjects;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
 	public class ChaosSpawnGlitchEnemyOnDeath : OnDeathBehavior {
         
@@ -94,7 +95,7 @@ namespace ChaosGlitchMod {
 		}
 
 		private void SpawnEnemies(string[] selectedEnemyGuids) {
-            if (useGlitchedActorPrefab) {
+            if (useGlitchedActorPrefab) {                
                 IntVector2 pos = specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor);
 				if (aiActor.IsFalling && !IsGlitchedLJ) { return; }
 				if (GameManager.Instance.Dungeon.CellIsPit(specRigidbody.UnitCenter.ToVector3ZUp(0f)) && !IsGlitchedLJ) { return; }
@@ -105,9 +106,11 @@ namespace ChaosGlitchMod {
 				for (int i = 0; i < ActorPrefabSpawnCount; i++) {
                     if (IsGlitchedLJ) {                        
                         if (transform.position.GetAbsoluteRoom() != null) {
+                            ChaosGlitchedEnemies m_GlitchedEnemyDatabase = new ChaosGlitchedEnemies();
                             RoomHandler CurrentRoom = transform.position.GetAbsoluteRoom();
                             IntVector2 actorPosition = specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor) - CurrentRoom.area.basePosition;
-                            ChaosGlitchedEnemies.Instance.SpawnGlitchedSuperReaper(CurrentRoom, actorPosition);
+                            m_GlitchedEnemyDatabase.SpawnGlitchedSuperReaper(CurrentRoom, actorPosition);
+                            Destroy(m_GlitchedEnemyDatabase);
                             return;
                         }              
                     } else {
@@ -119,7 +122,9 @@ namespace ChaosGlitchMod {
                         bool spawnsGlitchedObjectOnDeath = false;
                         if (UnityEngine.Random.value <= 0.25f) { ExplodesOnDeath = true; }
                         if (UnityEngine.Random.value <= 0.15f) { spawnsGlitchedObjectOnDeath = true; }
-                        aiactor = AIActor.Spawn(ChaosGlitchedEnemies.Instance.GenerateGlitchedActorPrefab(CachedTargetActorObject, ActorOverrideSource, ExplodesOnDeath, spawnsGlitchedObjectOnDeath), specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor), roomFromPosition, true, AnimationType, true);
+                        ChaosGlitchedEnemies m_GlitchedEnemyDatabase = new ChaosGlitchedEnemies();
+                        aiactor = AIActor.Spawn(m_GlitchedEnemyDatabase.GenerateGlitchedActorPrefab(CachedTargetActorObject, ActorOverrideSource, ExplodesOnDeath, spawnsGlitchedObjectOnDeath), specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor), roomFromPosition, true, AnimationType, true);
+                        Destroy(m_GlitchedEnemyDatabase);
                         if (aiactor == null) { return; }
                         if (aiActor.IsBlackPhantom) { aiactor.BecomeBlackPhantom(); }
                         if (aiactor) {

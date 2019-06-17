@@ -1,8 +1,9 @@
+using ChaosGlitchMod.ChaosObjects;
 using Dungeonator;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     public class custom_glitchchest_flow : MonoBehaviour {
         
@@ -432,7 +433,7 @@ namespace ChaosGlitchMod {
             roomCategory = PrototypeDungeonRoom.RoomCategory.CONNECTOR,
             percentChance = 1f,
             priority = DungeonFlowNode.NodePriority.MANDATORY,
-            overrideExactRoom = ChaosPrefabs.reward_room_custom,
+            overrideExactRoom = ChaosPrefabs.reward_room,
             capSubchain = false,
             limitedCopiesOfSubchain = false,
             maxCopiesOfSubchain = 1,
@@ -677,7 +678,7 @@ namespace ChaosGlitchMod {
             roomCategory = PrototypeDungeonRoom.RoomCategory.CONNECTOR,
             percentChance = 1f,
             priority = DungeonFlowNode.NodePriority.MANDATORY,
-            overrideExactRoom = ChaosPrefabs.reward_room_custom,
+            overrideExactRoom = ChaosPrefabs.reward_room,
             capSubchain = false,
             limitedCopiesOfSubchain = false,
             maxCopiesOfSubchain = 1,

@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Dungeonator;
 using UnityEngine;
+using ChaosGlitchMod.ChaosMain;
+using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
 	public class ChaosSpawnGlitchObjectOnDeath : OnDeathBehavior {
         
@@ -19,68 +22,58 @@ namespace ChaosGlitchMod {
             spawnRatCorpse = false;
             spawnRatKey = false;
             ratCorpseSpawnsKey = false;
+            parentEnemyWasRat = false;
+            ratCorpseSpawnsItemOnExplosion = false;
             usesExternalObjectArray = false;
             objectSelection = ObjectSelection.Random;
+            ChaosObjectRandomizer objectDatabase = new ChaosObjectRandomizer();
             objectsToSpawn = new GameObject[] {
                 ChaosPrefabs.MimicNPC,
-                ChaosPrefabs.ConvictPastCrowdNPC_01,
-                ChaosPrefabs.ConvictPastCrowdNPC_02,
-                ChaosPrefabs.ConvictPastCrowdNPC_03,
-                ChaosPrefabs.ConvictPastCrowdNPC_04,
-                ChaosPrefabs.ConvictPastCrowdNPC_05,
-                ChaosPrefabs.ConvictPastCrowdNPC_06,
-                ChaosPrefabs.ConvictPastCrowdNPC_07,
-                ChaosPrefabs.ConvictPastCrowdNPC_08,
-                ChaosPrefabs.ConvictPastCrowdNPC_09,
-                ChaosPrefabs.ConvictPastCrowdNPC_10,
-                ChaosPrefabs.ConvictPastCrowdNPC_11,
-                ChaosPrefabs.ConvictPastCrowdNPC_12,
-                ChaosPrefabs.ConvictPastCrowdNPC_13,
-                ChaosPrefabs.ConvictPastCrowdNPC_14,
-                ChaosPrefabs.ConvictPastCrowdNPC_15,
-                ChaosPrefabs.ConvictPastCrowdNPC_16,
                 ChaosPrefabs.RatCorpseNPC,
                 ChaosPrefabs.MouseTrap1,
                 ChaosPrefabs.MouseTrap2,
                 ChaosPrefabs.PlayerLostRatNote,
-                ChaosPrefabs.HangingPot,
-                ChaosPrefabs.RatTrapDoorIcon,
-                ChaosPrefabs.RedDrum,
-                ChaosPrefabs.IceBomb,
-                ChaosPrefabs.YellowDrum,
-                ChaosPrefabs.WaterDrum,
-                ChaosPrefabs.TableHorizontal,
-                ChaosPrefabs.TableVertical,
-                ChaosPrefabs.TableHorizontalStone,
-                ChaosPrefabs.TableVerticalStone,
-                ChaosPrefabs.NPCOldMan,
-                ChaosPrefabs.NPCSynergrace,
-                ChaosPrefabs.NPCTonic,
-                ChaosPrefabs.NPCCursola,
-                ChaosPrefabs.NPCGunMuncher,
-                ChaosPrefabs.NPCEvilMuncher,
-                ChaosPrefabs.NPCMonsterManuel,
-                ChaosPrefabs.NPCVampire,
-                ChaosPrefabs.NPCGuardLeft,
-                ChaosPrefabs.NPCGuardRight,
-                ChaosPrefabs.NPCTruthKnower,
                 ChaosPrefabs.NPCBabyDragun,
-                ChaosPrefabs.AmygdalaNorth,
-                ChaosPrefabs.AmygdalaSouth,
-                ChaosPrefabs.AmygdalaWest,
-                ChaosPrefabs.AmygdalaEast,
-                ChaosPrefabs.SpaceFog,
-                ChaosPrefabs.LockedDoor,
-                ChaosPrefabs.SpikeTrap,
-                ChaosPrefabs.FlameTrap,
-                ChaosPrefabs.CultistBaldBowBackLeft,
-                ChaosPrefabs.CultistBaldBowBackRight,
-                ChaosPrefabs.CultistBaldBowBack,
-                ChaosPrefabs.CultistBaldBowLeft,
-                ChaosPrefabs.CultistHoodBowBack,
-                ChaosPrefabs.CultistHoodBowLeft,
-                ChaosPrefabs.CultistHoodBowRight
+                objectDatabase.ConvictPastDancers[UnityEngine.Random.Range(0, 15)],
+                objectDatabase.HangingPot,
+                objectDatabase.RatTrapDoorIcon,
+                objectDatabase.RedDrum,
+                objectDatabase.IceBomb,
+                objectDatabase.YellowDrum,
+                objectDatabase.WaterDrum,
+                objectDatabase.TableHorizontal,
+                objectDatabase.TableVertical,
+                objectDatabase.TableHorizontalStone,
+                objectDatabase.TableVerticalStone,
+                objectDatabase.NPCOldMan,
+                objectDatabase.NPCSynergrace,
+                objectDatabase.NPCTonic,
+                objectDatabase.NPCCursola,
+                objectDatabase.NPCGunMuncher,
+                objectDatabase.NPCEvilMuncher,
+                objectDatabase.NPCMonsterManuel,
+                objectDatabase.NPCVampire,
+                objectDatabase.NPCGuardLeft,
+                objectDatabase.NPCGuardRight,
+                objectDatabase.NPCTruthKnower,
+                objectDatabase.AmygdalaNorth,
+                objectDatabase.AmygdalaSouth,
+                objectDatabase.AmygdalaWest,
+                objectDatabase.AmygdalaEast,
+                objectDatabase.SpaceFog,
+                objectDatabase.LockedDoor,
+                objectDatabase.SpikeTrap,
+                objectDatabase.FlameTrap,
+                objectDatabase.CultistBaldBowBackLeft,
+                objectDatabase.CultistBaldBowBackRight,
+                objectDatabase.CultistBaldBowBack,
+                objectDatabase.CultistBaldBowLeft,
+                objectDatabase.CultistHoodBowBack,
+                objectDatabase.CultistHoodBowLeft,
+                objectDatabase.CultistHoodBowRight
             };
+            // objectDatabase = null;
+            Destroy(objectDatabase);
         }
 
         public GameObject[] objectsToSpawn;
@@ -95,6 +88,8 @@ namespace ChaosGlitchMod {
         public bool ratCorpseSpawnsKey;
         public bool spawnRatCorpse;
         public bool spawnRatKey;
+        public bool ratCorpseSpawnsItemOnExplosion;
+        public bool parentEnemyWasRat;
 
         private int ObjectPrefabSpawnCount;
         private bool m_hasTriggered;
@@ -116,6 +111,7 @@ namespace ChaosGlitchMod {
 					array[i] = BraveUtility.RandomElement(objectsToSpawn);
 				}
 			}
+            if (parentEnemyWasRat) { PickupObject.RatBeatenAtPunchout = true; }
             SpawnObjects(array);
 		}
 
@@ -187,8 +183,8 @@ namespace ChaosGlitchMod {
                             talkdoerComponent.transform.position.XY().GetAbsoluteRoom().TransferInteractableOwnershipToDungeon(talkdoerComponent);
                         }
                         if (SpawnedObject.name.StartsWith(ChaosPrefabs.RatCorpseNPC.name)) {
-                            talkdoerComponent.playmakerFsm.SetState("Set Mode");
-                            ChaosUtility.AddHealthHaver(talkdoerComponent.gameObject, 60, flashesOnDamage: false);
+                            talkdoerComponent.playmakerFsm.SetState("Set Mode");                            
+                            ChaosUtility.AddHealthHaver(talkdoerComponent.gameObject, 60, flashesOnDamage: false, exploderSpawnsItem: ratCorpseSpawnsItemOnExplosion);
                             if (ratCorpseSpawnsKey) {
                                 HealthHaver ratCorpseHealthHaver = talkdoerComponent.gameObject.GetComponent<HealthHaver>();
                                 ratCorpseHealthHaver.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();

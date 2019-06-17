@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Dungeonator;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosUtilities {
 
     public static class FlowHelpers {
 

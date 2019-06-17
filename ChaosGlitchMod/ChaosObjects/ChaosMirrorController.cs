@@ -3,17 +3,27 @@ using System.Collections;
 using Dungeonator;
 using UnityEngine;
 using System.Collections.Generic;
+using ChaosGlitchMod.ChaosUtilities;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosObjects {
 
     public class ChaosMirrorController : DungeonPlaceableBehaviour, IPlayerInteractable, IPlaceConfigurable {
 
-        public ChaosMirrorController() {
+        public ChaosMirrorController() {            
+            sprite = gameObject.GetComponent<MirrorController>().sprite;
+            spriteAnimator = gameObject.GetComponent<MirrorController>().spriteAnimator;
+            MirrorSprite = gameObject.GetComponent<MirrorController>().MirrorSprite;
+            PlayerReflection = gameObject.GetComponent<MirrorController>().PlayerReflection;
+            CoopPlayerReflection = gameObject.GetComponent<MirrorController>().CoopPlayerReflection;
+            ChestReflection = gameObject.GetComponent<MirrorController>().ChestReflection;
+            ShatterSystem = gameObject.GetComponent<MirrorController>().ShatterSystem;
+
+            Destroy(gameObject.GetComponent<MirrorController>());
+
             spawnBellosChest = true;
+            isGlitched = false;
             CURSE_EXPOSED = 1f;
         }
-
-        public MirrorController mirrorControllerInstance;
 
         public MirrorDweller PlayerReflection;
         public MirrorDweller CoopPlayerReflection;
@@ -23,50 +33,67 @@ namespace ChaosGlitchMod {
         public tk2dBaseSprite MirrorSprite;
 
         public GameObject ShatterSystem;
-
         public Chest MirrorChest;
-
-        public MinorBreakable MirrorBreakable;
 
         public float CURSE_EXPOSED;
         public bool spawnBellosChest;
+        public bool isGlitched;
 
+        private RoomHandler m_ParentRoom;
 
-        private void Start() {
-            try { 
-                PlayerReflection.TargetPlayer = GameManager.Instance.PrimaryPlayer;
-                PlayerReflection.MirrorSprite = MirrorSprite;
+        private void Start() {    
+                    
+            PlayerReflection.TargetPlayer = GameManager.Instance.PrimaryPlayer;
+            PlayerReflection.MirrorSprite = MirrorSprite;   
+            if (!isGlitched) {
                 if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER) {
                     CoopPlayerReflection.TargetPlayer = GameManager.Instance.SecondaryPlayer;
                     CoopPlayerReflection.MirrorSprite = MirrorSprite;
                 } else {
                     CoopPlayerReflection.gameObject.SetActive(false);
                 }
-                RoomHandler absoluteRoom = base.transform.position.GetAbsoluteRoom();
-                MirrorChest = GameManager.Instance.RewardManager.GenerationSpawnRewardChestAt(base.transform.position.IntXY(VectorConversions.Round) + new IntVector2(0, -2) - absoluteRoom.area.basePosition, absoluteRoom, null, -1f);
-                if (spawnBellosChest) {
-                    MirrorChest.forceContentIds = new List<int>();
-                    MirrorChest.forceContentIds.Add(435);
-                    MirrorChest.forceContentIds.Add(493);
-                }
-                MirrorChest.PreventFuse = true;
-                SpriteOutlineManager.RemoveOutlineFromSprite(MirrorChest.sprite, false);
-                Transform transform = MirrorChest.gameObject.transform.Find("Shadow");
-                if (transform) { MirrorChest.ShadowSprite = transform.GetComponent<tk2dSprite>(); }
-                MirrorChest.IsMirrorChest = true;
-                MirrorChest.ConfigureOnPlacement(GetAbsoluteParentRoom());
-                if (MirrorChest.majorBreakable) { MirrorChest.majorBreakable.TemporarilyInvulnerable = true; }
-                ChestSprite = MirrorChest.sprite;
-                ChestSprite.renderer.enabled = false;
-                ChestReflection.TargetSprite = ChestSprite;
-                ChestReflection.MirrorSprite = MirrorSprite;
-                SpeculativeRigidbody specRigidbody = MirrorSprite.specRigidbody;
-                specRigidbody.OnRigidbodyCollision = (SpeculativeRigidbody.OnRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody.OnRigidbodyCollision, new SpeculativeRigidbody.OnRigidbodyCollisionDelegate(HandleRigidbodyCollisionWithMirror));
-                MinorBreakable componentInChildren = GetComponentInChildren<MinorBreakable>();
-                componentInChildren.OnlyBrokenByCode = true;
-                componentInChildren.heightOffGround = 4f;
-            } catch (Exception) { }
+            } else {
+                PlayerReflection.gameObject.SetActive(false);
+                CoopPlayerReflection.gameObject.SetActive(false);
+                tk2dBaseSprite[] AllMirrorSprites = gameObject.GetComponents<tk2dBaseSprite>();
+                if (AllMirrorSprites != null && AllMirrorSprites.Length > 0) { ChaosShaders.Instance.ApplyGlitchShader(null, AllMirrorSprites[0]); }
+            }
+
+            IntVector2 MirrorChestPosition = (base.transform.position.IntXY(VectorConversions.Round) + new IntVector2(0, -2) - m_ParentRoom.area.basePosition);
+            if (spawnBellosChest) {
+                MirrorChest = ChaosUtility.GenerateChest(MirrorChestPosition, m_ParentRoom, PickupObject.ItemQuality.A, 0, false);
+                MirrorChest.forceContentIds = new List<int>() { 435, 493 };
+            } else {
+                MirrorChest = ChaosUtility.GenerateChest(MirrorChestPosition, m_ParentRoom, null, -1f);
+            }
+            MirrorChest.PreventFuse = true;
+            SpriteOutlineManager.RemoveOutlineFromSprite(MirrorChest.sprite, false);
+            Transform transform = MirrorChest.gameObject.transform.Find("Shadow");
+            if (transform) { MirrorChest.ShadowSprite = transform.GetComponent<tk2dSprite>(); }
+            MirrorChest.IsMirrorChest = true;
+            MirrorChest.ConfigureOnPlacement(m_ParentRoom);
+            m_ParentRoom.RegisterInteractable(MirrorChest);
+            if (spawnBellosChest) { MirrorChest.DeregisterChestOnMinimap(); }
+            if (MirrorChest.majorBreakable) { MirrorChest.majorBreakable.TemporarilyInvulnerable = true; }
+            ChestSprite = MirrorChest.sprite;
+            ChestSprite.renderer.enabled = false;
+            ChestReflection.TargetSprite = ChestSprite;
+            ChestReflection.MirrorSprite = MirrorSprite;
+            SpeculativeRigidbody specRigidbody = MirrorSprite.specRigidbody;
+            specRigidbody.OnRigidbodyCollision = (SpeculativeRigidbody.OnRigidbodyCollisionDelegate)Delegate.Combine(specRigidbody.OnRigidbodyCollision, new SpeculativeRigidbody.OnRigidbodyCollisionDelegate(HandleRigidbodyCollisionWithMirror));
+            MinorBreakable componentInChildren = GetComponentInChildren<MinorBreakable>();
+            componentInChildren.OnlyBrokenByCode = true;
+            componentInChildren.heightOffGround = 4f;
+
+            IPlayerInteractable[] TableInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(gameObject);
+            for (int i = 0; i < TableInterfacesInChildren.Length; i++) { if (!m_ParentRoom.IsRegistered(TableInterfacesInChildren[i])) { m_ParentRoom.RegisterInteractable(TableInterfacesInChildren[i]); } }
+            // Destroy(gameObject.GetComponent<MirrorController>());
+
+            // SpeculativeRigidbody InteractableRigidMirror = gameObject.GetComponent<SpeculativeRigidbody>();
+            // InteractableRigidMirror.Initialize();
+            // PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidMirror, null, false);
         }
+
 
         private void HandleRigidbodyCollisionWithMirror(CollisionData rigidbodyCollision) {
             if (rigidbodyCollision.OtherRigidbody.projectile) {
@@ -131,10 +158,7 @@ namespace ChaosGlitchMod {
                 while (childBreakable) { yield return null; }
             }
             tk2dSpriteAnimator eyeBall = GetComponentInChildren<tk2dSpriteAnimator>();
-            if (eyeBall) { eyeBall.Play("haunted_mirror_eye"); } else {
-                tk2dSpriteAnimator eyeBallfallBack = mirrorControllerInstance.GetComponentInChildren<tk2dSpriteAnimator>();
-                if (eyeBall) { eyeBall.Play("haunted_mirror_eye"); }
-            }
+            if (eyeBall) { eyeBall.Play("haunted_mirror_eye"); }
             if (ShatterSystem) { ShatterSystem.SetActive(true); }
             yield return new WaitForSeconds(2.5f);
             if (ShatterSystem) { ShatterSystem.GetComponent<ParticleSystem>().Pause(false); }
@@ -148,12 +172,9 @@ namespace ChaosGlitchMod {
 
         public float GetOverrideMaxDistance() { return -1f; }
 
-        public void ConfigureOnPlacement(RoomHandler room) {
-            room.OptionalDoorTopDecorable = (ResourceCache.Acquire("Global Prefabs/Purple_Lantern") as GameObject);
-            if (!room.IsOnCriticalPath && room.connectedRooms.Count == 1) {
-                room.ShouldAttemptProceduralLock = true;
-                room.AttemptProceduralLockChance = Mathf.Max(room.AttemptProceduralLockChance, UnityEngine.Random.Range(0.3f, 0.5f));
-            }
+        public void ConfigureOnPlacement(RoomHandler room) {            
+            m_ParentRoom = room;
+            m_ParentRoom.OptionalDoorTopDecorable = (ResourceCache.Acquire("Global Prefabs/Purple_Lantern") as GameObject);            
         }
     }
 }

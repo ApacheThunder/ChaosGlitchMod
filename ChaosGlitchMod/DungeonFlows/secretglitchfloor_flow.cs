@@ -1,15 +1,18 @@
-﻿using Dungeonator;
-using Pathfinding;
+﻿using ChaosGlitchMod.ChaosComponents;
+using ChaosGlitchMod.ChaosMain;
+using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
+using Dungeonator;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     class secretglitchfloor_flow : MonoBehaviour {
 
         public static void InitFlow() {
+
             ChaosDungeonFlows.SecretGlitchFloor_Flow.name = "SecretGlitchFloor_Flow";
             ChaosDungeonFlows.SecretGlitchFloor_Flow.fallbackRoomTable = ChaosPrefabs.CustomRoomTableSecretGlitchFloor;
             ChaosDungeonFlows.SecretGlitchFloor_Flow.subtypeRestrictions = new List<DungeonFlowSubtypeRestriction>(0);
@@ -20,9 +23,19 @@ namespace ChaosGlitchMod {
 
             DungeonFlowNode m_EntranceNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.ENTRANCE, ChaosRoomPrefabs.Giant_Elevator_Room);
             DungeonFlowNode m_ShopNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.SPECIAL, overrideTable: ChaosPrefabs.shop_room_table);
-            DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room_custom);
-            DungeonFlowNode m_ChestRoom_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room_custom);
-            DungeonFlowNode m_WinchesterNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL, overrideTable: ChaosPrefabs.winchesterroomtable);
+            DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room);
+            DungeonFlowNode m_ChestRoom_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room);
+            DungeonFlowNode m_WinchesterNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL);
+
+            List<PrototypeDungeonRoom> m_WinchesterRoomList = new List<PrototypeDungeonRoom>();
+
+            foreach (WeightedRoom weightedRoom in ChaosPrefabs.winchesterroomtable.includedRooms.elements) {
+                if (weightedRoom.room != null) { m_WinchesterRoomList.Add(weightedRoom.room); }
+            }
+
+            if (m_WinchesterRoomList.Count > 0) { m_WinchesterNode.overrideExactRoom = BraveUtility.RandomElement(m_WinchesterRoomList); }
+
+
             DungeonFlowNode m_GunMuncherNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.SPECIAL, ChaosPrefabs.subshop_muncher_01);
            
 
@@ -115,8 +128,9 @@ namespace ChaosGlitchMod {
             m_PuzzleNode_01.overrideExactRoom.name = "Zelda Puzzle Room 1";
             DungeonFlowNode m_PuzzleNode_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL, Instantiate(ChaosPrefabs.gungeon_normal_fightinaroomwithtonsoftraps));
             m_PuzzleNode_02.overrideExactRoom.name = "Zelda Puzzle Room 2";
-            DungeonFlowNode m_PuzzleNode_03 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL, Instantiate(ChaosPrefabs.gungeon_gauntlet_001));
-            m_PuzzleNode_03.overrideExactRoom.name = "Zelda Puzzle Room 3";
+            // Zelda Puzzle Room 3
+            DungeonFlowNode m_PuzzleNode_03 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL, ChaosRoomPrefabs.PuzzleRoom3);
+            
 
             DungeonFlowNode m_Temp = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL, ChaosRoomPrefabs.ThwompCrossingHorizontal);
             
@@ -182,7 +196,7 @@ namespace ChaosGlitchMod {
             ChaosDungeonFlows.SecretGlitchFloor_Flow.AddNodeToFlow(m_ThirdChainNode_03, m_ThirdChainNode_02);
             ChaosDungeonFlows.SecretGlitchFloor_Flow.AddNodeToFlow(m_ThirdChainNode_04, m_ThirdChainNode_03);
             ChaosDungeonFlows.SecretGlitchFloor_Flow.AddNodeToFlow(m_ThirdChainNode_05, m_ThirdChainNode_04);
-
+            
             // Fourth Chain (Single chain to fake boss)
             ChaosDungeonFlows.SecretGlitchFloor_Flow.AddNodeToFlow(m_FourthChainNode_01, m_EntranceNode);
             ChaosDungeonFlows.SecretGlitchFloor_Flow.AddNodeToFlow(m_FourthChainNode_02, m_FourthChainNode_01);
@@ -222,12 +236,13 @@ namespace ChaosGlitchMod {
         public static IEnumerator InitCustomObjects(float Seed = 0, bool randomBool = false, bool randomBool2 = false) {
             AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");
             AssetBundle assetBundle2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+            ChaosObjectRandomizer objectDatabase = new ChaosObjectRandomizer();
             PlayerController PrimaryPlayer = GameManager.Instance.PrimaryPlayer;
-            ChaosGlitchMod.isGlitchFloor = false;
-            Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
+            try { Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader); } catch (System.Exception) { }
             // GameManager.Instance.Dungeon.musicEventName = "Play_Mus_Dungeon_Rat_Theme_01";
             // GameManager.Instance.DungeonMusicController.ResetForNewFloor(GameManager.Instance.Dungeon);
             
+
             if (PrimaryPlayer.HasPickupID(316)) {
 		        while (PrimaryPlayer.HasPickupID(316)) {
                     PrimaryPlayer.RemovePassiveItem(316);
@@ -239,8 +254,8 @@ namespace ChaosGlitchMod {
                 }                
             }
 
+            yield return null;
             try {
-
                 DungeonPlaceable ChestPlatform = assetBundle2.LoadAsset("Treasure_Dais_Stone_Carpet") as DungeonPlaceable;
 
                 GameObject Chest_Black = assetBundle.LoadAsset<GameObject>("Chest_Black");
@@ -274,9 +289,9 @@ namespace ChaosGlitchMod {
                 GameObject BlankRewardPedestal2 = null;
 
 
-
-                GameObject ArrivalObject = GameObject.Find("Arrival(Clone)");
-                if (ArrivalObject != null) { ArrivalObject.name = "Arrival"; }                
+                foreach (GameObject possibleObject in FindObjectsOfType<GameObject>()) {
+                    if (possibleObject.name != null && possibleObject.name == "Arrival(Clone)") { possibleObject.name = "Arrival"; }
+                }
 
                 if (PrimaryPlayer.carriedConsumables.ResourcefulRatKeys > 0) {
                     PrimaryPlayer.carriedConsumables.ResourcefulRatKeys = 0;
@@ -284,13 +299,19 @@ namespace ChaosGlitchMod {
                 }
 
                 if (FindObjectsOfType<ElevatorArrivalController>() != null) {
-                    ElevatorArrivalController[] elevatorArrivaControllers = FindObjectsOfType<ElevatorArrivalController>();
-                    foreach (ElevatorArrivalController elevatorArrivaController in elevatorArrivaControllers) {
-                        if (elevatorArrivaController.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
-                            foreach (tk2dBaseSprite baseSprite in elevatorArrivaController.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true)) {
+                    foreach (ElevatorArrivalController elevatorArrivalController in FindObjectsOfType<ElevatorArrivalController>()) {
+                        if (elevatorArrivalController.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
+                            foreach (tk2dBaseSprite baseSprite in elevatorArrivalController.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true)) {
                                 ChaosShaders.Instance.ApplyGlitchShader(null, baseSprite);
                             }
                         }
+                    }
+                }
+
+                if (FindObjectsOfType<ElevatorDepartureController>() != null) {                    
+                    foreach (ElevatorDepartureController elevatorDepartureController in FindObjectsOfType<ElevatorDepartureController>()) {
+                        elevatorDepartureController.UsesOverrideTargetFloor = true;
+                        elevatorDepartureController.OverrideTargetFloor = GlobalDungeonData.ValidTilesets.FORGEGEON;
                     }
                 }
 
@@ -351,8 +372,8 @@ namespace ChaosGlitchMod {
                     TreasureChestStoneCarpet1.transform.parent = SecretRewardRoom.hierarchyParent;
                     TreasureChestStoneCarpet2.transform.parent = SecretRewardRoom.hierarchyParent;
 
-                    GameObject PlacedBlackChestObject = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Black, false, true).InstantiateObject(SecretRewardRoom, SecretChestPosition1);
-                    GameObject PlacedRainbowChestObject = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rainbow, false, true).InstantiateObject(SecretRewardRoom, SecretChestPosition2);
+                    GameObject PlacedBlackChestObject = ChaosUtility.GenerateDungeonPlacable(Chest_Black, false, true).InstantiateObject(SecretRewardRoom, SecretChestPosition1);
+                    GameObject PlacedRainbowChestObject = ChaosUtility.GenerateDungeonPlacable(Chest_Rainbow, false, true).InstantiateObject(SecretRewardRoom, SecretChestPosition2);
                     PlacedBlackChestObject.transform.position += new Vector3(0.5f, 0);
                     PlacedRainbowChestObject.transform.position += new Vector3(0.5f, 0);
                     TreasureChestStoneCarpet1.transform.position += new Vector3(0.5f, 0);
@@ -383,7 +404,7 @@ namespace ChaosGlitchMod {
                     SecretRewardRoom.RegisterInteractable(PlacedRainbowChestComponent);
 
                     Vector3 SpecialLockedDoorPosition = new Vector3(9, 52.25f) + SecretRewardRoom.area.basePosition.ToVector3();
-                    GameObject SpecialLockedDoor = Instantiate(ChaosPrefabs.LockedJailDoor, SpecialLockedDoorPosition, Quaternion.identity);
+                    GameObject SpecialLockedDoor = Instantiate(objectDatabase.LockedJailDoor, SpecialLockedDoorPosition, Quaternion.identity);
                     SpecialLockedDoor.transform.parent = SecretRewardRoom.hierarchyParent;
                     InteractableLock SpecialLockedDoorComponent = SpecialLockedDoor.GetComponentInChildren<InteractableLock>();
                     SpecialLockedDoorComponent.lockMode = InteractableLock.InteractableLockMode.RESOURCEFUL_RAT;
@@ -391,7 +412,7 @@ namespace ChaosGlitchMod {
                     tk2dBaseSprite RainbowLockSprite = SpecialLockedDoorComponent.GetComponentInChildren<tk2dBaseSprite>();
                     if (RainbowLockSprite != null) { ChaosShaders.Instance.ApplyRainbowShader(RainbowLockSprite); }
 
-                    GameObject PlacedPuzzleKeyPedestal = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(SecretRewardRoom, new IntVector2(9, 15), false, true);
+                    GameObject PlacedPuzzleKeyPedestal = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(SecretRewardRoom, new IntVector2(9, 15), false, true);
                     if (PlacedPuzzleKeyPedestal != null) {
                         if (PlacedPuzzleKeyPedestal.GetComponent<RewardPedestal>() != null) {
                             RewardPedestal PlacedPuzzleKeyPedestalComponent = PlacedPuzzleKeyPedestal.GetComponent<RewardPedestal>();
@@ -416,12 +437,12 @@ namespace ChaosGlitchMod {
                     IntVector2 PuzzleChestCarpetPosition5 = PuzzleChestPosition5 - new IntVector2(0, 1);
                     IntVector2 PuzzleChestCarpetPosition6 = PuzzleChestPosition6 - new IntVector2(0, 1);
 
-                    GameObject PlacedPuzzleRatChest1 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition1, false, true);
-                    GameObject PlacedPuzzleRatChest2 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition2, false, true);
-                    GameObject PlacedPuzzleRatChest3 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition3, false, true);
-                    GameObject PlacedPuzzleRatChest4 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition4, false, true);
-                    GameObject PlacedPuzzleRatChest5 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition5, false, true);
-                    GameObject PlacedPuzzleRatChest6 = ChaosUtility.CustomGlitchDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition6, false, true);
+                    GameObject PlacedPuzzleRatChest1 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition1, false, true);
+                    GameObject PlacedPuzzleRatChest2 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition2, false, true);
+                    GameObject PlacedPuzzleRatChest3 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition3, false, true);
+                    GameObject PlacedPuzzleRatChest4 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition4, false, true);
+                    GameObject PlacedPuzzleRatChest5 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition5, false, true);
+                    GameObject PlacedPuzzleRatChest6 = ChaosUtility.GenerateDungeonPlacable(Chest_Rat, false, true).InstantiateObject(SecretRewardRoom, PuzzleChestPosition6, false, true);
                     GameObject PuzzleChestStoneCarpet1 = ChestPlatform.InstantiateObject(SecretRewardRoom, PuzzleChestCarpetPosition1);
                     GameObject PuzzleChestStoneCarpet2 = ChestPlatform.InstantiateObject(SecretRewardRoom, PuzzleChestCarpetPosition2);
                     GameObject PuzzleChestStoneCarpet3 = ChestPlatform.InstantiateObject(SecretRewardRoom, PuzzleChestCarpetPosition3);
@@ -508,7 +529,7 @@ namespace ChaosGlitchMod {
                 }
 
                 if (TinyKeyRoom1 != null) {
-                    PlacedSecretKeyPedestal1 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom1, IntVector2.One, false, true);
+                    PlacedSecretKeyPedestal1 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom1, IntVector2.One, false, true);
                     PlacedSecretKeyPedestal1.transform.parent = TinyKeyRoom1.hierarchyParent;
                     RewardPedestal PlacedSecretKeyPedestalComponent1 = PlacedSecretKeyPedestal1.GetComponent<RewardPedestal>();
                     PlacedSecretKeyPedestalComponent1.SpecificItemId = 727;
@@ -518,7 +539,7 @@ namespace ChaosGlitchMod {
                     PlacedSecretKeyPedestalComponent1.ConfigureOnPlacement(TinyKeyRoom1);
                 }
                 if (TinyKeyRoom2 != null) {
-                    PlacedSecretKeyPedestal2 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom2, IntVector2.One, false, true);
+                    PlacedSecretKeyPedestal2 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom2, IntVector2.One, false, true);
                     PlacedSecretKeyPedestal2.transform.parent = TinyKeyRoom2.hierarchyParent;
                     RewardPedestal PlacedSecretKeyPedestalComponent2 = PlacedSecretKeyPedestal2.GetComponent<RewardPedestal>();
                     PlacedSecretKeyPedestalComponent2.SpecificItemId = 727;
@@ -528,7 +549,7 @@ namespace ChaosGlitchMod {
                     PlacedSecretKeyPedestalComponent2.ConfigureOnPlacement(TinyKeyRoom2);
                 }
                 if (TinyKeyRoom3 != null) {
-                    PlacedSecretKeyPedestal3 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom3, IntVector2.One, false, true);
+                    PlacedSecretKeyPedestal3 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom3, IntVector2.One, false, true);
                     PlacedSecretKeyPedestal3.transform.parent = TinyKeyRoom3.hierarchyParent;
                     RewardPedestal PlacedSecretKeyPedestalComponent3 = PlacedSecretKeyPedestal3.GetComponent<RewardPedestal>();
                     PlacedSecretKeyPedestalComponent3.SpecificItemId = 727;
@@ -538,7 +559,7 @@ namespace ChaosGlitchMod {
                     PlacedSecretKeyPedestalComponent3.ConfigureOnPlacement(TinyKeyRoom3);
                 }
                 if (TinyKeyRoom4 != null) {
-                    PlacedSecretKeyPedestal4 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom4, IntVector2.One, false, true);
+                    PlacedSecretKeyPedestal4 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyKeyRoom4, IntVector2.One, false, true);
                     PlacedSecretKeyPedestal4.transform.parent = TinyKeyRoom4.hierarchyParent;
                     RewardPedestal PlacedSecretKeyPedestalComponent4 = PlacedSecretKeyPedestal4.GetComponent<RewardPedestal>();
                     PlacedSecretKeyPedestalComponent4.SpecificItemId = 727;
@@ -549,7 +570,7 @@ namespace ChaosGlitchMod {
 
                 }
                 if (TinyBlankRoom1 != null) {
-                    BlankRewardPedestal1 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyBlankRoom1, IntVector2.One, false, true);
+                    BlankRewardPedestal1 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyBlankRoom1, IntVector2.One, false, true);
                     BlankRewardPedestal1.transform.parent = TinyBlankRoom1.hierarchyParent;
                     RewardPedestal BlankRewardPedestallComponent1 = BlankRewardPedestal1.GetComponent<RewardPedestal>();
                     BlankRewardPedestallComponent1.SpecificItemId = 224;
@@ -559,7 +580,7 @@ namespace ChaosGlitchMod {
                     BlankRewardPedestallComponent1.ConfigureOnPlacement(TinyBlankRoom1);
                 }
                 if (TinyBlankRoom2 != null) {
-                    BlankRewardPedestal2 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyBlankRoom2, IntVector2.One, false, true);
+                    BlankRewardPedestal2 = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(TinyBlankRoom2, IntVector2.One, false, true);
                     BlankRewardPedestal2.transform.parent = TinyBlankRoom2.hierarchyParent;
                     RewardPedestal BlankRewardPedestallComponent2 = BlankRewardPedestal2.GetComponent<RewardPedestal>();
                     BlankRewardPedestallComponent2.SpecificItemId = 224;
@@ -576,42 +597,26 @@ namespace ChaosGlitchMod {
                         WingsItemPosition += new IntVector2(0, 7);
                         WingsItemOffset -= new Vector2(0f, 0.3f);
                     }
-                    GameObject PlacedWingsItem = ChaosUtility.CustomGlitchDungeonPlacable(spawnsItem: true, CustomOffset: WingsItemOffset).InstantiateObject(SpecialWallMimicRoom, WingsItemPosition);
+                    GameObject PlacedWingsItem = ChaosUtility.GenerateDungeonPlacable(spawnsItem: true, CustomOffset: WingsItemOffset).InstantiateObject(SpecialWallMimicRoom, WingsItemPosition);
                     PlacedWingsItem.transform.parent = SpecialWallMimicRoom.hierarchyParent;
                     WingsItem WingsItemComponent = PlacedWingsItem.GetComponent<WingsItem>();
-                    if (WingsItemComponent != null) { SpecialWallMimicRoom.RegisterInteractable(WingsItemComponent); }
+                    if (WingsItemComponent != null) {
+                        SpecialWallMimicRoom.RegisterInteractable(WingsItemComponent);
+                        PassiveItem WingsPassive = WingsItemComponent.GetComponentInChildren<PassiveItem>(true);
+                        if (WingsPassive) { WingsPassive.GetRidOfMinimapIcon(); }
+                    }
                 }
 
                 if (ShopBackRoom != null) {
                     IntVector2 MirrorChestPosition = new IntVector2(3, 33);
-                    GameObject MirrorChestShrineObject = DungeonPlaceableUtility.InstantiateDungeonPlaceable(ChaosPrefabs.ChestMirror, ShopBackRoom, MirrorChestPosition, true);
+                    GameObject MirrorChestShrineObject = ChaosPrefabs.CurrsedMirrorPlacable.InstantiateObject(ShopBackRoom, MirrorChestPosition, true);
                     MirrorChestShrineObject.transform.parent = ShopBackRoom.hierarchyParent;
-                    AdvancedShrineController CursedMirrorComponent = MirrorChestShrineObject.AddComponent<AdvancedShrineController>();
-                    SpeculativeRigidbody InteractableRigidMirror = CursedMirrorComponent.GetComponentInChildren<SpeculativeRigidbody>();
-                    InteractableRigidMirror.Initialize();
-                    PhysicsEngine.Instance.RegisterOverlappingGhostCollisionExceptions(InteractableRigidMirror, null, false);
-
-                    MirrorController MirrorControllerComponent = MirrorChestShrineObject.GetComponentInChildren<MirrorController>();
-                    ChaosMirrorController ChaosMirrorControllerComponent = MirrorChestShrineObject.AddComponent<ChaosMirrorController>();
-                    ChaosMirrorControllerComponent.mirrorControllerInstance = MirrorControllerComponent;
-                    ChaosMirrorControllerComponent.ShatterSystem = MirrorControllerComponent.ShatterSystem;
-                    ChaosMirrorControllerComponent.PlayerReflection = MirrorControllerComponent.PlayerReflection;
-                    ChaosMirrorControllerComponent.CoopPlayerReflection = MirrorControllerComponent.CoopPlayerReflection;
-                    ChaosMirrorControllerComponent.ChestReflection = MirrorControllerComponent.ChestReflection;
-                    tk2dSpriteAnimator chaosMirrorAnimator = MirrorControllerComponent.GetComponentInChildren<tk2dSpriteAnimator>();
-                    ChaosMirrorControllerComponent.spriteAnimator = chaosMirrorAnimator;
-                    ChaosMirrorControllerComponent.ConfigureOnPlacement(ShopBackRoom);
-
-                    tk2dBaseSprite[] AllMirrorSprites = ChaosMirrorControllerComponent.GetComponentsInChildren<tk2dBaseSprite>();
-                    if (AllMirrorSprites != null && AllMirrorSprites.Length > 0) { ChaosShaders.Instance.ApplyGlitchShader(null, AllMirrorSprites[0]); }
-                    Destroy(ChaosMirrorControllerComponent.PlayerReflection.GetComponentInChildren<tk2dBaseSprite>());
-
-                    Destroy(MirrorChestShrineObject.GetComponentInChildren<MirrorController>());            
-                    IPlayerInteractable[] MirrorInterfacesInChildren = GameObjectExtensions.GetInterfacesInChildren<IPlayerInteractable>(CursedMirrorComponent.gameObject);
-                    for (int i = 0; i < MirrorInterfacesInChildren.Length; i++) { if (!ShopBackRoom.IsRegistered(MirrorInterfacesInChildren[i])) { ShopBackRoom.RegisterInteractable(MirrorInterfacesInChildren[i]); } }
-
+                    MirrorChestShrineObject.AddComponent<ChaosMirrorController>();
+                    ChaosMirrorController chaosMirrorControllerComponent = MirrorChestShrineObject.GetComponent<ChaosMirrorController>();
+                    chaosMirrorControllerComponent.ConfigureOnPlacement(ShopBackRoom);
+                    
                     IntVector2 BellosNotePosition = new IntVector2(3, 9);
-                    GameObject PlacedBellosNote = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.PlayerLostRatNote, false, true).InstantiateObject(ShopBackRoom, BellosNotePosition);
+                    GameObject PlacedBellosNote = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.PlayerLostRatNote, false, true).InstantiateObject(ShopBackRoom, BellosNotePosition);
                     PlacedBellosNote.transform.parent = ShopBackRoom.hierarchyParent;
                     NoteDoer BellosNoteComponent = PlacedBellosNote.GetComponent<NoteDoer>();
 
@@ -619,7 +624,7 @@ namespace ChaosGlitchMod {
                         if (GameManager.Instance.CurrentFloor == 5) {
                             BellosNoteComponent.stringKey = "Every time the Gungeon shifts I expect to be in the Forge. But it seems I'm destined to always end up in this corrupted world.\nThe fabric of reality seems off here. Even the Gundead dread being here.\n I have stashed my 2 most important items behind an enchanted mirror across a long pit.\n Should keep those vandalizing Gungeoneers who like to shoot up my shop from getting to it.\n One day I'll reach the real Forge and finally meet her....Maybe then I can finally leave this place...";
                         } else {
-                            BellosNoteComponent.stringKey = "I have stashed my most important items behind an enchanted mirror across a long pit.\nHopefully it will be enough to keep them safe from the Gungeoneers who like the vanalize my shop with their guns.";
+                            BellosNoteComponent.stringKey = "I have stashed my most important items behind an enchanted mirror across a long pit.\nHopefully it will be enough to keep them safe from the Gungeoneers who like to vandalize my shop with their guns.";
                         }
                         BellosNoteComponent.useAdditionalStrings = false;
                         BellosNoteComponent.alreadyLocalized = true;
@@ -656,8 +661,8 @@ namespace ChaosGlitchMod {
                 if (PuzzleRoom2 != null) {
                     IntVector2 GlitchedTable1Position = new IntVector2(9, 10);
                     IntVector2 GlitchedTable2Position = new IntVector2(9, 8);
-                    GameObject GlitchedVerticalTable1 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableVertical, false, true).InstantiateObject(PuzzleRoom2, GlitchedTable1Position);
-                    GameObject GlitchedHorizontalTable1 = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableVertical, false, true).InstantiateObject(PuzzleRoom2, GlitchedTable2Position);
+                    GameObject GlitchedVerticalTable1 = ChaosUtility.GenerateDungeonPlacable(objectDatabase.TableVertical, false, true).InstantiateObject(PuzzleRoom2, GlitchedTable1Position);
+                    GameObject GlitchedHorizontalTable1 = ChaosUtility.GenerateDungeonPlacable(objectDatabase.TableVertical, false, true).InstantiateObject(PuzzleRoom2, GlitchedTable2Position);
 
                     GlitchedVerticalTable1.AddComponent<ChaosKickableObject>();
                     GlitchedHorizontalTable1.AddComponent<ChaosKickableObject>();
@@ -689,7 +694,7 @@ namespace ChaosGlitchMod {
 
                 if (PuzzleRoom3 != null) {
                     IntVector2 SecretKeyPosition = new IntVector2(14, 21);
-                    GameObject SecretKeyPedestal = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(PuzzleRoom3, SecretKeyPosition, false, true);
+                    GameObject SecretKeyPedestal = ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.RewardPedestalPrefab, false, true).InstantiateObject(PuzzleRoom3, SecretKeyPosition, false, true);
                     SecretKeyPedestal.transform.parent = PuzzleRoom3.hierarchyParent;
 
                     RewardPedestal SecretKeyPedestalComponent = SecretKeyPedestal.GetComponent<RewardPedestal>();
@@ -700,10 +705,11 @@ namespace ChaosGlitchMod {
                     SecretKeyPedestalComponent.ConfigureOnPlacement(PuzzleRoom3);
 
                     IntVector2 wallPosition = new IntVector2(14, 20);
-                    ChaosUtility.DestroyWallAtPosition(GameManager.Instance.Dungeon, PuzzleRoom3, wallPosition, true);
-                    ChaosUtility.DestroyWallAtPosition(GameManager.Instance.Dungeon, PuzzleRoom3, wallPosition + new IntVector2(1, 0), true);
+                    // ChaosUtility.DestroyWallAtPosition(GameManager.Instance.Dungeon, PuzzleRoom3, wallPosition, true);
+                    // ChaosUtility.DestroyWallAtPosition(GameManager.Instance.Dungeon, PuzzleRoom3, wallPosition + new IntVector2(1, 0), true);
                     SecretKeyPedestalComponent.gameObject.transform.localScale -= new Vector3(0.7f, 0.7f);
-                    ChaosUtility.GenerateFakeWall(DungeonData.Direction.SOUTH, new IntVector2(14, 20), PuzzleRoom3, updateMinimapOnly: true);
+                    // ChaosUtility.GenerateFakeWall(DungeonData.Direction.SOUTH, new IntVector2(14, 20), PuzzleRoom3, updateMinimapOnly: true);
+                    ChaosUtility.GenerateFakeWall(DungeonData.Direction.SOUTH, new IntVector2(14, 20), PuzzleRoom3, markAsSecret: true, isGlitched: true);
                 }
 
 
@@ -711,9 +717,10 @@ namespace ChaosGlitchMod {
                     GameObject SpecialRatBoss = DungeonPlaceableUtility.InstantiateDungeonPlaceable(EnemyDatabase.GetOrLoadByGuid("6868795625bd46f3ae3e4377adce288b").gameObject, SecretBossRoom, new IntVector2(17, 28), true, AIActor.AwakenAnimationType.Awaken, true);
                     AIActor RatBossAIActor = SpecialRatBoss.GetComponent<AIActor>();
                     if (RatBossAIActor != null) {
-                        int LootTableCapacity = GameManager.Instance.RewardManager.ItemsLootTable.defaultItemDrops.elements.Count;
-                        int ItemID = GameManager.Instance.RewardManager.ItemsLootTable.defaultItemDrops.elements[Random.Range(0, LootTableCapacity - 1)].pickupId;
-                        int ItemID2 = GameManager.Instance.RewardManager.ItemsLootTable.defaultItemDrops.elements[Random.Range(0, LootTableCapacity - 1)].pickupId;
+                        PickupObject.ItemQuality targetQuality = (Random.value >= 0.2f) ? ((!BraveUtility.RandomBool()) ? PickupObject.ItemQuality.C : PickupObject.ItemQuality.D) : PickupObject.ItemQuality.B;
+                        GenericLootTable lootTable = (!BraveUtility.RandomBool()) ? GameManager.Instance.RewardManager.GunsLootTable : GameManager.Instance.RewardManager.ItemsLootTable;
+                        PickupObject item = LootEngine.GetItemOfTypeAndQuality<PickupObject>(targetQuality, lootTable, false);
+                        PickupObject item2 = LootEngine.GetItemOfTypeAndQuality<PickupObject>(targetQuality, lootTable, false);                        
                         Destroy(RatBossAIActor.gameObject.GetComponent<ResourcefulRatDeathController>());
                         Destroy(RatBossAIActor.gameObject.GetComponent<ResourcefulRatRewardRoomController>());
                         RatBossAIActor.State = AIActor.ActorState.Awakening;
@@ -722,10 +729,8 @@ namespace ChaosGlitchMod {
                         ChaosSpawnGlitchObjectOnDeath ObjectSpawnerComponent = RatBossAIActor.healthHaver.gameObject.GetComponent<ChaosSpawnGlitchObjectOnDeath>();
                         ObjectSpawnerComponent.spawnRatCorpse = true;
                         ObjectSpawnerComponent.ratCorpseSpawnsKey = true;
-
-                        if (GameManager.Instance.RewardManager.ItemsLootTable != null && GameManager.Instance.RewardManager.ItemsLootTable.defaultItemDrops.elements != null) {
-                            RatBossAIActor.AdditionalSafeItemDrops = new List<PickupObject> { PickupObjectDatabase.GetById(ItemID), PickupObjectDatabase.GetById(ItemID2) };
-                        }
+                        ObjectSpawnerComponent.parentEnemyWasRat = true;
+                        if (item && item2) { RatBossAIActor.AdditionalSafeItemDrops = new List<PickupObject> { item, item2 }; }
                         RatBossAIActor.healthHaver.enabled = true;
                         RatBossAIActor.healthHaver.forcePreventVictoryMusic = true;
                         RatBossAIActor.ConfigureOnPlacement(SecretBossRoom);
@@ -739,13 +744,15 @@ namespace ChaosGlitchMod {
                 Debug.Log("[DEBUG] Warning: Exception caught during object setup phase in secretglithcfloor_flow!");
                 Debug.LogException(ex);
             }
+            ChaosEnemyReplacements.InitReplacementEnemiesAfterSecret(GlobalDungeonData.ValidTilesets.FORGEGEON, "_Forge");
+            ChaosEnemyReplacements.InitReplacementEnemiesAfterSecret(GlobalDungeonData.ValidTilesets.HELLGEON, "_Hell");
+
+            yield return null;
+            Destroy(objectDatabase);
             assetBundle = null;
             assetBundle2 = null;
             yield return new WaitForSeconds(1.2f);
-            Pixelator.Instance.DeregisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
-            if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
-                GameManager.Instance.Dungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.CATACOMBGEON;
-            }
+            try { Pixelator.Instance.DeregisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader); } catch (System.Exception) { }
             yield break;
         }
     }

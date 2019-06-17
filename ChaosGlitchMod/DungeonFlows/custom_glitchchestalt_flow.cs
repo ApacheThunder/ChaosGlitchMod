@@ -1,9 +1,10 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosObjects;
+using Dungeonator;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     class custom_glitchchestalt_flow : MonoBehaviour {
 
@@ -15,10 +16,10 @@ namespace ChaosGlitchMod {
         private static DungeonFlowNode m_EntranceNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.ENTRANCE, ChaosRoomPrefabs.Giant_Elevator_Room);
         private static DungeonFlowNode m_HubNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.HUB);
         private static DungeonFlowNode m_ShopNode_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.SPECIAL, overrideTable: ChaosPrefabs.shop_room_table);
-        private static DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom, oneWayLoopTarget: true);
+        private static DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room, oneWayLoopTarget: true);
         private static DungeonFlowNode m_ChestRoom_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.gungeon_rewardroom_1);
         private static DungeonFlowNode m_ChestRoom_03 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.gungeon_rewardroom_1);
-        private static DungeonFlowNode m_ChestRoom_04 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom, oneWayLoopTarget: true);
+        private static DungeonFlowNode m_ChestRoom_04 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room, oneWayLoopTarget: true);
         private static DungeonFlowNode m_ExitNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.EXIT, ChaosPrefabs.tiny_exit);
         private static DungeonFlowNode m_BossFoyerNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.boss_foyer);
         private static DungeonFlowNode m_BossNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Custom_GlitchChestAlt_Flow, PrototypeDungeonRoom.RoomCategory.BOSS, ChaosPrefabs.doublebeholsterroom01);

@@ -3,19 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using Dungeonator;
 using UnityEngine;
+using ChaosGlitchMod.ChaosUtilities;
 
 // Custom Copy of KickableObject. Mainly to set RollingDestroysSafely to false as default.
 // Future instances of objects spawned by ObjectRandomizer end up with their Object class being changed.
 // In those cases, non drum objects like tables/locked doors that inherit this class can cause exceptions in the game log.
 // This can cause frame drops. So this object class has been cloned and the break on roll property disabled by default.
 // A few other bools that are null by default have also now been set to proper values.
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
-        public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractable, IPlaceConfigurable {
+        public class ChaosKickableObject : DungeonPlaceableBehaviour, IPlayerInteractable, IPlaceConfigurable {        
         
-        private static GameObject GrenadeGuyPrefab = (GameObject)ChaosLoadPrefab.Load("enemies_base_001", "Assets/Data/Enemies/GrenadeGuy", ".prefab");
         // Use Explosion Data from Grenade Kin
-        public ExplosionData TableExplosionData = GrenadeGuyPrefab.gameObject.GetComponent<ExplodeOnDeath>().explosionData;
+        public ExplosionData TableExplosionData;
 
         public GameObject SpawnedObject;
         public bool spawnObjectOnSelfDestruct;
@@ -74,7 +74,8 @@ namespace ChaosGlitchMod {
             RollingBreakAnim = "red_barrel_break";
             m_lastOutlineDirection = (DungeonData.Direction)(-1);
             m_objectSpawned = false;
-    	}
+            TableExplosionData = EnemyDatabase.GetOrLoadByGuid("4d37ce3d666b4ddda8039929225b7ede").gameObject.GetComponent<ExplodeOnDeath>().explosionData;
+        }
     
     	private void Start() {
                 SpeculativeRigidbody specRigidbody = base.specRigidbody;
@@ -473,7 +474,7 @@ namespace ChaosGlitchMod {
 
             if (spawnObjectOnSelfDestruct && SpawnedObject != null && !m_objectSpawned) {
                 m_objectSpawned = true;
-                GameObject PlacedGlitchObject = ChaosUtility.CustomGlitchDungeonPlacable(SpawnedObject, false, true).InstantiateObject(transform.position.GetAbsoluteRoom(), (specRigidbody.GetUnitCenter(ColliderType.HitBox) - transform.position.GetAbsoluteRoom().area.basePosition.ToVector2()).ToIntVector2(VectorConversions.Floor));
+                GameObject PlacedGlitchObject = ChaosUtility.GenerateDungeonPlacable(SpawnedObject, false, true).InstantiateObject(transform.position.GetAbsoluteRoom(), (specRigidbody.GetUnitCenter(ColliderType.HitBox) - transform.position.GetAbsoluteRoom().area.basePosition.ToVector2()).ToIntVector2(VectorConversions.Floor));
                 PlacedGlitchObject.transform.parent = transform.position.GetAbsoluteRoom().hierarchyParent;
 
                 if (PlacedGlitchObject.GetComponent<PickupObject>() != null) {

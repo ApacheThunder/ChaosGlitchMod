@@ -1,8 +1,9 @@
+using ChaosGlitchMod.ChaosUtilities;
 using Dungeonator;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosObjects {
 
     public class LootCrate : MonoBehaviour {
 
@@ -20,7 +21,7 @@ namespace ChaosGlitchMod {
         private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("brave_resources_001");
         private static GameObject EmergancyCratePrefab = (GameObject)assetBundle.LoadAsset("EmergencyCrate");        
 
-        private DungeonPlaceable CustomPlacable(string EnemyGUID = "01972dee89fc4404a5c408d50007dad5", bool forceBlackPhantom = false) {
+        private DungeonPlaceable CustomEnemyPlacable(string EnemyGUID = "01972dee89fc4404a5c408d50007dad5", bool forceBlackPhantom = false) {
             DungeonPlaceableVariant EnemyVariant = new DungeonPlaceableVariant();
             EnemyVariant.percentChance = 1f;
             EnemyVariant.unitOffset = Vector2.zero;
@@ -34,7 +35,7 @@ namespace ChaosGlitchMod {
             List<DungeonPlaceableVariant> EnemyTiers = new List<DungeonPlaceableVariant>();
             EnemyTiers.Add(EnemyVariant);
 
-            DungeonPlaceable m_cachedPlacable = new DungeonPlaceable();
+            DungeonPlaceable m_cachedPlacable = ScriptableObject.CreateInstance<DungeonPlaceable>();
             m_cachedPlacable.name = "CustomEnemyPlacable";
             m_cachedPlacable.width = 1;
             m_cachedPlacable.height = 1;
@@ -44,6 +45,34 @@ namespace ChaosGlitchMod {
             m_cachedPlacable.MarkSpawnedItemsAsRatIgnored = false;
             m_cachedPlacable.DebugThisPlaceable = false;
             m_cachedPlacable.variantTiers = EnemyTiers;
+
+            return m_cachedPlacable;
+        }
+
+        private DungeonPlaceable CustomItemPlacable(int ItemID = 70) {
+            DungeonPlaceableVariant ItemVariant = new DungeonPlaceableVariant();
+            ItemVariant.percentChance = 1f;
+            ItemVariant.unitOffset = Vector2.zero;
+            ItemVariant.enemyPlaceableGuid = string.Empty;
+            ItemVariant.pickupObjectPlaceableId = ItemID;
+            ItemVariant.forceBlackPhantom = false;
+            ItemVariant.addDebrisObject = false;
+            ItemVariant.prerequisites = null;
+            ItemVariant.materialRequirements = null;
+
+            List<DungeonPlaceableVariant> ItemTiers = new List<DungeonPlaceableVariant>();
+            ItemTiers.Add(ItemVariant);
+
+            DungeonPlaceable m_cachedPlacable = ScriptableObject.CreateInstance<DungeonPlaceable>();
+            m_cachedPlacable.name = "CustomItemPlacable";
+            m_cachedPlacable.width = 1;
+            m_cachedPlacable.height = 1;
+            m_cachedPlacable.roomSequential = false;
+            m_cachedPlacable.respectsEncounterableDifferentiator = false;
+            m_cachedPlacable.UsePrefabTransformOffset = false;
+            m_cachedPlacable.MarkSpawnedItemsAsRatIgnored = false;
+            m_cachedPlacable.DebugThisPlaceable = false;
+            m_cachedPlacable.variantTiers = ItemTiers;
 
             return m_cachedPlacable;
         }
@@ -58,8 +87,9 @@ namespace ChaosGlitchMod {
             int RoomSizeY = currentRoomSize.y;
             
             lootCrate.ChanceToExplode = ExplodeOdds;
-            lootCrate.ChanceToSpawnEnemy = EnemyOdds;
-            lootCrate.EnemyPlaceable = CustomPlacable(EnemyGUID);
+            lootCrate.ChanceToSpawnEnemy = EnemyOdds;          
+            lootCrate.EnemyPlaceable = CustomEnemyPlacable(EnemyGUID);
+          
 
             if (overrideTable != null) { lootCrate.gunTable = overrideTable; }
 

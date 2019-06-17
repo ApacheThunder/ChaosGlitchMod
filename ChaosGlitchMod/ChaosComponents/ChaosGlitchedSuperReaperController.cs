@@ -1,7 +1,8 @@
-﻿using System;
+﻿using ChaosGlitchMod.ChaosUtilities;
+using System;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
     public class ChaosGlitchedSuperReaperController : BraveBehaviour {
     

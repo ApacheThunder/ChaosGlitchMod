@@ -1,9 +1,11 @@
+using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
 using Dungeonator;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     public class BossrushFlows : MonoBehaviour {
 

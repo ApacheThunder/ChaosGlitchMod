@@ -1,9 +1,10 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosObjects;
+using Dungeonator;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     class really_big_flow : MonoBehaviour {
         
@@ -32,10 +33,10 @@ namespace ChaosGlitchMod {
                 NormalNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.NORMAL));
             }
 
-            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room_custom));
-            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom));
-            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom));
-            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom));
+            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.reward_room));
+            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room));
+            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room));
+            ChestNodes.Add(ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Really_Big_Flow, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room));
 
             ChaosDungeonFlows.Really_Big_Flow.name = "Really_Big_Flow";
             ChaosDungeonFlows.Really_Big_Flow.fallbackRoomTable = ChaosPrefabs.CustomRoomTableNoCastle;

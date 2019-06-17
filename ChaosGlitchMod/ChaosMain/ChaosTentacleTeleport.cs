@@ -1,36 +1,23 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
+using Dungeonator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosMain {
 
-	internal class ChaosTentacleTeleport : MonoBehaviour {
-
-        private static ChaosTentacleTeleport m_instance;
+	public class ChaosTentacleTeleport : MonoBehaviour {
 
         public static ChaosTentacleTeleport Instance {
             get {
-                if (!m_instance) {
-                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>();
-                }
+                if (!m_instance) { m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosTentacleTeleport>(); }
                 return m_instance;
             }
         }
-
-        private static AssetBundle sharedauto = ResourceManager.LoadAssetBundle("shared_auto_001");
-        private static AssetBundle sharedauto2 = ResourceManager.LoadAssetBundle("shared_auto_002");
-
-        private static PrototypeDungeonRoom HubRoom1 = sharedauto2.LoadAsset("gungeon_hub_001") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom GungeonRollTrap01 = sharedauto2.LoadAsset("normal_cubeworld_001") as PrototypeDungeonRoom;
-        private static PrototypeDungeonRoom BasicSecretRoom12 = sharedauto2.LoadAsset("shop02") as PrototypeDungeonRoom;
-
-        private static GameObject TeleporterIcon = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset("Minimap_Teleporter_Icon") as GameObject;
-        private static GameObject GenericRoomIcon = ResourceManager.LoadAssetBundle("shared_auto_002").LoadAsset("Minimap_Maintenance_Icon") as GameObject;
-        
-        private Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
-
+        private static ChaosTentacleTeleport m_instance;
+                
         private RoomHandler GlitchRoom;
         private PrototypeDungeonRoom SelectedPrototypeDungeonRoom;
 
@@ -137,15 +124,19 @@ namespace ChaosGlitchMod {
                 PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
                 PlayerController secondaryPlayer = GameManager.Instance.SecondaryPlayer;
                 Dungeon dungeon = GameManager.Instance.Dungeon;
-                int SelectedRoomIndex = UnityEngine.Random.Range(0, ChaosRoomRandomizer.MasterRoomArray.Length);
+
+                ChaosRoomRandomizer roomRandomizer = new ChaosRoomRandomizer();
+
+                int SelectedRoomIndex = UnityEngine.Random.Range(0, roomRandomizer.MasterRoomArray.Length);
                 int SelectedCombatRoomIndex = UnityEngine.Random.Range(0, ChaosPrefabs.CustomRoomTable.includedRooms.elements.Count);
                 
                 if (BraveUtility.RandomBool()) {
-                    SelectedPrototypeDungeonRoom = Instantiate(ChaosRoomRandomizer.MasterRoomArray[SelectedRoomIndex]);
+                    SelectedPrototypeDungeonRoom = Instantiate(roomRandomizer.MasterRoomArray[SelectedRoomIndex]);
                 } else {
                     SelectedPrototypeDungeonRoom = Instantiate(ChaosPrefabs.CustomRoomTable.includedRooms.elements[SelectedCombatRoomIndex].room);
                 }
-                
+                Destroy(roomRandomizer);
+                // roomRandomizer = null;
 
                 if (SelectedPrototypeDungeonRoom == null) {
                     Invoke("TentacleRelease", 1f);
@@ -166,6 +157,7 @@ namespace ChaosGlitchMod {
                 if (GlitchRoom.GetRoomName().ToLower().EndsWith("earlymetashopcell")) {
                     IntVector2 SpecialChestLocation = new IntVector2(10, 14);
                     WeightedGameObject wChestObject = new WeightedGameObject();
+                    Chest RainbowChest = GameManager.Instance.RewardManager.Rainbow_Chest;
                     wChestObject.rawGameObject = RainbowChest.gameObject;
                     WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
                     wChestObjectCollection.Add(wChestObject);
@@ -189,7 +181,7 @@ namespace ChaosGlitchMod {
                     ETGModConsole.Log(ex.Source, false);
                     ETGModConsole.Log(ex.StackTrace, false);
                     ETGModConsole.Log(ex.TargetSite.ToString(), false);
-
+                    Debug.LogException(ex);
                 }
                 Invoke("TentacleRelease", 1f);
                 Invoke("TentacleShowPlayer", 1.45f);

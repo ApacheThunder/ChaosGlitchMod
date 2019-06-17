@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosUtilities {
 
 	public class RoomFromText {
 
@@ -271,8 +271,8 @@ namespace ChaosGlitchMod {
                     OverrideFloorType = CellVisualData.CellFloorType.Stone,
                     globalOverrideIndices = new PrototypeIndexOverrideData() { indices = new List<int>() },
                 },
-                ForceTileNonDecorated = false,
-            };
+                ForceTileNonDecorated = false,            
+        };
             return m_NewCellData;
         }
 

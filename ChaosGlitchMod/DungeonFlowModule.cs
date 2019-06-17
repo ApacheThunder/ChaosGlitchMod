@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ChaosGlitchMod.ChaosObjects;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace ChaosGlitchMod {

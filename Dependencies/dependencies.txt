@@ -10,4 +10,6 @@ UnityEngine.CoreModule.Base.dll
 UnityEngine.dll
 UnityEngine.ImageConversionModule.dll
 UnityEngine.ParticleSystemModule.dll
+UnityEngine.Physics2DModule.dll
+UnityEngine.PhysicsModule.dll
 

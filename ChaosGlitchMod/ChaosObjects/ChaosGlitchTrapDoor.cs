@@ -3,41 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using Dungeonator;
 using UnityEngine;
+using ChaosGlitchMod.ChaosMain;
+using ChaosGlitchMod.ChaosUtilities;
+using ChaosGlitchMod.ChaosComponents;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosObjects {
 
     public class ChaosGlitchTrapDoor : DungeonPlaceableBehaviour, IPlaceConfigurable {
 
-        /*private static ChaosGlitchTrapDoor m_instance;
-
-        public static ChaosGlitchTrapDoor Instance {
-            get {
-                if (!m_instance) {
-                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosGlitchTrapDoor>();
-                }
-                return m_instance;
-            }
-        }*/
-
-
-        /*private static Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
-        private static DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
-        private static ResourcefulRatMinesHiddenTrapdoor ratTrapDoorController = ratTrapDoor.gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>();*/
-
-        // private static AssetBundle assetBundle = ResourceManager.LoadAssetBundle("shared_auto_002");
-        // private static AssetBundle assetBundle01 = ResourceManager.LoadAssetBundle("shared_auto_001");
-
-        // private static PrototypeDungeonRoom non_elevator_entrance = assetBundle.LoadAsset("non elevator entrance") as PrototypeDungeonRoom;
-        // private static GameObject Environment_Special_Set_Piece_Animation = assetBundle.LoadAsset("Environment_Special_Set_Piece_Animation") as GameObject;
-
-        // private static GameObject LockedJailDoor = assetBundle.LoadAsset("JailDoor") as GameObject;
-        // private InteractableLock JailDoorLock = Instantiate(LockedJailDoor.GetComponentInChildren<InteractableLock>());
-
-
-        public static Dungeon RatDungeon = null;
-
         public ChaosGlitchTrapDoor() {
-            // targetLevelName = "ss_resourcefulrat";
+            RevealPercentage = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().RevealPercentage;
+            Lock = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().Lock;
+            Lock.sprite.scale = new Vector3(2, 2);
+            Lock.lockMode = InteractableLock.InteractableLockMode.RESOURCEFUL_RAT;
+            Lock.transform.position -= new Vector3(0.725f, 0.7f);
+            OverridePitGrid = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().OverridePitGrid;
+            BlendMaterial = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().BlendMaterial;
+            LockBlendMaterial = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().LockBlendMaterial;
+            StoneFloorTex = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().StoneFloorTex;
+            DirtFloorTex = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().DirtFloorTex;
+            FlightCollider = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().FlightCollider;
+            MinimapIcon = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().MinimapIcon;
+            spriteAnimator = gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().spriteAnimator;            
+            Destroy(gameObject.GetComponent<ResourcefulRatMinesHiddenTrapdoor>());
+
+
             targetLevelName = "tt_nakatomi";            
             targetDungeonFlow = "SecretGlitchFloor_Flow";
             loadLevelOnPitFall = false;
@@ -52,7 +42,6 @@ namespace ChaosGlitchMod {
         public Material BlendMaterial;
         public Material LockBlendMaterial;
         public InteractableLock Lock;
-        // public InteractableLock Lock2;
         public Texture2D StoneFloorTex;
         public Texture2D DirtFloorTex;
 
@@ -67,9 +56,9 @@ namespace ChaosGlitchMod {
         [NonSerialized]
         public float RevealPercentage;
         public GameObject MinimapIcon;
-
-        private bool m_hasCreatedRoom;
+        
         private RoomHandler m_createdRoom;
+        private RoomHandler parentRoom;
         private Texture2D m_blendTex;
         private Color[] m_blendTexColors;
         private bool m_blendTexDirty;
@@ -78,11 +67,12 @@ namespace ChaosGlitchMod {
 
         private float m_timeHovering;
         private bool m_revealing;
-        // private bool m_isLoading;        
         
         private IEnumerator Start() {
             name = "GlitchTrapDoor";
             Lock.name = "GlitchLock";
+
+            if (!loadLevelOnPitFall) { GeneratePitfallRoom(); }
 
             m_blendTex = new Texture2D(64, 64, TextureFormat.RGBA32, false);
             m_blendTexColors = new Color[4096];
@@ -95,7 +85,7 @@ namespace ChaosGlitchMod {
             LockBlendMaterial.SetFloat("_BlendMin", RevealPercentage);
             LockBlendMaterial.SetTexture("_BlendTex", m_blendTex);
             LockBlendMaterial.SetVector("_BaseWorldPosition", new Vector4(transform.position.x, transform.position.y, transform.position.z, 0f));
-            RoomHandler parentRoom = transform.position.GetAbsoluteRoom();
+            parentRoom = transform.position.GetAbsoluteRoom();
             BlendMaterial.SetTexture("_SubTex", (parentRoom.RoomVisualSubtype != 1) ? StoneFloorTex : DirtFloorTex);
             LockBlendMaterial.SetTexture("_SubTex", (parentRoom.RoomVisualSubtype != 1) ? StoneFloorTex : DirtFloorTex);
 
@@ -106,102 +96,97 @@ namespace ChaosGlitchMod {
                 specRigidbody2.OnExitTrigger = (SpeculativeRigidbody.OnTriggerExitDelegate)Delegate.Combine(specRigidbody2.OnExitTrigger, new SpeculativeRigidbody.OnTriggerExitDelegate(HandleTriggerExited));
             }
 
-
             if (FlightCollider) {
                 SpeculativeRigidbody flightCollider = FlightCollider;
                 flightCollider.OnTriggerCollision = (SpeculativeRigidbody.OnTriggerDelegate)Delegate.Combine(flightCollider.OnTriggerCollision, new SpeculativeRigidbody.OnTriggerDelegate(HandleFlightCollider));
             }
 
             List<IntVector2> CachedPositions = new List<IntVector2>();
-            IntVector2 RandomGlitchEnemyPosition1 = ChaosObjectRandomizer.Instance.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
-            IntVector2 RandomGlitchEnemyPosition2 = ChaosObjectRandomizer.Instance.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
-            IntVector2 RandomGlitchEnemyPosition3 = ChaosObjectRandomizer.Instance.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
-            ChaosGlitchedEnemies.Instance.SpawnGlitchedSnake(parentRoom, RandomGlitchEnemyPosition1);
-            ChaosGlitchedEnemies.Instance.SpawnGlitchedSnake(parentRoom, RandomGlitchEnemyPosition2);
-            ChaosGlitchedEnemies.Instance.SpawnGlitchedSnake(parentRoom, RandomGlitchEnemyPosition3);
+            IntVector2 RandomGlitchEnemyPosition1 = ChaosObjectRandomizer.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
+            IntVector2 RandomGlitchEnemyPosition2 = ChaosObjectRandomizer.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
+            IntVector2 RandomGlitchEnemyPosition3 = ChaosObjectRandomizer.GetRandomAvailableCellForPlacable(GameManager.Instance.Dungeon, parentRoom, CachedPositions, false, true);
+            ChaosGlitchedEnemies m_GlitchEnemyDatabase = new ChaosGlitchedEnemies();
+            m_GlitchEnemyDatabase.SpawnGlitchedRat(parentRoom, RandomGlitchEnemyPosition1);
+            m_GlitchEnemyDatabase.SpawnGlitchedRat(parentRoom, RandomGlitchEnemyPosition2);
+            m_GlitchEnemyDatabase.SpawnGlitchedRat(parentRoom, RandomGlitchEnemyPosition3);
+            Destroy(m_GlitchEnemyDatabase);
             CachedPositions.Clear();
 
-            parentRoom.RegisterInteractable(Lock);
+            parentRoom.RegisterInteractable(Lock);            
 
-            if (RatDungeon != null) { RatDungeon = null; }
-            RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");
-            RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
-            RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.OFFICEGEON;
-            /*Color colorBoost = new Color(0.225f, 0.225f, 0.225f);
-            RatDungeon.decoSettings.ambientLightColor += colorBoost;
-            RatDungeon.decoSettings.ambientLightColorTwo += colorBoost;
-            RatDungeon.decoSettings.lowQualityAmbientLightColor += colorBoost;
-            RatDungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;*/
             yield break;
         }
 
-
-        public void Open() {
-            if (m_hasCreatedRoom | targetPitFallRoom == null) { return; }
-            if (!m_hasCreatedRoom && !loadLevelOnPitFall) {
-                m_hasCreatedRoom = true;
-                m_createdRoom = ChaosUtility.Instance.AddCustomRuntimeRoom(targetPitFallRoom);
-                if (targetRoomIsSpecialElevator) {
-                    ElevatorDepartureController targetElevator = null;
-                    if (FindObjectsOfType<ElevatorDepartureController>() != null) {                        
-                        foreach (ElevatorDepartureController elevator in FindObjectsOfType<ElevatorDepartureController>()) {
-                            if (elevator.gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(targetPitFallRoom.name)) {
-                                targetElevator = elevator;
-                            }
+        private void GeneratePitfallRoom() {
+            m_createdRoom = ChaosUtility.Instance.AddCustomRuntimeRoom(targetPitFallRoom, true, false, true);
+            GameObject ArrivalObject = GameObject.Find("Arrival(Clone)");
+            if (ArrivalObject != null) { ArrivalObject.name = "Arrival"; }
+            if (targetRoomIsSpecialElevator) {
+                ElevatorDepartureController targetElevator = null;
+                if (FindObjectsOfType<ElevatorDepartureController>() != null) {                        
+                    foreach (ElevatorDepartureController elevator in FindObjectsOfType<ElevatorDepartureController>()) {
+                        if (elevator.gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith(targetPitFallRoom.name)) {
+                            targetElevator = elevator;
+                        }
+                    }                    
+                }
+                if (targetElevator != null) {
+                    targetElevator.gameObject.AddComponent<ChaosElevatorDepartureManager>();
+                    ChaosElevatorDepartureManager chaosElevatorComponent = targetElevator.gameObject.GetComponent<ChaosElevatorDepartureManager>();
+                    chaosElevatorComponent.UsesOverrideTargetFloor = true;
+                    chaosElevatorComponent.OverrideTargetFloor = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
+                    if (chaosElevatorComponent.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
+                        foreach (tk2dBaseSprite baseSprite in chaosElevatorComponent.gameObject.GetComponentsInChildren<tk2dBaseSprite>()) {
+                            ChaosShaders.Instance.ApplyGlitchShader(null, baseSprite);
                         }
                     }
-                    if (targetElevator != null) {
-                        targetElevator.UsesOverrideTargetFloor = true;
-                        targetElevator.OverrideTargetFloor = GlobalDungeonData.ValidTilesets.RATGEON;
-                        if (targetElevator.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
-                            foreach (tk2dBaseSprite baseSprite in targetElevator.gameObject.GetComponentsInChildren<tk2dBaseSprite>()) {
-                                ChaosShaders.Instance.ApplyGlitchShader(null, baseSprite);
-                            }
+
+                    /*targetElevator.UsesOverrideTargetFloor = true;
+                    targetElevator.OverrideTargetFloor = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
+                    if (targetElevator.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
+                        foreach (tk2dBaseSprite baseSprite in targetElevator.gameObject.GetComponentsInChildren<tk2dBaseSprite>()) {
+                            ChaosShaders.Instance.ApplyGlitchShader(null, baseSprite);
                         }
-                    }
-                    GameObject ArrivalObject = new GameObject("Arrival");
-                    Vector3 ArrivalLocation = (new IntVector2(2, 1) + m_createdRoom.area.basePosition).ToVector3();
-                    ArrivalObject.transform.position = ArrivalLocation;
-                }
-            }
-
-            tk2dBaseSprite spriteComponent = GetComponentInChildren<tk2dBaseSprite>();
-            sprite = spriteComponent;
-
-            if (m_createdRoom != null && !loadLevelOnPitFall) {
-                AssignPitfallRoom(m_createdRoom);
-                spriteAnimator.Play();
-                StartCoroutine(HandleFlaggingCells());
-            } else if (loadLevelOnPitFall) {
-                float RandomDispIntensityFloat = UnityEngine.Random.Range(0.001f, 0.002f);
-                float RandomColorIntensityFloat = UnityEngine.Random.Range(0.01f, 0.015f);
-                if (spriteAnimator) {
-                    spriteAnimator.Play();
-                    if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, DispIntensity: RandomDispIntensityFloat, ColorIntensity: RandomColorIntensityFloat); }
-                    StartCoroutine(DestroyAnimator());
-                } else {
-                    if (spriteAnimator) {
-                        spriteAnimator.Play();
-                        if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, DispIntensity: RandomDispIntensityFloat, ColorIntensity: RandomColorIntensityFloat); }
-                        StartCoroutine(DestroyAnimator());
-                    }
-                }
-                StartCoroutine(HandleFlaggingCells());
-            } else {
-                if (ChaosConsole.debugMimicFlag) {
-                    ETGModConsole.Log("[DEBUG] Warning: Something went wrong! m_createdRoom is null!");
+                    }*/
                 }
             }
         }
 
-        private IEnumerator DestroyAnimator() {
+
+        public void Open() {            
+            tk2dBaseSprite spriteComponent = GetComponentInChildren<tk2dBaseSprite>();
+            sprite = spriteComponent;
+
+            if (!loadLevelOnPitFall) {
+                StartCoroutine(DelayedOpen());
+            } else if (loadLevelOnPitFall) {                
+                float RandomDispIntensityFloat = UnityEngine.Random.Range(0.001f, 0.002f);
+                float RandomColorIntensityFloat = UnityEngine.Random.Range(0.01f, 0.015f);                
+                if (spriteComponent) { ChaosShaders.Instance.ApplyGlitchShader(null, spriteComponent, true, DispIntensity: RandomDispIntensityFloat, ColorIntensity: RandomColorIntensityFloat); }
+                StartCoroutine(DelayedOpen());
+            } else {
+                if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] ERROR: Something went wrong! m_createdRoom is null!"); }
+                Debug.Log("ERROR: Something went wrong! m_createdRoom is null!");
+                return;
+            }
+            return;
+        }
+
+        private IEnumerator DelayedOpen() {            
+            if (parentRoom.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) {
+                while (parentRoom.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { yield return null; }
+                yield return new WaitForSeconds(1f);
+            }
+            if (!loadLevelOnPitFall) { AssignPitfallRoom(m_createdRoom); }
+            spriteAnimator.Play();
             yield return new WaitForSeconds(1.5f);
+            StartCoroutine(HandleFlaggingCells());
             Destroy(spriteAnimator);
             yield break;
         }
 
         private void HandleFlightCollider(SpeculativeRigidbody specRigidbody, SpeculativeRigidbody sourceSpecRigidbody, CollisionData collisionData) {
-            if (!GameManager.Instance.IsLoadingLevel && m_hasCreatedRoom && !Lock.IsLocked && !loadLevelOnPitFall) {                
+            if (!GameManager.Instance.IsLoadingLevel && !Lock.IsLocked && !loadLevelOnPitFall) {                
                 PlayerController component = specRigidbody.GetComponent<PlayerController>();
                 if (component && component.IsFlying) {
                     m_timeHovering += BraveTime.DeltaTime;
@@ -216,8 +201,8 @@ namespace ChaosGlitchMod {
                     m_timeHovering += BraveTime.DeltaTime;
                     if (m_timeHovering > 0.5f) {
                         ChaosGlitchMod.isGlitchFloor = true;
-                        component.ForceFall();
                         component.LevelToLoadOnPitfall = targetLevelName;
+                        component.ForceFall();
                     }
                 }
             }
@@ -225,16 +210,14 @@ namespace ChaosGlitchMod {
 
         private void HandleTriggerEntered(SpeculativeRigidbody specRigidbody, SpeculativeRigidbody sourceSpecRigidbody, CollisionData collisionData) {
             PlayerController component = specRigidbody.GetComponent<PlayerController>();
-            if (RatDungeon == null) {
-                RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");
-                RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
-                RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.OFFICEGEON;
-            }
             if (component) {
-                ChaosGlitchMod.isGlitchFloor = true;
-                GameManager.Instance.InjectedFlowPath = targetDungeonFlow;
-                component.LevelToLoadOnPitfall = targetLevelName;
-                // Pixelator.Instance.RegisterAdditionalRenderPass(m_glitchpass);
+                if (loadLevelOnPitFall) {
+                    Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
+                    ChaosGlitchMod.isGlitchFloor = true;
+                    // GameManager.Instance.InjectedFlowPath = targetDungeonFlow;
+                    component.LevelToLoadOnPitfall = targetLevelName;
+                    
+                }
             }
         }
 
@@ -242,10 +225,12 @@ namespace ChaosGlitchMod {
             PlayerController component = specRigidbody.GetComponent<PlayerController>();
             if (component) {                
                 if (!component.IsFalling) {
-                    ChaosGlitchMod.isGlitchFloor = false;
-                    component.LevelToLoadOnPitfall = string.Empty;
-                    GameManager.Instance.InjectedFlowPath = null;
-                    // Pixelator.Instance.DeregisterAdditionalRenderPass(m_glitchpass);
+                    if (loadLevelOnPitFall) {
+                        Pixelator.Instance.DeregisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
+                        ChaosGlitchMod.isGlitchFloor = false;
+                        component.LevelToLoadOnPitfall = string.Empty;
+                        GameManager.Instance.InjectedFlowPath = null;
+                    }
                 }
             }            
         }       
@@ -394,7 +379,7 @@ namespace ChaosGlitchMod {
                 // Lock2.Suppress = false;
                 ChaosShaders.Instance.ApplyGlitchShader(null, Lock.GetComponentInChildren<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat);
                 Minimap.Instance.RegisterRoomIcon(transform.position.GetAbsoluteRoom(), MinimapIcon, false);
-            } else if (!m_hasCreatedRoom && !Lock.IsLocked) { Open(); }
+            } else if (!Lock.IsLocked) { Open(); }
         }
 
         private IEnumerator HandleFlaggingCells() {

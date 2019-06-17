@@ -1,23 +1,15 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosComponents;
+using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
+using Dungeonator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosMain {
 
     class ChaosPlaceWallMimic : MonoBehaviour {
-
-        private static ChaosPlaceWallMimic m_instance;
-
-        public static ChaosPlaceWallMimic Instance {
-            get {
-                if (!m_instance) {
-                    m_instance = ETGModMainBehaviour.Instance.gameObject.AddComponent<ChaosPlaceWallMimic>();
-                }
-                return m_instance;
-            }
-        }
 
         private static string[] BannedWallMimicRoomList = {
             "Tutorial_Room_007_bosstime",
@@ -27,11 +19,22 @@ namespace ChaosGlitchMod {
             "ElevatorMaintenanceRoom"
         };
 
-        private static void SetStats(int currentFloor, int currentCurse, int currentCoolness) {
+        private void SetStats(Dungeon dungeon, int currentFloor, int currentCurse, int currentCoolness) {
             ChaosConsole.hasBeenTentacled = false;
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
-            if (ChaosGlitchMod.isGlitchFloor && GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.OFFICEGEON) {
-                GameManager.Instance.Dungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.CATACOMBGEON;
+
+            if (ChaosGlitchMod.isGlitchFloor && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.PHOBOSGEON) {
+                Color colorBoost = new Color(0.237f, 0.237f, 0.237f);                
+                dungeon.decoSettings.ambientLightColor += colorBoost;
+                dungeon.decoSettings.ambientLightColorTwo += colorBoost;
+                dungeon.decoSettings.lowQualityAmbientLightColor += colorBoost;
+                dungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;
+                ChaosUtility.RatDungeon.decoSettings.ambientLightColor += colorBoost;
+                ChaosUtility.RatDungeon.decoSettings.ambientLightColorTwo += colorBoost;
+                ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColor += colorBoost;
+                ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;
+                dungeon.DungeonFloorName = "A Secret Place?";
+                dungeon.DungeonShortName = "Something Weird...";
             }
 
             if (currentFloor == -1) {
@@ -146,7 +149,7 @@ namespace ChaosGlitchMod {
                 GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
 
                 // Set Max Wall Mimic values based on each floor. Secret floors and Tutorial are always -1 and will keep default values.
-                SetStats(currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
+                SetStats(dungeon, currentFloor, PlayerStats.GetTotalCurse(), PlayerStats.GetTotalCoolness());
 
                 if (!ChaosConsole.WallMimicsUseRewardManager) { numWallMimicsForFloor = ChaosConsole.MaxWallMimicsForFloor; }
 
@@ -160,7 +163,10 @@ namespace ChaosGlitchMod {
             		ChaosConsole.MaxWallMimicsForFloor = numWallMimicsForFloor;
             	}
             	
-            	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) { if (currentFloor == 1) PlaceTeleporter(dungeon); }
+            	if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
+                    if (currentFloor == 1) PlaceTeleporter(dungeon);
+                    PlaceGlitchElevator(dungeon);
+                }
             	
             	if (ChaosConsole.isUltraMode) {
             		if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
@@ -170,32 +176,12 @@ namespace ChaosGlitchMod {
             		}
             	}	
             	
-            	if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
-            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional objects.", false); }
-            	} else {
-            		ChaosObjectRandomizer.Instance.PlaceRandomObjects(dungeon, roomHandler, currentFloor);
-            	}
+                if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { PlaceSecretRatGrate(dungeon); }
 
-                try { InitObjectMods(dungeon); } catch (Exception ex) {
-                    if (ChaosConsole.DebugExceptions) {
-                        ETGModConsole.Log("[DEBUG] Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
-                        Debug.Log("Warning: Exception caught while running InitObjectMods in PlaceWallMimics!");
-                        Debug.LogException(ex);
-                    }
-                }
+            	// Wall Mimics will not be placed glitch floors.
+            	if (ChaosGlitchMod.isGlitchFloor | dungeon.IsGlitchDungeon ) { return; }
 
-                if (levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL | levelOverrideState != GameManager.LevelOverrideState.NONE) {
-            		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] This floor has been excluded from having additional glitch enemies.", false); }
-            	} else {
-            		ChaosGlitchedEnemyRandomizer.Instance.PlaceRandomEnemies(dungeon, roomHandler, currentFloor);
-            	}
-
-                if (currentFloor == 4 && ChaosConsole.allowGlitchFloor) { Instance.PlaceRatGrate(dungeon); }               
-
-            	// Additional Wall Mimics will not be placed on special Glitch Floor
-            	if (ChaosGlitchMod.isGlitchFloor) { return; }	
-            	
-            	if (ChaosConsole.MaxWallMimicsForFloor <= 0) {
+                if (ChaosConsole.MaxWallMimicsForFloor <= 0) {
             		if (ChaosConsole.debugMimicFlag) { ETGModConsole.Log("[DEBUG] There will be no Wall Mimics assigned to this floor.", false); }
             		return;
             	}
@@ -388,71 +374,8 @@ namespace ChaosGlitchMod {
             }            
         }
         
-        
-        private void InitObjectMods(Dungeon dungeon) {
-            // Assign pitfall destination to entrance on Floor 1 if in Bossrush mode and special entrance room to Miniboss room path is available.
-            if (GameManager.Instance.CurrentGameMode == GameManager.GameMode.BOSSRUSH |
-                GameManager.Instance.CurrentGameMode == GameManager.GameMode.SUPERBOSSRUSH)
-            {
-                List<RoomHandler> RoomList = dungeon.data.rooms;
-                RoomHandler MinibossEntrance = null;
-                foreach (RoomHandler specificRoom in RoomList) {
-                    if (specificRoom.GetRoomName().ToLower().StartsWith("elevatormaintenance") && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.CASTLEGEON) {
-                        MinibossEntrance = specificRoom;
-                        if (dungeon.data.Entrance != null && dungeon.data.Entrance.GetRoomName().ToLower().StartsWith("elevator entrance")) {
-                            dungeon.data.Entrance.TargetPitfallRoom = specificRoom;
-                            dungeon.data.Entrance.ForcePitfallForFliers = true;
-                        }
-                    }
-                }
-            }
-
-
-            if (ChaosGlitchMod.isGlitchFloor) { return; }
-            if (dungeon.IsGlitchDungeon | ChaosDungeonFlows.isGlitchFlow && !ChaosConsole.GlitchEverything) {
-                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
-                    if (UnityEngine.Random.value < 0.25f) {
-                        ChaosShaders.Instance.BecomeGlitched(gameObject, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-                    }
-                }
-                foreach (AIActor aiActor in FindObjectsOfType<AIActor>()) {
-                    if (!ChaosLists.DontGlitchMeList.Contains(aiActor.EnemyGuid) && !aiActor.IsBlackPhantom && !aiActor.healthHaver.IsBoss) {
-                        if (UnityEngine.Random.value < 0.65f && !aiActor.healthHaver.IsBoss) { ChaosShaders.Instance.BecomeGlitched(aiActor, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f); }
-                        ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(aiActor);
-                        if (UnityEngine.Random.value <= 0.25 && !aiActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(aiActor.EnemyGuid) && aiActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
-                            aiActor.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
-                        }
-                    }
-                }
-            } else if (ChaosConsole.GlitchEverything | ChaosConsole.GlitchEnemies) {
-                if (ChaosConsole.GlitchEverything) {
-                    foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
-                        if (UnityEngine.Random.value < ChaosConsole.GlitchRandomAll && ChaosConsole.GlitchEverything) {
-                            ChaosShaders.Instance.BecomeGlitched(gameObject, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f);
-                        }
-                    }
-                }
-                if (ChaosConsole.GlitchEnemies) {
-                    foreach (AIActor aiActor in FindObjectsOfType<AIActor>()) {
-                        if (!ChaosLists.DontGlitchMeList.Contains(aiActor.EnemyGuid) && !aiActor.IsBlackPhantom && !aiActor.healthHaver.IsBoss) {
-                            if (UnityEngine.Random.value < 0.65f && !aiActor.healthHaver.IsBoss) { ChaosShaders.Instance.BecomeGlitched(aiActor, 0.04f, 0.07f, 0.05f, 0.07f, 0.05f); }
-                            ChaosGlitchedEnemies.Instance.GlitchExistingEnemy(aiActor);
-                            if (UnityEngine.Random.value <= 0.25 && !aiActor.healthHaver.IsBoss && !ChaosLists.blobsAndCritters.Contains(aiActor.EnemyGuid) && aiActor.GetComponent<ChaosSpawnGlitchObjectOnDeath>() == null) {
-                                aiActor.gameObject.AddComponent<ChaosSpawnGlitchObjectOnDeath>();
-                            }
-                        }
-                    }
-                }
-            }
-            if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
-                foreach (BraveBehaviour gameObject in FindObjectsOfType<BraveBehaviour>()) {
-                    if (UnityEngine.Random.value < 0.05f) { ChaosShaders.Instance.BecomeHologram(gameObject, BraveUtility.RandomBool()); }
-                }                
-            }            
-        }
-        
         // Adds Teleporter to entrance room on first floor so that player can teleport back if teleported via Tentacle Teleporter.
-        private static void PlaceTeleporter(Dungeon dungeon) {
+        private void PlaceTeleporter(Dungeon dungeon) {
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
                 RoomHandler CurrnetRoom = dungeon.data.rooms[i];
                 if (CurrnetRoom.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.ENTRANCE) {
@@ -462,62 +385,151 @@ namespace ChaosGlitchMod {
             }
             return;
         }
-        private void PlaceRatGrate(Dungeon dungeon) {
+        private void PlaceGlitchElevator(Dungeon dungeon) {
+            GameManager.LevelOverrideState levelOverrideState = GameManager.Instance.CurrentLevelOverrideState;
+
+            if (dungeon.IsGlitchDungeon | ChaosGlitchMod.isGlitchFloor | ChaosDungeonFlows.isGlitchFlow | ChaosConsole.elevatorHasBeenUsed) { return; }
+            if (levelOverrideState == GameManager.LevelOverrideState.FOYER | levelOverrideState == GameManager.LevelOverrideState.TUTORIAL) { return; }
+            if (levelOverrideState == GameManager.LevelOverrideState.CHARACTER_PAST | levelOverrideState == GameManager.LevelOverrideState.RESOURCEFUL_RAT) { return; }
+            if (levelOverrideState == GameManager.LevelOverrideState.END_TIMES) { return; }
+            if (GameManager.Instance.CurrentFloor >= 6) { return; }
+            if (UnityEngine.Random.value > 0.1f) { return; }
+
+            int MaxNumberOfElevators = 1;
+            int ElevatorsPlaced = 0;
+            int ElevatorLocations = 0;
+            int SelectedRoom = 0;
+
+            List<int> roomList = Enumerable.Range(0, dungeon.data.rooms.Count).ToList();
+            roomList = roomList.Shuffle();            
+            List<IntVector2> validWalls = new List<IntVector2>();
+            while (SelectedRoom < roomList.Count && ElevatorsPlaced < MaxNumberOfElevators) {
+        		RoomHandler currentRoom = dungeon.data.rooms[roomList[SelectedRoom]];
+        		if (!currentRoom.IsShop && !currentRoom.IsMaintenanceRoom() && !currentRoom.GetRoomName().ToLower().StartsWith("exit") &&
+                    !currentRoom.GetRoomName().ToLower().StartsWith("tiny_exit") && !currentRoom.GetRoomName().ToLower().StartsWith("elevator") &&
+                    !currentRoom.GetRoomName().ToLower().StartsWith("tiny_entrance") && !currentRoom.GetRoomName().ToLower().StartsWith("gungeon entrance") &&
+                    !currentRoom.GetRoomName().ToLower().StartsWith("gungeon_rewardroom") && !currentRoom.GetRoomName().ToLower().StartsWith("reward room"))
+                {
+        			if (!currentRoom.area.IsProceduralRoom || currentRoom.area.proceduralCells == null) {
+        				if (currentRoom.area.PrototypeRoomCategory != PrototypeDungeonRoom.RoomCategory.BOSS || (PlayerStats.GetTotalCurse() >= 5 && !BraveUtility.RandomBool())) {
+        					if (!currentRoom.GetRoomName().StartsWith("DraGunRoom")) {
+        						if (currentRoom.connectedRooms != null) {
+        							for (int i = 0; i < currentRoom.connectedRooms.Count; i++) {
+        								if (currentRoom.connectedRooms[i] == null || currentRoom.connectedRooms[i].area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.BOSS) { }
+        							}
+        						}        						
+        						validWalls.Clear();
+        						for (int Width = -1; Width <= currentRoom.area.dimensions.x; Width++) {
+        							for (int Height = -1; Height <= currentRoom.area.dimensions.y; Height++) {
+        								int X = currentRoom.area.basePosition.x + Width;
+        								int Y = currentRoom.area.basePosition.y + Height;
+        								if (dungeon.data.isWall(X, Y)) {
+        									int WallCellCount = 0;
+                                            if (!dungeon.data.isPlainEmptyCell(X - 3, Y + 6) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 6) && !dungeon.data.isPlainEmptyCell(X - 1, Y + 6) && !dungeon.data.isPlainEmptyCell(X, Y + 6) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 6) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 6) && !dungeon.data.isPlainEmptyCell(X + 3, Y + 6) && !dungeon.data.isPlainEmptyCell(X + 4, Y + 6) && !dungeon.data.isPlainEmptyCell(X + 5, Y + 6) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 3, Y + 5) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 5) && !dungeon.data.isPlainEmptyCell(X - 1, Y + 5) && !dungeon.data.isPlainEmptyCell(X, Y + 5) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 5) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 5) && !dungeon.data.isPlainEmptyCell(X + 3, Y + 5) && !dungeon.data.isPlainEmptyCell(X + 4, Y + 5) && !dungeon.data.isPlainEmptyCell(X + 5, Y + 5) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 3, Y + 4) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 4) && !dungeon.data.isPlainEmptyCell(X - 1, Y + 4) && !dungeon.data.isPlainEmptyCell(X, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 3, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 4, Y + 4) && !dungeon.data.isPlainEmptyCell(X + 5, Y + 4) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 3, Y + 3) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 3) && !dungeon.data.isPlainEmptyCell(X - 1, Y + 3) && !dungeon.data.isPlainEmptyCell(X, Y + 3) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 3) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 3) && !dungeon.data.isPlainEmptyCell(X + 3, Y + 3) && !dungeon.data.isPlainEmptyCell(X + 4, Y + 3) && !dungeon.data.isPlainEmptyCell(X + 5, Y + 3) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 3, Y + 2) && !dungeon.data.isPlainEmptyCell(X - 2, Y + 2) && !dungeon.data.isPlainEmptyCell(X - 1, Y + 2) && !dungeon.data.isPlainEmptyCell(X, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 1, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 2, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 3, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 4, Y + 2) && !dungeon.data.isPlainEmptyCell(X + 5, Y + 2) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 4, Y + 1) && dungeon.data.isWall(X - 3, Y + 1) && dungeon.data.isWall(X - 2, Y + 1) && dungeon.data.isWall(X - 1, Y + 1) && dungeon.data.isWall(X, Y + 1) && dungeon.data.isWall(X + 1, Y + 1) && dungeon.data.isWall(X + 2, Y + 1) && dungeon.data.isWall(X + 3, Y + 1) && dungeon.data.isWall(X + 4, Y + 1) && dungeon.data.isWall(X + 5, Y + 1) && dungeon.data.isWall(X + 6, Y + 1) && dungeon.data.isWall(X + 7, Y + 1) && !dungeon.data.isPlainEmptyCell(X + 8, Y + 1) && !dungeon.data.isPlainEmptyCell(X + 9, Y + 1) &&
+                                                !dungeon.data.isPlainEmptyCell(X - 4, Y) && dungeon.data.isWall(X - 3, Y) && dungeon.data.isWall(X - 2, Y) && dungeon.data.isWall(X - 1, Y) && dungeon.data.isWall(X, Y) && dungeon.data.isWall(X + 1, Y) && dungeon.data.isWall(X + 2, Y) && dungeon.data.isWall(X + 3, Y) && dungeon.data.isWall(X + 4, Y) && dungeon.data.isWall(X + 5, Y) && dungeon.data.isWall(X + 6, Y) && dungeon.data.isWall(X + 7, Y) && !dungeon.data.isPlainEmptyCell(X + 8, Y) && !dungeon.data.isPlainEmptyCell(X + 9, Y) &&
+                                                 dungeon.data.isPlainEmptyCell(X - 3, Y - 1) && dungeon.data.isPlainEmptyCell(X - 2, Y - 1) && dungeon.data.isPlainEmptyCell(X - 1, Y - 1) && dungeon.data.isPlainEmptyCell(X, Y - 1) && dungeon.data.isPlainEmptyCell(X + 1, Y - 1) && dungeon.data.isPlainEmptyCell(X + 2, Y - 1) && dungeon.data.isPlainEmptyCell(X + 3, Y - 1) && dungeon.data.isPlainEmptyCell(X + 4, Y - 1) && dungeon.data.isPlainEmptyCell(X + 5, Y - 1) && dungeon.data.isPlainEmptyCell(X + 6, Y - 1) && dungeon.data.isPlainEmptyCell(X + 7, Y - 1) &&
+                                                 dungeon.data.isPlainEmptyCell(X - 3, Y - 2) && dungeon.data.isPlainEmptyCell(X - 2, Y - 2) && dungeon.data.isPlainEmptyCell(X - 1, Y - 2) && dungeon.data.isPlainEmptyCell(X, Y - 2) && dungeon.data.isPlainEmptyCell(X + 1, Y - 2) && dungeon.data.isPlainEmptyCell(X + 2, Y - 2) && dungeon.data.isPlainEmptyCell(X + 3, Y - 2) && dungeon.data.isPlainEmptyCell(X + 4, Y - 2) && dungeon.data.isPlainEmptyCell(X + 5, Y - 2) && dungeon.data.isPlainEmptyCell(X + 6, Y - 2) && dungeon.data.isPlainEmptyCell(X + 7, Y - 2))
+                                            {
+        										validWalls.Add(new IntVector2(X, Y));
+                                                WallCellCount++;
+                                                ElevatorLocations++;
+
+                                            }
+        									if (WallCellCount > 0) {
+        										bool flag2 = true;
+        										int XPadding = -5;
+        										while (XPadding <= 5 && flag2) {
+        											int YPadding = -5;
+        											while (YPadding <= 5 && flag2) {
+        												int x = X + XPadding;
+        												int y = Y + YPadding;
+        												if (dungeon.data.CheckInBoundsAndValid(x, y)) {
+        													CellData cellData = dungeon.data[x, y];
+        													if (cellData != null) {
+        														if (cellData.type == CellType.PIT || cellData.diagonalWallType != DiagonalWallType.NONE) { flag2 = false; }
+        													}
+        												}
+        												YPadding++;
+        											}
+        											XPadding++;
+        										}
+        										if (!flag2) {
+        											while (WallCellCount > 0) {
+        												validWalls.RemoveAt(validWalls.Count - 1);
+                                                        WallCellCount--;
+        											}
+        										}
+        									}
+        								}
+        							}
+        						}						
+        						
+                                if (validWalls.Count > 0) {
+        						    IntVector2 WallCell = (BraveUtility.RandomElement(validWalls) - currentRoom.area.basePosition);
+                                    GameObject ElevatorObject = ChaosPrefabs.ElevatorDeparture.InstantiateObject(currentRoom, WallCell, false);
+                                    ElevatorObject.AddComponent<ChaosElevatorDepartureManager>();
+                                    ChaosElevatorDepartureManager elevatorComponent = ElevatorObject.GetComponent<ChaosElevatorDepartureManager>();
+                                    elevatorComponent.OverrideTargetFloor = GlobalDungeonData.ValidTilesets.OFFICEGEON;
+                                    elevatorComponent.UsesOverrideTargetFloor = true;
+                                    if (elevatorComponent.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true) != null) {
+                                        foreach (tk2dBaseSprite baseSprite in elevatorComponent.gameObject.GetComponentsInChildren<tk2dBaseSprite>(true)) {
+                                            ChaosShaders.Instance.ApplyGlitchShader(null, baseSprite);
+                                        }
+                                    }
+                                    validWalls.Remove(WallCell);
+                                    ElevatorsPlaced++;
+                                }
+        					}
+        				}
+        			}
+        		}
+                SelectedRoom++;
+            }
+            if (ChaosConsole.debugMimicFlag) {
+                ETGModConsole.Log("[DEBUG] Number of Valid Glitch Elevator locations found: " + ElevatorLocations, false);
+                ETGModConsole.Log("[DEBUG] Number of Glitch Elevators placed: " + ElevatorsPlaced, false);
+            }
+        }
+        private void PlaceSecretRatGrate(Dungeon dungeon) {
+            PlaceSecretRatGrateInternal(dungeon, ChaosPrefabs.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>(), new IntVector2(4, 4), Vector2.zero);
+        }
+        private void PlaceSecretRatGrateInternal(Dungeon dungeon, DungeonPlaceableBehaviour prefabPlaceable, IntVector2 dimensions, Vector2 offset) {
             List<IntVector2> list = new List<IntVector2>();
             for (int i = 0; i < dungeon.data.rooms.Count; i++) {
                 RoomHandler roomHandler = dungeon.data.rooms[i];
-                if (!roomHandler.area.IsProceduralRoom && roomHandler.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.NORMAL && !roomHandler.OptionalDoorTopDecorable) {
+                if (!roomHandler.area.IsProceduralRoom && roomHandler.area.PrototypeRoomCategory == PrototypeDungeonRoom.RoomCategory.NORMAL && !roomHandler.OptionalDoorTopDecorable && !roomHandler.area.prototypeRoom.UseCustomMusic) {
                     for (int j = roomHandler.area.basePosition.x; j < roomHandler.area.basePosition.x + roomHandler.area.dimensions.x; j++) {
                         for (int k = roomHandler.area.basePosition.y; k < roomHandler.area.basePosition.y + roomHandler.area.dimensions.y; k++) {
-                            if (ClearForRatGrate(dungeon, j, k)) { list.Add(new IntVector2(j, k)); }
+                            if (ClearForRatGrate(dungeon, dimensions.x, dimensions.y, j, k)) { list.Add(new IntVector2(j, k)); }
                         }
                     }
                 }
             }
             if (list.Count > 0) {
-                Dungeon MinesPrefab = DungeonDatabase.GetOrLoadByName("base_mines");
-
-                DungeonPlaceableBehaviour ratTrapDoor = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
-
                 IntVector2 a = list[BraveRandom.GenerationRandomRange(0, list.Count)];
-                DungeonPlaceableBehaviour component = MinesPrefab.RatTrapdoor.GetComponent<DungeonPlaceableBehaviour>();
                 RoomHandler absoluteRoom = a.ToVector2().GetAbsoluteRoom();
-                GameObject gObj = component.InstantiateObject(absoluteRoom, a - absoluteRoom.area.basePosition, true);
-                gObj.AddComponent<ChaosGlitchTrapDoor>();
-                ChaosGlitchTrapDoor chaosGlitchTrapDoor = gObj.GetComponent<ChaosGlitchTrapDoor>();
-                chaosGlitchTrapDoor.RevealPercentage = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().RevealPercentage;
-                chaosGlitchTrapDoor.Lock = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().Lock;
-                chaosGlitchTrapDoor.Lock.sprite.scale = new Vector3(2, 2);
-                chaosGlitchTrapDoor.Lock.lockMode = InteractableLock.InteractableLockMode.RESOURCEFUL_RAT;
-                chaosGlitchTrapDoor.Lock.transform.position -= new Vector3(0.725f, 0.7f);
-                chaosGlitchTrapDoor.OverridePitGrid = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().OverridePitGrid;
-                chaosGlitchTrapDoor.BlendMaterial = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().BlendMaterial;
-                chaosGlitchTrapDoor.LockBlendMaterial = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().LockBlendMaterial;
-                chaosGlitchTrapDoor.StoneFloorTex = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().StoneFloorTex;
-                chaosGlitchTrapDoor.DirtFloorTex = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().DirtFloorTex;
-                chaosGlitchTrapDoor.FlightCollider = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().FlightCollider;
-                chaosGlitchTrapDoor.MinimapIcon = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().MinimapIcon;
-                tk2dSpriteAnimator GlitchTrapDoorAnimator = gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>().GetComponentInChildren<tk2dSpriteAnimator>();
-                chaosGlitchTrapDoor.spriteAnimator = GlitchTrapDoorAnimator;
-                chaosGlitchTrapDoor.ConfigureOnPlacement(absoluteRoom);
-                Destroy(gObj.GetComponent<ResourcefulRatMinesHiddenTrapdoor>());
-
-                MinesPrefab = null;
-
-                for (int m = 0; m < 4; m++) {
-                    for (int n = 0; n < 4; n++) {
+                GameObject gameObject = prefabPlaceable.InstantiateObject(absoluteRoom, a - absoluteRoom.area.basePosition, true);
+                gameObject.AddComponent<ChaosGlitchTrapDoor>();
+                gameObject.transform.position = gameObject.transform.position + offset.ToVector3ZUp(0f);
+                ChaosGlitchTrapDoor glitchTrapDoor = gameObject.GetComponent<ChaosGlitchTrapDoor>();
+                glitchTrapDoor.ConfigureOnPlacement(absoluteRoom);
+                for (int m = 0; m < dimensions.x; m++) {
+                    for (int n = 0; n < dimensions.y; n++) {
                         IntVector2 intVector = a + new IntVector2(m, n);
-                        if (dungeon.data.CheckInBoundsAndValid(intVector)) {
-                            dungeon.data[intVector].cellVisualData.floorTileOverridden = true;
-                        }
+                        if (dungeon.data.CheckInBoundsAndValid(intVector)) { dungeon.data[intVector].cellVisualData.floorTileOverridden = true; }
                     }
                 }
             }
         }
-        private bool ClearForRatGrate(Dungeon dungeon, int bpx, int bpy) {
+        private bool ClearForRatGrate(Dungeon dungeon, int dmx, int dmy, int bpx, int bpy) {
             int num = -1;
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
+            for (int i = 0; i < dmx; i++) {
+                for (int j = 0; j < dmy; j++) {
                     IntVector2 intVector = new IntVector2(bpx + i, bpy + j);
                     if (!dungeon.data.CheckInBoundsAndValid(intVector)) { return false; }
                     CellData cellData = dungeon.data[intVector];
@@ -541,6 +553,7 @@ namespace ChaosGlitchMod {
             }
             return true;
         }
+
     }
 }
 

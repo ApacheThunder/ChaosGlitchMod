@@ -1,9 +1,10 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosObjects;
+using Dungeonator;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.DungeonFlows {
 
     class fruit_loops : MonoBehaviour {        
 
@@ -20,10 +21,10 @@ namespace ChaosGlitchMod {
             DungeonFlowNode m_HubNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.HUB);
             DungeonFlowNode m_ShopNode_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.SPECIAL, overrideTable: ChaosPrefabs.shop_room_table);
             DungeonFlowNode m_ShopNode_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.SPECIAL, overrideTable: ChaosPrefabs.shop_room_table);
-            DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom, oneWayLoopTarget: true);
+            DungeonFlowNode m_ChestRoom_01 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room, oneWayLoopTarget: true);
             DungeonFlowNode m_ChestRoom_02 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.gungeon_rewardroom_1);
             DungeonFlowNode m_ChestRoom_03 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.REWARD, ChaosPrefabs.gungeon_rewardroom_1);
-            DungeonFlowNode m_ChestRoom_04 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room_custom, oneWayLoopTarget: true);
+            DungeonFlowNode m_ChestRoom_04 = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.reward_room, oneWayLoopTarget: true);
             DungeonFlowNode m_ExitNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.EXIT, ChaosPrefabs.tiny_exit);
             DungeonFlowNode m_BossFoyerNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.CONNECTOR, ChaosPrefabs.boss_foyer);
             DungeonFlowNode m_BossNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.Fruit_Loops, PrototypeDungeonRoom.RoomCategory.BOSS, overrideTable: ChaosPrefabs.MegaBossRoomTable);

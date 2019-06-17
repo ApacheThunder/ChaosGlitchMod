@@ -3,8 +3,8 @@ using System.IO;
 using MonoMod;
 using UnityEngine;
 
-namespace ChaosGlitchMod
-{
+namespace ChaosGlitchMod.ChaosMain {
+
     public static class ChaosStringTableManager {
 
         static ChaosStringTableManager() {

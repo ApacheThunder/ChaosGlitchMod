@@ -2,13 +2,13 @@
 using System.Collections;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
 
-    class ChaosThwompManager : BraveBehaviour {
+    public class ChaosThwompManager : BraveBehaviour {
 
-        public ChaosThwompManager() { isActive = true; inactiveWhilePlayerOutsideRoom = true; }
+        public ChaosThwompManager() { destroyOnRoomDeparture = true; inactiveWhilePlayerOutsideRoom = true; }
 
-        bool isActive;
+        bool destroyOnRoomDeparture;
         bool inactiveWhilePlayerOutsideRoom;
 
         private RoomHandler m_StartRoom;
@@ -16,24 +16,25 @@ namespace ChaosGlitchMod {
         private void Start() { m_StartRoom = aiActor.transform.position.GetAbsoluteRoom(); }
 
         private void Update() {
-            if (!isActive) { StartCoroutine(CheckCurrentRoom()); }            
-            if (!inactiveWhilePlayerOutsideRoom) { StartCoroutine(CheckPlayerRoom()); }
+            if (destroyOnRoomDeparture) { StartCoroutine(CheckCurrentRoom()); }            
+            if (inactiveWhilePlayerOutsideRoom) { StartCoroutine(CheckPlayerRoom()); }
         }
 
         private IEnumerator CheckPlayerRoom() {
             if (GameManager.Instance.PrimaryPlayer.GetAbsoluteParentRoom() == null |
                 GameManager.Instance.PrimaryPlayer.GetAbsoluteParentRoom() != m_StartRoom)
             {
-                aiActor.behaviorSpeculator.Interrupt();
+                aiActor.behaviorSpeculator.enabled = false;
                 yield break;
             } else {
+                aiActor.behaviorSpeculator.enabled = true;
                 yield break;
             }            
         }
 
         private IEnumerator CheckCurrentRoom() {
             if (aiActor.transform.position.GetAbsoluteRoom() == null | aiActor.transform.position.GetAbsoluteRoom() != m_StartRoom) {
-                isActive = false;
+                destroyOnRoomDeparture = false;
                 if (healthHaver.PreventAllDamage) { healthHaver.PreventAllDamage = false; }
                 if (aiActor.CollisionDamage > 0) { aiActor.CollisionDamage = 0f; }
                 if (aiActor.CollisionKnockbackStrength > 0) { aiActor.CollisionKnockbackStrength = 0f; }

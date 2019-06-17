@@ -1,12 +1,14 @@
-﻿using Dungeonator;
+﻿using ChaosGlitchMod.ChaosMain;
+using ChaosGlitchMod.ChaosUtilities;
+using Dungeonator;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosObjects {
 
-    class ChaosRoomPrefabs : MonoBehaviour {
+    public class ChaosRoomPrefabs : MonoBehaviour {
         // Custom Room Prefabs
         public static PrototypeDungeonRoom Giant_Elevator_Room = ScriptableObject.CreateInstance<PrototypeDungeonRoom>();
         // This room prefab was removed in 2.1.8. I will recreate in code now plus with a few extras of my own design.
@@ -24,9 +26,11 @@ namespace ChaosGlitchMod {
         public static PrototypeDungeonRoom ThwompCrossingVertical = ScriptableObject.CreateInstance<PrototypeDungeonRoom>();
         public static PrototypeDungeonRoom ThwompCrossingVerticalNoRain = ScriptableObject.CreateInstance<PrototypeDungeonRoom>();
         public static PrototypeDungeonRoom ThwompCrossingHorizontal = ScriptableObject.CreateInstance<PrototypeDungeonRoom>();
+        public static PrototypeDungeonRoom PuzzleRoom3 = ScriptableObject.CreateInstance<PrototypeDungeonRoom>();
 
 
         public static void InitCustomRooms() {
+            ChaosObjectRandomizer objectDatabase = new ChaosObjectRandomizer();
 
             FakeBossRoom.name = "Fake Boss Room";
             FakeBossRoom.QAID = "FF" + UnityEngine.Random.Range(1000, 9999);
@@ -79,8 +83,7 @@ namespace ChaosGlitchMod {
             FakeBossRoom.additionalObjectLayers = new List<PrototypeRoomObjectLayer>() {
                 new PrototypeRoomObjectLayer() {
                     placedObjects = new List<PrototypePlacedObjectData>() {
-                        new PrototypePlacedObjectData() {
-                            // placeableContents = ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.CustomSerManual().gameObject, useExternalPrefab: true),
+                        new PrototypePlacedObjectData() {                            
                             enemyBehaviourGuid = "fc809bd43a4d41738a62d7565456622c", // Ser_Manuel
                             contentsBasePosition = new Vector2(12, 12),
                             layer = 0,
@@ -198,30 +201,30 @@ namespace ChaosGlitchMod {
             // Add Object Spawns
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(47, 49), ChaosPrefabs.ElevatorArrival);
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(48, 41), NonEnemyBehaviour: ChaosPrefabs.Teleporter_Gungeon_01.GetComponent<DungeonPlaceableBehaviour>());
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 33), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 66), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(29, 49), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(70, 49), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(17, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(28, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(69, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(80, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(17, 96), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(28, 96), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 96), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(69, 96), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(80, 96), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 16), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 32), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 49), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 66), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 82), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 16), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 32), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 49), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 66), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 82), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 33), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 66), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(29, 49), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(70, 49), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(17, 4), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(28, 4), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 4), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(69, 4), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(80, 4), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(17, 96), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(28, 96), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(49, 96), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(69, 96), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(80, 96), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 16), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 32), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 49), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 66), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(3, 82), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 16), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 32), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 49), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 66), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(96, 82), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsHorizontal, useExternalPrefab: true));
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(7, 24), EnemyBehaviourGuid: "0239c0680f9f467dbe5c4aab7dd1eca6"); // Blobulon
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(45, 13), EnemyBehaviourGuid: "01972dee89fc4404a5c408d50007dad5"); // Bullet Kin
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(87, 17), EnemyBehaviourGuid: "01972dee89fc4404a5c408d50007dad5"); // Bullet Kin
@@ -242,18 +245,18 @@ namespace ChaosGlitchMod {
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(15, 86), EnemyBehaviourGuid: "ba928393c8ed47819c2c5f593100a5bc"); // Metal Cube Guy
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(85, 86), EnemyBehaviourGuid: "ba928393c8ed47819c2c5f593100a5bc"); // Metal Cube Guy
             RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(59, 67), EnemyBehaviourGuid: "479556d05c7c44f3b6abb3b2067fc778"); // Wall Mimic
-            /*RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(48.55f, 27), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableHorizontalStone, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(48.55f, 72), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableHorizontalStone, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(23, 48.59f), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(76, 48.59f), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.TableVertical, useExternalPrefab: true));*/
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(13, 89), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.YellowDrum, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(84, 89), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.YellowDrum, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(14, 10), ChaosPrefabs.ExplodyBarrel);
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(84, 10), ChaosPrefabs.ExplodyBarrel);
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(45, 10), ChaosPrefabs.Brazier);
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(45, 89), ChaosPrefabs.Brazier);
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(9, 62), ChaosPrefabs.Brazier);
-            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(89, 62), ChaosPrefabs.Brazier);
+            /*RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(48.55f, 27), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.TableHorizontalStone, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(48.55f, 72), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.TableHorizontalStone, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(23, 48.59f), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.TableVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(76, 48.59f), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.TableVertical, useExternalPrefab: true));*/
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(13, 89), ChaosUtility.GenerateDungeonPlacable(objectDatabase.YellowDrum, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(84, 89), ChaosUtility.GenerateDungeonPlacable(objectDatabase.YellowDrum, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(14, 10), objectDatabase.ExplodyBarrel);
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(84, 10), objectDatabase.ExplodyBarrel);
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(45, 10), objectDatabase.Brazier);
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(45, 89), objectDatabase.Brazier);
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(9, 62), objectDatabase.Brazier);
+            RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(89, 62), objectDatabase.Brazier);
             // RoomFromText.AddObjectToRoom(Giant_Elevator_Room, new Vector2(50, 55), ChaosGlitchFloorGenerator.Instance.CustomGlitchDungeonPlacable(ChaosPrefabs.RainFXObject, useExternalPrefab: true));
 
 
@@ -484,8 +487,8 @@ namespace ChaosGlitchMod {
             RoomFromText.AddExitToRoom(SpecialMaintenanceRoom, new Vector2(15, 31), DungeonData.Direction.NORTH);
             RoomFromText.AssignCellDataForNewRoom(SpecialMaintenanceRoom, "RoomCellData.SpecialMaintenanceRoom_Layout.txt");
             RoomFromText.AddObjectToRoom(SpecialMaintenanceRoom, new Vector2(8, 9), NonEnemyBehaviour: ChaosPrefabs.elevator_maintenance_room.placedObjects[0].nonenemyBehaviour);
-            RoomFromText.AddObjectToRoom(SpecialMaintenanceRoom, new Vector2(18, 18), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.Arrival.gameObject, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(SpecialMaintenanceRoom, new Vector2(14, 5), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.Teleporter_Info_Sign, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SpecialMaintenanceRoom, new Vector2(18, 18), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Arrival.gameObject, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SpecialMaintenanceRoom, new Vector2(14, 5), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Teleporter_Info_Sign, useExternalPrefab: true));
 
 
             ShopBackRoom.name = "Shop Back Room";
@@ -526,6 +529,7 @@ namespace ChaosGlitchMod {
             ShopBackRoom.rewardChestSpawnPosition = new IntVector2(9, 2);
             ShopBackRoom.Width = 18;
             ShopBackRoom.Height = 34;
+            ShopBackRoom.associatedMinimapIcon = ChaosPrefabs.basic_special_rooms.includedRooms.elements[1].room.associatedMinimapIcon;
             RoomFromText.AddExitToRoom(ShopBackRoom, new Vector2(0, 2), DungeonData.Direction.WEST, PrototypeRoomExit.ExitType.ENTRANCE_ONLY);
             RoomFromText.AddExitToRoom(ShopBackRoom, new Vector2(9, 0), DungeonData.Direction.SOUTH, PrototypeRoomExit.ExitType.ENTRANCE_ONLY);
             RoomFromText.AddExitToRoom(ShopBackRoom, new Vector2(19, 2), DungeonData.Direction.EAST, PrototypeRoomExit.ExitType.ENTRANCE_ONLY);
@@ -584,16 +588,16 @@ namespace ChaosGlitchMod {
             RoomFromText.AddExitToRoom(SecretRewardRoom, new Vector2(21, 60), DungeonData.Direction.EAST);
             RoomFromText.AddExitToRoom(SecretRewardRoom, new Vector2(8, 65), DungeonData.Direction.NORTH);
             RoomFromText.AssignCellDataForNewRoom(SecretRewardRoom, "RoomCellData.SecretRewardRoom_Layout.txt");
-            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(8, 0), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.Teleporter_Gungeon_01, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(8, 0), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Teleporter_Gungeon_01, useExternalPrefab: true));
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 5), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 7), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 9), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 11), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 21), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);            
-            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 26), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));
-            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 34), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.DoorsVertical, useExternalPrefab: true));            
+            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 26), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 34), ChaosUtility.GenerateDungeonPlacable(objectDatabase.DoorsVertical, useExternalPrefab: true));            
             RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(9, 46), NonEnemyBehaviour: ChaosPrefabs.RatJailDoorPlacable);
-            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(6, 4), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.Teleporter_Info_Sign, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SecretRewardRoom, new Vector2(6, 4), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Teleporter_Info_Sign, useExternalPrefab: true));
 
 
             SecretBossRoom.name = "Secret Boss Room";
@@ -689,7 +693,9 @@ namespace ChaosGlitchMod {
             RoomFromText.AddExitToRoom(SecretExitRoom, new Vector2(9, 2), DungeonData.Direction.EAST);
             RoomFromText.AssignCellDataForNewRoom(SecretExitRoom, "RoomCellData.SecretExitRoom_Layout.txt");
             RoomFromText.AddObjectToRoom(SecretExitRoom, new Vector2(1, 6), ChaosPrefabs.ElevatorDeparture);
-            RoomFromText.AddObjectToRoom(SecretExitRoom, new Vector2(2, 0), ChaosUtility.CustomGlitchDungeonPlacable(ChaosPrefabs.Teleporter_Gungeon_01, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SecretExitRoom, new Vector2(2, 0), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Teleporter_Gungeon_01, useExternalPrefab: true));
+            RoomFromText.AddObjectToRoom(SecretExitRoom, new Vector2(3, 1), ChaosUtility.GenerateDungeonPlacable(ChaosPrefabs.Arrival.gameObject, useExternalPrefab: true));
+             
 
 
             ThwompCrossingVertical.name = "Thwomp_Crossing_Vertical";
@@ -836,8 +842,54 @@ namespace ChaosGlitchMod {
             RoomFromText.AddObjectToRoom(ThwompCrossingHorizontal, new Vector2(21, 12), EnemyBehaviourGuid: "ba928393c8ed47819c2c5f593100a5bc"); // Metal Cube Guy (trap version)
 
 
+            PuzzleRoom3.name = "Zelda Puzzle Room 3";
+            PuzzleRoom3.QAID = "FF" + UnityEngine.Random.Range(1000, 9999);
+            PuzzleRoom3.GUID = Guid.NewGuid().ToString();
+            PuzzleRoom3.PreventMirroring = false;
+            PuzzleRoom3.category = PrototypeDungeonRoom.RoomCategory.NORMAL;
+            PuzzleRoom3.subCategoryBoss = PrototypeDungeonRoom.RoomBossSubCategory.FLOOR_BOSS;
+            PuzzleRoom3.subCategoryNormal = PrototypeDungeonRoom.RoomNormalSubCategory.COMBAT;
+            PuzzleRoom3.subCategorySecret = PrototypeDungeonRoom.RoomSecretSubCategory.UNSPECIFIED_SECRET;
+            PuzzleRoom3.subCategorySpecial = PrototypeDungeonRoom.RoomSpecialSubCategory.STANDARD_SHOP;
+            PuzzleRoom3.exitData = new PrototypeRoomExitData() { exits = new List<PrototypeRoomExit>() };
+            PuzzleRoom3.pits = ChaosPrefabs.gungeon_gauntlet_001.pits;
+            PuzzleRoom3.placedObjects = ChaosPrefabs.gungeon_gauntlet_001.placedObjects;
+            PuzzleRoom3.placedObjectPositions = ChaosPrefabs.gungeon_gauntlet_001.placedObjectPositions;
+            PuzzleRoom3.additionalObjectLayers = ChaosPrefabs.gungeon_gauntlet_001.additionalObjectLayers;
+            PuzzleRoom3.eventTriggerAreas = new List<PrototypeEventTriggerArea>();
+            PuzzleRoom3.roomEvents = new List<RoomEventDefinition>() {
+                new RoomEventDefinition(RoomEventTriggerCondition.ON_ENTER_WITH_ENEMIES, RoomEventTriggerAction.SEAL_ROOM),
+                new RoomEventDefinition(RoomEventTriggerCondition.ON_ENEMIES_CLEARED, RoomEventTriggerAction.UNSEAL_ROOM),
+            };
+            PuzzleRoom3.overriddenTilesets = 0;
+            PuzzleRoom3.prerequisites = new List<DungeonPrerequisite>();
+            PuzzleRoom3.InvalidInCoop = false;
+            PuzzleRoom3.cullProceduralDecorationOnWeakPlatforms = false;
+            PuzzleRoom3.preventAddedDecoLayering = false;
+            PuzzleRoom3.precludeAllTilemapDrawing = false;
+            PuzzleRoom3.drawPrecludedCeilingTiles = false;
+            PuzzleRoom3.preventBorders = false;
+            PuzzleRoom3.preventFacewallAO = false;
+            PuzzleRoom3.usesCustomAmbientLight = false;
+            PuzzleRoom3.customAmbientLight = Color.white;
+            PuzzleRoom3.ForceAllowDuplicates = false;
+            PuzzleRoom3.injectionFlags = new RuntimeInjectionFlags() { CastleFireplace = false, ShopAnnexed = false };
+            PuzzleRoom3.IsLostWoodsRoom = false;
+            PuzzleRoom3.UseCustomMusic = false;
+            PuzzleRoom3.UseCustomMusicState = false;
+            PuzzleRoom3.CustomMusicEvent = string.Empty;
+            PuzzleRoom3.UseCustomMusicSwitch = false;
+            PuzzleRoom3.CustomMusicSwitch = string.Empty;
+            PuzzleRoom3.overrideRoomVisualTypeForSecretRooms = false;
+            PuzzleRoom3.rewardChestSpawnPosition = new IntVector2(-1, -1);
+            PuzzleRoom3.Width = 38;
+            PuzzleRoom3.Height = 22;
+            RoomFromText.AddExitToRoom(PuzzleRoom3, new Vector2(0, 10), DungeonData.Direction.WEST);
+            RoomFromText.AddExitToRoom(PuzzleRoom3, new Vector2(39, 10), DungeonData.Direction.EAST);
+            RoomFromText.AssignCellDataForNewRoom(PuzzleRoom3, "RoomCellData.PuzzleRoom3_Layout.txt");           
 
-            WeightedRoom[] CustomWeightedRooms = new WeightedRoom[] {
+
+            WeightedRoom[] CustomTrapRooms = new WeightedRoom[] {
                 new WeightedRoom() { room = ThwompCrossingVertical,
                    weight = 1,
                    limitedCopies = true,
@@ -852,12 +904,17 @@ namespace ChaosGlitchMod {
                    additionalPrerequisites = new DungeonPrerequisite[0]
                 }
             };
-            foreach (WeightedRoom customRoom in CustomWeightedRooms) {
+            foreach (WeightedRoom customRoom in CustomTrapRooms) {
+                ChaosPrefabs.CastleRoomTable.includedRooms.elements.Add(customRoom);
+                ChaosPrefabs.Gungeon_RoomTable.includedRooms.elements.Add(customRoom);
+                ChaosPrefabs.CatacombsRoomTable.includedRooms.elements.Add(customRoom);
                 ChaosPrefabs.CustomRoomTable.includedRooms.elements.Add(customRoom);
                 ChaosPrefabs.CustomRoomTableNoCastle.includedRooms.elements.Add(customRoom);
                 ChaosPrefabs.CustomRoomTableSecretGlitchFloor.includedRooms.elements.Add(customRoom);
             }
 
+
+            objectDatabase = null;
         }
     }
 }

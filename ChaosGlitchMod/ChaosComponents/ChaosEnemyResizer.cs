@@ -1,8 +1,11 @@
+using ChaosGlitchMod.ChaosObjects;
+using ChaosGlitchMod.ChaosUtilities;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosComponents {
+
     public class ChaosEnemyResizer : MonoBehaviour {
 
         private static ChaosEnemyResizer m_instance;
@@ -58,7 +61,7 @@ namespace ChaosGlitchMod {
                 // targetAIActor.CollisionKnockbackStrength *= 1.5f;
             }
             aiActor.placeableWidth += 2;
-            aiActor.placeableHeight += 2;
+            aiActor.placeableHeight += 2;            
             return;
         }
 
@@ -133,6 +136,8 @@ namespace ChaosGlitchMod {
                 }
                 yield return null;
             }
+            yield return new WaitForSeconds(1.5f);
+            ChaosUtility.CorrectForWalls(target);
             /*if (target.CorpseObject != null) {
                 target.CorpseObject.transform.localScale = ScaleValue.ToVector3ZUp(1f);
                 int cachedCorpseLayer = target.CorpseObject.layer;
@@ -164,6 +169,7 @@ namespace ChaosGlitchMod {
                 specRigidbody.ForceRegenerate(true, true);
                 specRigidbody.RegenerateCache();
             }
+            ChaosUtility.CorrectForWalls(aiActor);
             // aiActor.procedurallyOutlined = true;
             // aiActor.SetOutlines(true);
         }

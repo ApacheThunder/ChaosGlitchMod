@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosUtilities {
 
     public class AssetFinder : BraveBehaviour {
 

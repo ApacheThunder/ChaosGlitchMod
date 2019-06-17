@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosUtilities {
 
     // More flexible version. Allows loading prefabs from different asset bundles. Must specify full path to prefab however. ;)
     public class ChaosLoadPrefab {

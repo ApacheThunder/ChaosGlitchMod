@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Dungeonator;
 
-namespace ChaosGlitchMod {
+namespace ChaosGlitchMod.ChaosUtilities {
 
 	public class Tools {
 
