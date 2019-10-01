@@ -253,7 +253,19 @@ namespace ChaosGlitchMod.ChaosComponents {
         }
 
 
-        public void CheckForWeatherFX(PlayerController player, float RainIntensity) { StartCoroutine(ToggleRainFX(player, 500f)); }
+        public void CheckForWeatherFX(PlayerController player, float RainIntensity) {
+            try {
+                StartCoroutine(ToggleRainFX(player, 500f));
+            } catch (System.Exception ex) {
+                if (ChaosConsole.debugMimicFlag) {
+                    Debug.Log("[WARNING] Exception caught while checking room for WeatherFX toggle!...");
+                    Debug.LogException(ex);                    
+                    ETGModConsole.Log("[WARNING] Exception caught while checking room for WeatherFX toggle!...");
+                    ETGModConsole.Log("Exception has been logged.");
+                }
+                return;
+            }
+        }
 
         private IEnumerator ToggleRainFX(PlayerController player, float cachedRate) {
 

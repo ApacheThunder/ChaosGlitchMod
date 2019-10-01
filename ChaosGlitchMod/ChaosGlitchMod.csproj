@@ -659,7 +659,6 @@
     <EmbeddedResource Include="Textures\Rat_Grenade\rat_candle_move_right_005.png" />
     <EmbeddedResource Include="Textures\Rat_Grenade\rat_candle_move_right_006.png" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Textures\BootlegEnemies\Bullat\bullat_charge_001.png" />
     <EmbeddedResource Include="Textures\BootlegEnemies\Bullat\bullat_charge_002.png" />

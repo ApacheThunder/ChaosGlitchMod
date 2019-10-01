@@ -300,7 +300,9 @@ namespace ChaosGlitchMod.ChaosMain {
 
         private static void EnteredNewRoomHook(Action<RoomHandler, PlayerController> orig, RoomHandler self, PlayerController player) {
             orig(self, player);
-            
+
+            if (string.IsNullOrEmpty(self.GetRoomName())) { return; }
+
             ChaosRatFloorRainController.Instance.CheckForWeatherFX(player, 480);
             
             if (ChaosConsole.GlitchEnemies | ChaosConsole.isHardMode | GameManager.Instance.Dungeon.IsGlitchDungeon) {

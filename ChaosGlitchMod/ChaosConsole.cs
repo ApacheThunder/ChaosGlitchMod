@@ -110,9 +110,10 @@ namespace ChaosGlitchMod {
 
                 // ChaosGlitchedEnemies m_GlitchEnemies = new ChaosGlitchedEnemies();
                 // m_GlitchEnemies.SpawnRandomGlitchEnemy(CurrentRoom, position2.Value, false, AIActor.AwakenAnimationType.Spawn);
-            });
+            });*/
 
-            ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
+            
+            /*ETGModConsole.Commands.GetGroup("chaos").AddUnit("test", delegate (string[] e) {
                 GameManager.Instance.InjectedFlowPath = ChaosDungeonFlows.SecretGlitchFloor_Flow.name;
                 ChaosUtility.RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");
                 ChaosUtility.RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
@@ -162,11 +163,12 @@ namespace ChaosGlitchMod {
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("walls", delegate (string[] e) {
                 if (WallMimicsUseRewardManager) {
-                    ETGModConsole.Log("The Walls are already untrusted!", false);
-                } else {
                     ETGModConsole.Log("The Walls can no longer be trusted...", false);
+                    WallMimicsUseRewardManager = false;
+                } else {
+                    ETGModConsole.Log("The Walls can now be trusted...", false);
+                    WallMimicsUseRewardManager = true;
                 }
-                WallMimicsUseRewardManager = false;
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("tinybigmode", delegate (string[] e) {
@@ -423,8 +425,11 @@ namespace ChaosGlitchMod {
             });
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("glitch", delegate (string[] e) {
-                if (GlitchEnemies) { ETGModConsole.Log("Glitched Enemy mode already active! Use 'glitch reset' if you want to disable it!", false); }
-                                
+                if (GlitchEnemies) {
+                    ETGModConsole.Log("Glitched Enemy mode already active! Use 'glitch reset' if you want to disable it!", false);
+                } else {
+                    ETGModConsole.Log("Glitched Enemy mode now active!", false);
+                }
                 GlitchEnemies = true;
                 if (!ChaosSharedHooks.IsHooksInstalled) { ChaosSharedHooks.InstallPrimaryHooks(); }
             });

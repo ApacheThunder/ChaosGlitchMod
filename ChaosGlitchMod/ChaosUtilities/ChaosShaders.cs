@@ -418,29 +418,37 @@ namespace ChaosGlitchMod.ChaosUtilities {
         }
 
         public void ApplyCosmicHorrorShader(tk2dBaseSprite sprite) {
-            Material m_cachedEeveeMaterial = new Material(ShaderCache.Acquire("Brave/PlayerShaderEevee"));
-            m_cachedEeveeMaterial.name = "CosmicHorrorMaterial";
-            Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
-            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
-            Material[] sharedMaterials = spriteComponent.sharedMaterials;
-            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            if (sharedMaterials != null && sharedMaterials.Length > 0) {
-                foreach (Material material in sharedMaterials) {
-                    if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("spacematerial")) { return; }
-                    if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+            try { 
+                Material m_cachedEeveeMaterial = new Material(ShaderCache.Acquire("Brave/PlayerShaderEevee"));
+                m_cachedEeveeMaterial.name = "CosmicHorrorMaterial";
+                Texture2D m_CosmicTex = ResourceManager.LoadAssetBundle("shared_auto_001").LoadAsset<Texture2D>("nebula_reducednoise");
+                MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+                Material[] sharedMaterials = spriteComponent.sharedMaterials;
+                Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+                if (sharedMaterials != null && sharedMaterials.Length > 0) {
+                    foreach (Material material in sharedMaterials) {
+                        if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("spacematerial")) { return; }
+                        if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+                    }
                 }
+                // Material CustomMaterial = Instantiate(m_cachedEeveeMaterial);
+                m_cachedEeveeMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+                m_cachedEeveeMaterial.SetTexture("_EeveeTex", m_CosmicTex);
+                sharedMaterials[sharedMaterials.Length - 1] = m_cachedEeveeMaterial;
+                spriteComponent.sharedMaterials = sharedMaterials;
+                sprite.usesOverrideMaterial = m_cachedEeveeMaterial;
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    Debug.Log("[WARNING] Exception caught while trying to apply Cosmic Horror Shader to AIActor!");
+                    Debug.LogException(ex);
+                }
+                return;
             }
-            // Material CustomMaterial = Instantiate(m_cachedEeveeMaterial);
-            m_cachedEeveeMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
-            m_cachedEeveeMaterial.SetTexture("_EeveeTex", m_CosmicTex);
-            sharedMaterials[sharedMaterials.Length - 1] = m_cachedEeveeMaterial;
-            spriteComponent.sharedMaterials = sharedMaterials;
-            sprite.usesOverrideMaterial = m_cachedEeveeMaterial;
         }
         public void ApplyParadoxGlitchShader(tk2dBaseSprite sprite, float GlitchInterval = 0.1f, float DispProbability = 0.4f, float DispIntensity = 0.01f, float ColorProbability = 0.4f, float ColorIntensity = 0.04f, float WaveIntensity = 1f, float AdditionalTime = 0f) {
             Material m_cachedParadoxGlitchMaterial = new Material(ShaderCache.Acquire("Brave/Internal/GlitchEevee"));
@@ -475,51 +483,67 @@ namespace ChaosGlitchMod.ChaosUtilities {
             sprite.usesOverrideMaterial = m_cachedParadoxGlitchMaterial;
         }
         public void ApplyGalaxyShader(tk2dBaseSprite sprite) {
-            Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Effects/SimplicityDerivativeShader"));
-            m_cachedGalaxyMaterial.name = "GalaxyMaterial";
-            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
-            Material[] sharedMaterials = spriteComponent.sharedMaterials;
-            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            if (sharedMaterials != null && sharedMaterials.Length > 0) {
-                foreach (Material material in sharedMaterials) {
-                    if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("spacematerial")) { return; }
-                    if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+            try { 
+                Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Effects/SimplicityDerivativeShader"));
+                m_cachedGalaxyMaterial.name = "GalaxyMaterial";
+                MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+                Material[] sharedMaterials = spriteComponent.sharedMaterials;
+                Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+                if (sharedMaterials != null && sharedMaterials.Length > 0) {
+                    foreach (Material material in sharedMaterials) {
+                        if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("spacematerial")) { return; }
+                        if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+                    }
                 }
+                // Material CustomMaterial = Instantiate(m_cachedGalaxyMaterial);
+                m_cachedGalaxyMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+                sharedMaterials[sharedMaterials.Length - 1] = m_cachedGalaxyMaterial;
+                spriteComponent.sharedMaterials = sharedMaterials;
+                sprite.usesOverrideMaterial = m_cachedGalaxyMaterial;
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    Debug.Log("[WARNING] Exception caught while trying to apply Galaxy Shader to AIActor!");
+                    Debug.LogException(ex);
+                }
+                return;
             }
-            // Material CustomMaterial = Instantiate(m_cachedGalaxyMaterial);
-            m_cachedGalaxyMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
-            sharedMaterials[sharedMaterials.Length - 1] = m_cachedGalaxyMaterial;
-            spriteComponent.sharedMaterials = sharedMaterials;
-            sprite.usesOverrideMaterial = m_cachedGalaxyMaterial;
         }
         public void ApplySpaceShader(tk2dBaseSprite sprite) {
-            Material m_cachedSpaceMaterial = new Material(ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"));
-            m_cachedSpaceMaterial.name = "SpaceMaterial";
-            // Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/SpaceFogShader"));            
-            MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
-            Material[] sharedMaterials = spriteComponent.sharedMaterials;
-            Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
-            if (sharedMaterials != null && sharedMaterials.Length > 0) {
-                foreach (Material material in sharedMaterials) {
-                    if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("spacematerial")) { return; }
-                    if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
-                    if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+            try { 
+                Material m_cachedSpaceMaterial = new Material(ShaderCache.Acquire("Brave/Internal/StarNest_Derivative"));
+                m_cachedSpaceMaterial.name = "SpaceMaterial";
+                // Material m_cachedGalaxyMaterial = new Material(ShaderCache.Acquire("Brave/Internal/SpaceFogShader"));            
+                MeshRenderer spriteComponent = sprite.GetComponent<MeshRenderer>();
+                Material[] sharedMaterials = spriteComponent.sharedMaterials;
+                Array.Resize(ref sharedMaterials, sharedMaterials.Length + 1);
+                if (sharedMaterials != null && sharedMaterials.Length > 0) {
+                    foreach (Material material in sharedMaterials) {
+                        if (material.name.ToLower().StartsWith("glitchmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("hologrammaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("galaxymaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("spacematerial")) { return; }
+                        if (material.name.ToLower().StartsWith("paradoxmaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("cosmichorrormaterial")) { return; }
+                        if (material.name.ToLower().StartsWith("rainbowmaterial")) { return; }
+                    }
                 }
+                // Material CustomMaterial = Instantiate(m_cachedSpaceMaterial);
+                m_cachedSpaceMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
+                sharedMaterials[sharedMaterials.Length - 1] = m_cachedSpaceMaterial;
+                spriteComponent.sharedMaterials = sharedMaterials;
+                sprite.usesOverrideMaterial = m_cachedSpaceMaterial;
+            } catch (Exception ex) {
+                if (ChaosConsole.DebugExceptions) {
+                    Debug.Log("[WARNING] Exception caught while trying to apply Space shader to AIActor!");
+                    Debug.LogException(ex);
+                }
+                return;
             }
-            // Material CustomMaterial = Instantiate(m_cachedSpaceMaterial);
-            m_cachedSpaceMaterial.SetTexture("_MainTex", sharedMaterials[0].GetTexture("_MainTex"));
-            sharedMaterials[sharedMaterials.Length - 1] = m_cachedSpaceMaterial;
-            spriteComponent.sharedMaterials = sharedMaterials;
-            sprite.usesOverrideMaterial = m_cachedSpaceMaterial;
         }
         public void ApplyBasicShader(AIActor aiActor, tk2dBaseSprite sprite) {
             // Material m_cachedBasicMaterial = new Material(ShaderCache.Acquire("Brave/LitTk2dCustomFalloffTiltedCutoutFast"));

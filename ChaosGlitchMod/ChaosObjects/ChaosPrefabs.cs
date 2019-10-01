@@ -522,7 +522,12 @@ namespace ChaosGlitchMod.ChaosObjects {
                     MegaBossRoomTable.includedRooms.elements.Add(roomElement);
                     MegaBossRoomTableNoGull.includedRooms.elements.Add(roomElement);
                 }
-            }            
+            }
+
+            // Randomize room order in these tables. Custom Secret Floor doesn't seem to want to randomize them on it's own.
+            MegaBossRoomTableNoGull.includedRooms.elements = MegaBossRoomTableNoGull.includedRooms.elements.Shuffle();
+            winchesterroomtable.includedRooms.elements = winchesterroomtable.includedRooms.elements.Shuffle();
+
             PrototypeDungeonRoom m_gungeon_rewardroom_1 = Instantiate(gungeon_rewardroom_1);
 
             // Add teleporter to make it like the other reward rooms post AG&D update.
@@ -758,11 +763,9 @@ namespace ChaosGlitchMod.ChaosObjects {
             CompanionController cuccoController = Cucco.gameObject.GetComponent<CompanionController>();
             cuccoController.CanBePet = true;
 
-            Raccoon.behaviorSpeculator.OverrideBehaviors.Add(new ChaosRaccoonManager());
-
-            /*CompanionItem dogCompanion = DogItem.GetComponent<CompanionItem>();
-            dogCompanion.CompanionGuid = Raccoon.EnemyGuid;*/
-
+            // A custom item mod now adds this functionality. To avoid possible issues I have disabled this.
+            // Raccoon.behaviorSpeculator.OverrideBehaviors.Add(new ChaosRaccoonManager());
+            
             List<AGDEnemyReplacementTier> ReplacementTiers = GameManager.Instance.EnemyReplacementTiers;
 
             if (ReplacementTiers != null && ReplacementTiers.Count > 0) {

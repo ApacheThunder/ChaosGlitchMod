@@ -33,7 +33,10 @@ namespace ChaosGlitchMod.DungeonFlows {
                 if (weightedRoom.room != null) { m_WinchesterRoomList.Add(weightedRoom.room); }
             }
 
-            if (m_WinchesterRoomList.Count > 0) { m_WinchesterNode.overrideExactRoom = BraveUtility.RandomElement(m_WinchesterRoomList); }
+            if (m_WinchesterRoomList.Count > 0) {
+                m_WinchesterRoomList = m_WinchesterRoomList.Shuffle();
+                m_WinchesterNode.overrideExactRoom = BraveUtility.RandomElement(m_WinchesterRoomList);
+            }
 
 
             DungeonFlowNode m_GunMuncherNode = ChaosDungeonFlows.GenerateDefaultNode(ChaosDungeonFlows.SecretGlitchFloor_Flow, PrototypeDungeonRoom.RoomCategory.SPECIAL, ChaosPrefabs.subshop_muncher_01);

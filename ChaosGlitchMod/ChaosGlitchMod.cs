@@ -56,6 +56,9 @@ namespace ChaosGlitchMod {
 
         private void EnemyModRandomizer(AIActor targetActor) {
 
+            // Finding too many issues being caused with Bosses to allow shader modifications on them.
+            if (targetActor.healthHaver != null && targetActor.healthHaver.IsBoss) { return; }
+
             bool hasAltSkin = false;
             bool hasShader = false;
 
@@ -147,7 +150,7 @@ namespace ChaosGlitchMod {
                     return;
                 }
 
-                if (!hasAltSkin) {
+                if (!hasAltSkin && targetActor.EnemyGuid != "5e0af7f7d9de4755a68d2fd3bbc15df4") {
                     if (UnityEngine.Random.value <= 0.2f && !targetActor.IsBlackPhantom) {
                         ChaosShaders.Instance.BecomeHologram(targetActor, BraveUtility.RandomBool());
                         hasShader = true;
@@ -172,7 +175,7 @@ namespace ChaosGlitchMod {
                 }
             }
 
-            if (!hasAltSkin && !hasShader && ChaosConsole.GlitchEnemies && !targetActor.IsBlackPhantom && UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors) {
+            if (!hasAltSkin && !hasShader && ChaosConsole.GlitchEnemies && targetActor.EnemyGuid != "5e0af7f7d9de4755a68d2fd3bbc15df4" && !targetActor.IsBlackPhantom && UnityEngine.Random.value <= ChaosConsole.GlitchRandomActors) {
                 float RandomIntervalFloat = UnityEngine.Random.Range(0.02f, 0.06f);
                 float RandomDispFloat = UnityEngine.Random.Range(0.1f, 0.16f);
                 float RandomDispIntensityFloat = UnityEngine.Random.Range(0.1f, 0.4f);
