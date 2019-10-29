@@ -3,6 +3,7 @@ using System.Collections;
 using Dungeonator;
 using UnityEngine;
 using ChaosGlitchMod.ChaosUtilities;
+using ChaosGlitchMod.ChaosObjects;
 using System.Collections.Generic;
 
 namespace ChaosGlitchMod.ChaosComponents {
@@ -180,8 +181,12 @@ namespace ChaosGlitchMod.ChaosComponents {
         }
 
         private void TransitionToDepart(tk2dSpriteAnimator animator, tk2dSpriteAnimationClip clip) {
-            GameManager.Instance.MainCameraController.DoDelayedScreenShake(departureShake, 0.25f, null);
             if (!m_depatureIsPlayerless) {
+                if (OverrideTargetFloor == GlobalDungeonData.ValidTilesets.PHOBOSGEON) { Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader); }
+            }
+
+            GameManager.Instance.MainCameraController.DoDelayedScreenShake(departureShake, 0.25f, null);
+            if (!m_depatureIsPlayerless) {                
                 for (int i = 0; i < GameManager.Instance.AllPlayers.Length; i++) { GameManager.Instance.AllPlayers[i].PrepareForSceneTransition(); }
                 // float delay = 0.5f;
                 float delay = 0.7f;
@@ -213,10 +218,12 @@ namespace ChaosGlitchMod.ChaosComponents {
                                 string[] flows = new string[] { "custom_glitchchest_flow", "custom_glitchchestalt_flow" };
                                 GameManager.Instance.StartCoroutine(ChaosUtility.DelayedGlitchLevelLoad(delay, BraveUtility.RandomElement(flows), useNakatomiTileset: BraveUtility.RandomBool()));
                             }                            
-                        } else if (overrideTargetFloor == GlobalDungeonData.ValidTilesets.PHOBOSGEON) {
-                            ChaosUtility.RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");
+                        } else if (overrideTargetFloor == GlobalDungeonData.ValidTilesets.PHOBOSGEON) {                            
+                            ChaosUtility.RatDungeon = DungeonDatabase.GetOrLoadByName("Base_ResourcefulRat");                            
                             ChaosUtility.RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
-                            ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
+                            // ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
+                            // ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.JUNGLEGEON;
+                            ChaosPrefabs.InitCustomTileSet(ChaosUtility.RatDungeon, GlobalDungeonData.ValidTilesets.PHOBOSGEON);
                             GameManager.Instance.StartCoroutine(ChaosUtility.DelayedGlitchLevelLoad(delay, "SecretGlitchFloor_Flow", true));
                         } else {
                             GameManager.Instance.DelayedLoadNextLevel(delay);

@@ -51,7 +51,7 @@ namespace ChaosGlitchMod {
         public static int MaxWallMimicsForFloor = 2;
         public static int RandomPits = 0;
         public static int RandomPitsPerRoom = 0;
-
+        
         private void Start() {
 
             if (autoUltra) {
@@ -119,6 +119,11 @@ namespace ChaosGlitchMod {
                 ChaosUtility.RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
                 ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
                 ChaosUtility.Instance.DelayedLoadGlitchFloor(0.7f, "SecretGlitchFloor_Flow", true);
+
+                AssetBundle sharedAssets2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+                tk2dSpriteCollectionData testTileSet = sharedAssets2.LoadAsset<GameObject>("ENV_FInalScenario_Pilot").GetComponent<tk2dSpriteCollectionData>();
+                CastlePrefabtest = DungeonDatabase.GetOrLoadByName("Base_Castle");
+                CastlePrefabtest.tileIndices.dungeonCollection = testTileSet;
             });*/
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {

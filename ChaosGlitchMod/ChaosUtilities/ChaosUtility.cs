@@ -922,7 +922,7 @@ namespace ChaosGlitchMod.ChaosUtilities {
         public static IEnumerator DelayedGlitchLevelLoad(float delay, string flowPath, bool IsSecretRatFloor = false, bool useNakatomiTileset = false) {
             if (string.IsNullOrEmpty(flowPath)) { yield break; }            
             if (IsSecretRatFloor) {
-                Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
+                // Pixelator.Instance.RegisterAdditionalRenderPass(ChaosShaders.GlitchScreenShader);
                 GameManager.Instance.InjectedFlowPath = flowPath;
                 yield return new WaitForSeconds(delay);
                 ChaosGlitchMod.isGlitchFloor = true;

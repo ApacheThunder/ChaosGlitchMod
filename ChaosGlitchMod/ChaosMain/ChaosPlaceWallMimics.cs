@@ -24,7 +24,7 @@ namespace ChaosGlitchMod.ChaosMain {
             ChaosConsole.hasBeenTentacledToAnotherRoom = false;
 
             if (ChaosGlitchMod.isGlitchFloor && dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.PHOBOSGEON) {
-                Color colorBoost = new Color(0.237f, 0.237f, 0.237f);                
+                /*Color colorBoost = new Color(0.237f, 0.237f, 0.237f);
                 dungeon.decoSettings.ambientLightColor += colorBoost;
                 dungeon.decoSettings.ambientLightColorTwo += colorBoost;
                 dungeon.decoSettings.lowQualityAmbientLightColor += colorBoost;
@@ -32,8 +32,8 @@ namespace ChaosGlitchMod.ChaosMain {
                 ChaosUtility.RatDungeon.decoSettings.ambientLightColor += colorBoost;
                 ChaosUtility.RatDungeon.decoSettings.ambientLightColorTwo += colorBoost;
                 ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColor += colorBoost;
-                ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;
-                dungeon.DungeonFloorName = "A Secret Place?";
+                ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;*/
+                dungeon.DungeonFloorName = "A Corrupted Place...";
                 dungeon.DungeonShortName = "Something Weird...";
             }
 

@@ -26,6 +26,9 @@ namespace ChaosGlitchMod.ChaosObjects {
         private static Dungeon CatacombsDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Catacombs");
         private static Dungeon NakatomiDungeonPrefab = DungeonDatabase.GetOrLoadByName("base_nakatomi");
 
+        private static Dungeon FinalScenarioBulletPrefab;
+        private static Dungeon FinalScenarioPilotPrefab;
+
         // Custom/Modified Textures
         public static Texture2D BulletManMonochromeTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_Monochrome.png"); 
         public static Texture2D BulletManUpsideDownTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_UpsideDown.png");
@@ -823,6 +826,211 @@ namespace ChaosGlitchMod.ChaosObjects {
             sharedAssets2 = null;
             braveResources = null;
             enemiesBase = null;
+        }
+
+        /*public static TilemapDecoSettings jungleDeco = new TilemapDecoSettings {
+            standardRoomVisualSubtypes = new WeightedIntCollection {
+                elements = new WeightedInt[] {
+                    new WeightedInt() {
+                        annotation = "woods",
+                        value = 0,
+                        weight = 0.5f,
+                        additionalPrerequisites = null
+                    },
+                    new WeightedInt() {
+                        annotation = "the boo",
+                        value = 1,
+                        weight = 0.5f,
+                        additionalPrerequisites = null
+                    },
+                    new WeightedInt() {
+                        annotation = "shop",
+                        value = 2,
+                        weight = 0f,
+                        additionalPrerequisites = null
+                    },
+                    new WeightedInt() {
+                        annotation = "unused",
+                        value = 3,
+                        weight = 0f,
+                        additionalPrerequisites = null
+                    },
+                    new WeightedInt() {
+                        annotation = "unused",
+                        value = 4,
+                        weight = 0f,
+                        additionalPrerequisites = null
+                    }
+                }
+            },
+            decalLayerStyle = TilemapDecoSettings.DecoStyle.NONE,
+            decalSize = 3,
+            decalSpacing = 1,
+            decalExpansion = 0,
+            patternLayerStyle = TilemapDecoSettings.DecoStyle.NONE,
+            patternSize = 3,
+            patternSpacing = 3,
+            patternExpansion = 0,
+            decoPatchFrequency = 0.01f,
+            ambientLightColor = new Color { r = 0.927336f, g = 0.966108f, b = 0.985294f, a = 1 },
+            ambientLightColorTwo = new Color { r = 0.925499f, g = 0.964706f, b = 0.984314f, a = 1 },
+            lowQualityAmbientLightColor = new Color { r = 1, g = 1, b = 1, a = 1 },
+            lowQualityAmbientLightColorTwo = new Color { r = 1, g = 1, b = 1, a = 1 },
+            lowQualityCheapLightVector = new Vector4 { x = 1, y = 0, z = -1, w = 0 },
+            UsesAlienFXFloorColor = false,
+            AlienFXFloorColor = new Color { r = 0, g = 0, b = 0, a = 0 },
+            generateLights = true,
+            lightCullingPercentage = 0.2f,
+            lightOverlapRadius = 8,
+            nearestAllowedLight = 12,
+            minLightExpanseWidth = 2,
+            lightHeight = -2,
+            lightCookies = null,
+            debug_view = false
+        };
+
+        public static TileIndices jungleIndices = new TileIndices {
+            tilesetId = GlobalDungeonData.ValidTilesets.PHOBOSGEON,
+            aoTileIndices = new AOTileIndices {
+                AOFloorTileIndex = 0,
+                AOBottomWallBaseTileIndex = 1,
+                AOBottomWallTileRightIndex = 2,
+                AOBottomWallTileLeftIndex = 3,
+                AOBottomWallTileBothIndex = 4,
+                AOTopFacewallRightIndex = 6,
+                AOTopFacewallLeftIndex = 5,
+                AOTopFacewallBothIndex = 7,
+                AOFloorWallLeft = 5,
+                AOFloorWallRight = 6,
+                AOFloorWallBoth = 7,
+                AOFloorPizzaSliceLeft = 8,
+                AOFloorPizzaSliceRight = 9,
+                AOFloorPizzaSliceBoth = 10,
+                AOFloorPizzaSliceLeftWallRight = 11,
+                AOFloorPizzaSliceRightWallLeft = 12,
+                AOFloorWallUpAndLeft = 13,
+                AOFloorWallUpAndRight = 14,
+                AOFloorWallUpAndBoth = 15,
+                AOFloorDiagonalWallNortheast = -1,
+                AOFloorDiagonalWallNortheastLower = -1,
+                AOFloorDiagonalWallNortheastLowerJoint = -1,
+                AOFloorDiagonalWallNorthwest = -1,
+                AOFloorDiagonalWallNorthwestLower = -1,
+                AOFloorDiagonalWallNorthwestLowerJoint = -1,
+                AOBottomWallDiagonalNortheast = -1,
+                AOBottomWallDiagonalNorthwest = -1
+            },
+            placeBorders = true,
+            placePits = false,
+            chestHighWallIndices = new List<TileIndexVariant> {
+                new TileIndexVariant {
+                    index = 41,
+                    likelihood = 0.5f,
+                    overrideLayerIndex = 0,
+                    overrideIndex = 0
+                }
+            },
+            decalIndexGrid = null,
+            patternIndexGrid = null,
+            globalSecondBorderTiles = null,
+            edgeDecorationTiles = null,
+        };
+
+        public static DungeonTileStampData JungleStampData = new DungeonTileStampData {
+            name = "ENV_JUNGLE_STAMP_DATA",
+            tileStampWeight = 1,
+            spriteStampWeight = 0,
+            objectStampWeight = 1,
+            stamps = new TileStampData[0],
+            spriteStamps = new SpriteStampData[0],
+            objectStamps = new ObjectStampData[0],
+            SymmetricFrameChance = 0.1f,
+            SymmetricCompleteChance = 0.1f,            
+        };*/
+
+
+        public static void InitCustomTileSet(Dungeon dungeon, GlobalDungeonData.ValidTilesets tilesetID) {
+            /*braveResources = ResourceManager.LoadAssetBundle("brave_resources_001");            
+            tk2dTiledSprite grassStripTileSprite = braveResources.LoadAsset<GameObject>("TallGrassStrip").GetComponent<tk2dTiledSprite>();
+            tk2dSpriteCollectionData jungleTileSet = grassStripTileSprite.Collection;*/
+            MinesDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Mines");
+            FinalScenarioPilotPrefab = DungeonDatabase.GetOrLoadByName("FinalScenario_Pilot");
+            FinalScenarioBulletPrefab = DungeonDatabase.GetOrLoadByName("FinalScenario_Bullet");
+            // SewerDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Sewer");
+            dungeon.decoSettings = FinalScenarioBulletPrefab.decoSettings;
+            dungeon.tileIndices = FinalScenarioBulletPrefab.tileIndices;
+            // dungeon.roomMaterialDefinitions = MinesDungeonPrefab.roomMaterialDefinitions;
+            dungeon.roomMaterialDefinitions = new DungeonMaterial[] {
+                MinesDungeonPrefab.roomMaterialDefinitions[0],
+                MinesDungeonPrefab.roomMaterialDefinitions[1],
+                MinesDungeonPrefab.roomMaterialDefinitions[2],
+                MinesDungeonPrefab.roomMaterialDefinitions[3],
+                MinesDungeonPrefab.roomMaterialDefinitions[4],
+                MinesDungeonPrefab.roomMaterialDefinitions[5],
+                MinesDungeonPrefab.roomMaterialDefinitions[6],
+                MinesDungeonPrefab.roomMaterialDefinitions[7]
+            };
+            dungeon.pathGridDefinitions = MinesDungeonPrefab.pathGridDefinitions;            
+            dungeon.doorObjects = FinalScenarioPilotPrefab.doorObjects;
+            dungeon.oneWayDoorObjects = FinalScenarioPilotPrefab.oneWayDoorObjects;
+            dungeon.oneWayDoorPressurePlate = FinalScenarioPilotPrefab.oneWayDoorPressurePlate;
+            dungeon.PlayerLightColor = MinesDungeonPrefab.PlayerLightColor;
+            dungeon.PlayerLightIntensity = MinesDungeonPrefab.PlayerLightIntensity;
+            dungeon.PlayerLightRadius = MinesDungeonPrefab.PlayerLightRadius;
+            dungeon.tileIndices.tilesetId = tilesetID;
+            // dungeon.stampData = FinalScenarioPilotPrefab.stampData;
+            dungeon.stampData.stamps = new TileStampData[] {
+                MinesDungeonPrefab.stampData.stamps[0],
+                MinesDungeonPrefab.stampData.stamps[1],
+                MinesDungeonPrefab.stampData.stamps[2],
+                MinesDungeonPrefab.stampData.stamps[3],
+                MinesDungeonPrefab.stampData.stamps[4],
+                MinesDungeonPrefab.stampData.stamps[5],
+                MinesDungeonPrefab.stampData.stamps[6],
+                MinesDungeonPrefab.stampData.stamps[7],
+                MinesDungeonPrefab.stampData.stamps[8],
+                MinesDungeonPrefab.stampData.stamps[9],
+                MinesDungeonPrefab.stampData.stamps[10],
+                MinesDungeonPrefab.stampData.stamps[11]
+            };
+            dungeon.decoSettings.ambientLightColor = MinesDungeonPrefab.decoSettings.ambientLightColor;
+            dungeon.decoSettings.ambientLightColorTwo = MinesDungeonPrefab.decoSettings.ambientLightColorTwo;
+            dungeon.decoSettings.lowQualityAmbientLightColor = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColor;
+            dungeon.decoSettings.lowQualityAmbientLightColorTwo = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColorTwo;
+            dungeon.decoSettings.lowQualityCheapLightVector = MinesDungeonPrefab.decoSettings.lowQualityCheapLightVector;
+            dungeon.decoSettings.lightCullingPercentage = MinesDungeonPrefab.decoSettings.lightCullingPercentage;
+            dungeon.decoSettings.lightOverlapRadius = MinesDungeonPrefab.decoSettings.lightOverlapRadius;
+            dungeon.decoSettings.nearestAllowedLight = MinesDungeonPrefab.decoSettings.nearestAllowedLight;
+            dungeon.decoSettings.minLightExpanseWidth = MinesDungeonPrefab.decoSettings.minLightExpanseWidth;
+            dungeon.decoSettings.lightHeight = MinesDungeonPrefab.decoSettings.lightHeight;
+            dungeon.decoSettings.lightCookies = MinesDungeonPrefab.decoSettings.lightCookies;
+            dungeon.decoSettings.debug_view = false;
+            dungeon.doorObjects = MinesDungeonPrefab.doorObjects;
+            dungeon.oneWayDoorObjects = MinesDungeonPrefab.oneWayDoorObjects;
+            dungeon.oneWayDoorPressurePlate = MinesDungeonPrefab.oneWayDoorPressurePlate;
+            dungeon.lockedDoorObjects = MinesDungeonPrefab.lockedDoorObjects;
+
+            // dungeon.PlayerLightColor = FinalScenarioBulletPrefab.PlayerLightColor;
+            // dungeon.PlayerLightIntensity = FinalScenarioBulletPrefab.PlayerLightIntensity;
+            // dungeon.PlayerLightRadius = FinalScenarioBulletPrefab.PlayerLightRadius;
+            // FinalScenarioBulletPrefab = null;
+
+            /*jungleIndices.dungeonCollection = jungleTileSet;
+            
+            dungeon.tileIndices = jungleIndices;
+            dungeon.stampData = JungleStampData;
+            dungeon.roomMaterialDefinitions = MinesDungeonPrefab.roomMaterialDefinitions;
+            //dungeon.decoSettings = jungleDeco;
+            dungeon.stampData = JungleStampData;
+            dungeon.pathGridDefinitions = MinesDungeonPrefab.pathGridDefinitions;
+            dungeon.PlayerLightColor = new Color { r = 1, g = 1, b = 1, a = 1 };
+            dungeon.PlayerLightIntensity = 3;
+            dungeon.PlayerLightRadius = 5;
+            braveResources = null;*/
+            FinalScenarioBulletPrefab = null;
+            FinalScenarioPilotPrefab = null;
+            MinesDungeonPrefab = null;
+            // SewerDungeonPrefab = null;
         }
     }
 }
