@@ -33,14 +33,20 @@ namespace ChaosGlitchMod.ChaosObjects {
         public static Texture2D BulletManMonochromeTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_Monochrome.png"); 
         public static Texture2D BulletManUpsideDownTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_UpsideDown.png");
         public static Texture2D BulletManEyepatchTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletManEyepatch.png");
+        public static Texture2D StoneCubeWestTexture = ResourceExtractor.GetTextureFromResource("Textures\\Stone_Cube_Collection_West.png");
         // public static Texture2D RedBulletShotgunManTexture = ResourceExtractor.GetTextureFromResource("Textures\\RedBulletShotgunMan.png");
         // public static Texture2D BlueBulletShotgunManTexture = ResourceExtractor.GetTextureFromResource("Textures\\BlueBulletShotgunMan.png");
-
+        public static Texture2D ENV_Tileset_Canyon_Texture = ResourceExtractor.GetTextureFromResource("Textures\\ENV_Tileset_Canyon.png");
+        
         public static tk2dSpriteCollectionData BulletManMonochromeCollection;
         public static tk2dSpriteCollectionData BulletManUpsideDownCollection;
         public static tk2dSpriteCollectionData BulletManEyepatchCollection;
         // public static tk2dSpriteCollectionData RedBulletShotgunManCollection;
         // public static tk2dSpriteCollectionData BlueBulletShotgunManCollection;
+        public static tk2dSpriteCollectionData StoneCubeCollection_West;
+
+
+        public static tk2dSpriteCollectionData ENV_Tileset_Canyon;
 
         // public static tk2dSpriteCollectionData BulletManCollection = sharedAssets.LoadAsset<GameObject>("BulletManSpriteCollection").GetComponent<tk2dSpriteCollectionData>();
 
@@ -787,10 +793,12 @@ namespace ChaosGlitchMod.ChaosObjects {
             DontDestroyOnLoad(BlueBulletShotgunManTexture);*/
             BulletManEyepatchCollection = ChaosUtility.BuildSpriteCollection(EnemyDatabase.GetOrLoadByGuid("70216cae6c1346309d86d4a0b4603045").sprite.Collection, BulletManEyepatchTexture, null, EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5").sprite.renderer.material.shader, true);
             BulletManMonochromeCollection = ChaosUtility.BuildSpriteCollection(EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5").sprite.Collection, BulletManMonochromeTexture, null, ShaderCache.Acquire("tk2d/BlendVertexColorUnlitTilted"), true);
-            BulletManUpsideDownCollection = ChaosUtility.BuildSpriteCollection(EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5").sprite.Collection, BulletManUpsideDownTexture, null, null, true);            
+            BulletManUpsideDownCollection = ChaosUtility.BuildSpriteCollection(EnemyDatabase.GetOrLoadByGuid("01972dee89fc4404a5c408d50007dad5").sprite.Collection, BulletManUpsideDownTexture, null, null, true);
+            StoneCubeCollection_West = ChaosUtility.BuildSpriteCollection(EnemyDatabase.GetOrLoadByGuid("ba928393c8ed47819c2c5f593100a5bc").sprite.Collection, StoneCubeWestTexture, null, null, true);
             DontDestroyOnLoad(BulletManEyepatchCollection);
             DontDestroyOnLoad(BulletManMonochromeCollection);
             DontDestroyOnLoad(BulletManUpsideDownCollection);
+            DontDestroyOnLoad(StoneCubeCollection_West);
 
             BulletMan.Init();
             BulletManBandana.Init();
@@ -956,9 +964,15 @@ namespace ChaosGlitchMod.ChaosObjects {
             MinesDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Mines");
             FinalScenarioPilotPrefab = DungeonDatabase.GetOrLoadByName("FinalScenario_Pilot");
             FinalScenarioBulletPrefab = DungeonDatabase.GetOrLoadByName("FinalScenario_Bullet");
+
+            if (ENV_Tileset_Canyon == null) {
+                ENV_Tileset_Canyon = ChaosUtility.BuildSpriteCollection(FinalScenarioPilotPrefab.tileIndices.dungeonCollection, ENV_Tileset_Canyon_Texture, null, null, true);
+            }            
+
             // SewerDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Sewer");
             dungeon.decoSettings = FinalScenarioBulletPrefab.decoSettings;
             dungeon.tileIndices = FinalScenarioBulletPrefab.tileIndices;
+            dungeon.tileIndices.dungeonCollection = ENV_Tileset_Canyon;
             // dungeon.roomMaterialDefinitions = MinesDungeonPrefab.roomMaterialDefinitions;
             dungeon.roomMaterialDefinitions = new DungeonMaterial[] {
                 MinesDungeonPrefab.roomMaterialDefinitions[0],
@@ -993,7 +1007,7 @@ namespace ChaosGlitchMod.ChaosObjects {
                 MinesDungeonPrefab.stampData.stamps[10],
                 MinesDungeonPrefab.stampData.stamps[11]
             };
-            dungeon.decoSettings.ambientLightColor = MinesDungeonPrefab.decoSettings.ambientLightColor;
+            /*dungeon.decoSettings.ambientLightColor = MinesDungeonPrefab.decoSettings.ambientLightColor;
             dungeon.decoSettings.ambientLightColorTwo = MinesDungeonPrefab.decoSettings.ambientLightColorTwo;
             dungeon.decoSettings.lowQualityAmbientLightColor = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColor;
             dungeon.decoSettings.lowQualityAmbientLightColorTwo = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColorTwo;
@@ -1003,16 +1017,16 @@ namespace ChaosGlitchMod.ChaosObjects {
             dungeon.decoSettings.nearestAllowedLight = MinesDungeonPrefab.decoSettings.nearestAllowedLight;
             dungeon.decoSettings.minLightExpanseWidth = MinesDungeonPrefab.decoSettings.minLightExpanseWidth;
             dungeon.decoSettings.lightHeight = MinesDungeonPrefab.decoSettings.lightHeight;
-            dungeon.decoSettings.lightCookies = MinesDungeonPrefab.decoSettings.lightCookies;
+            dungeon.decoSettings.lightCookies = MinesDungeonPrefab.decoSettings.lightCookies;*/
             dungeon.decoSettings.debug_view = false;
             dungeon.doorObjects = MinesDungeonPrefab.doorObjects;
             dungeon.oneWayDoorObjects = MinesDungeonPrefab.oneWayDoorObjects;
             dungeon.oneWayDoorPressurePlate = MinesDungeonPrefab.oneWayDoorPressurePlate;
             dungeon.lockedDoorObjects = MinesDungeonPrefab.lockedDoorObjects;
 
-            // dungeon.PlayerLightColor = FinalScenarioBulletPrefab.PlayerLightColor;
-            // dungeon.PlayerLightIntensity = FinalScenarioBulletPrefab.PlayerLightIntensity;
-            // dungeon.PlayerLightRadius = FinalScenarioBulletPrefab.PlayerLightRadius;
+            dungeon.PlayerLightColor = FinalScenarioBulletPrefab.PlayerLightColor;
+            dungeon.PlayerLightIntensity = FinalScenarioBulletPrefab.PlayerLightIntensity;
+            dungeon.PlayerLightRadius = FinalScenarioBulletPrefab.PlayerLightRadius;
             // FinalScenarioBulletPrefab = null;
 
             /*jungleIndices.dungeonCollection = jungleTileSet;

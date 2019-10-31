@@ -62,6 +62,12 @@ namespace ChaosGlitchMod {
             bool hasAltSkin = false;
             bool hasShader = false;
 
+            if (GameManager.Instance.Dungeon.tileIndices.tilesetId == GlobalDungeonData.ValidTilesets.PHOBOSGEON) {
+                if (targetActor.EnemyGuid == "ba928393c8ed47819c2c5f593100a5bc") {
+                    ChaosUtility.ApplyCustomTexture(targetActor, prebuiltCollection: ChaosPrefabs.StoneCubeCollection_West);
+                }
+            }
+
             if (ChaosConsole.isHardMode | ChaosConsole.isUltraMode) {
 
                 if (ChaosLists.PreventBeingJammedOverrideList.Contains(targetActor.EnemyGuid)) { targetActor.PreventBlackPhantom = true; }
@@ -109,7 +115,7 @@ namespace ChaosGlitchMod {
                         return;
                     }
                     return;
-                }
+                }                
                 if (targetActor.EnemyGuid == "88b6b6a93d4b4234a67844ef4728382c" && UnityEngine.Random.value < 0.32f) {
                     if (BulletManBandana.BootlegBulletManBandanaCollection == null) { BulletManBandana.Init(targetActor); }
                     ChaosUtility.ApplyCustomTexture(targetActor, prebuiltCollection: BulletManBandana.BootlegBulletManBandanaCollection, overrideShader: ShaderCache.Acquire("tk2d/BlendVertexColorUnlitTilted"));

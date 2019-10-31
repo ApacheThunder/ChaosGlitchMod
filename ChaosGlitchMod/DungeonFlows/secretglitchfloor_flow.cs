@@ -5,6 +5,7 @@ using ChaosGlitchMod.ChaosUtilities;
 using Dungeonator;
 using System.Collections;
 using System.Collections.Generic;
+// using System.Reflection;
 using UnityEngine;
 
 namespace ChaosGlitchMod.DungeonFlows {
@@ -739,6 +740,19 @@ namespace ChaosGlitchMod.DungeonFlows {
                         RatBossAIActor.ConfigureOnPlacement(SecretBossRoom);
                     }
                 }
+
+                /*DungeonDoorController[] doorObjects = FindObjectsOfType<DungeonDoorController>();
+
+                if (doorObjects != null && doorObjects.Length > 0) {
+                    foreach (DungeonDoorController doorObj in doorObjects) {
+                        if (doorObj.gameObject.transform.position.GetAbsoluteRoom().GetRoomName().StartsWith("Giant Elevator Room")) {
+                            if (doorObj.doorModules != null && doorObj.doorModules.Length > 0) {
+                                FieldInfo field = typeof(DungeonDoorController).GetField("doorClosesAfterEveryOpen", BindingFlags.Instance | BindingFlags.NonPublic);
+                                field.SetValue(doorObj, true);
+                            }
+                        }
+                    }
+                }*/
 
             } catch (System.Exception ex) {
                 if (ChaosConsole.DebugExceptions) {

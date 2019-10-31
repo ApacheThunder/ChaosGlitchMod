@@ -171,6 +171,14 @@ namespace ChaosGlitchMod.ChaosMain {
                 typeof(DungeonDoorController)
             );
 
+
+            /*Debug.Log("[ChaosGlitchMod] Installing DungeonDoorController.DelayedReclose Hook....");
+            Hook delayedreclosehook = new Hook(
+                typeof(DungeonDoorController).GetMethod("DelayedReclose", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(ChaosSharedHooks).GetMethod("DelayedRecloseHook", BindingFlags.Public | BindingFlags.Instance),
+                typeof(DungeonDoorController)
+            );*/
+
             Debug.Log("[ChaosGlitchMod] Installing ElevatorArrivalController.Update Hook....");
             Hook arrivalElevatorUpdateHook = new Hook(
                 typeof(ElevatorArrivalController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance),
@@ -1004,6 +1012,32 @@ namespace ChaosGlitchMod.ChaosMain {
                 }
             }
         }
+
+        // Old West style self closing door code modified to account for enemies on special elevator room on custom secret floor.
+        /*public IEnumerator DelayedRecloseHook(Action<DungeonDoorController>orig, DungeonDoorController self) {
+            for (;;) {
+                bool containsPlayerOrEnemy = false;
+                if (self.doorModules == null | self.doorModules.Length <= 0) { break; }
+                for (int i = 0; i < self.doorModules.Length; i++) {
+                    for (int j = 0; j < self.doorModules[i].rigidbody.PixelColliders.Count; j++) {
+                        List<SpeculativeRigidbody> overlappers = PhysicsEngine.Instance.GetOverlappingRigidbodies(self.doorModules[i].rigidbody.PixelColliders[j], null, false);
+                        for (int k = 0; k < overlappers.Count; k++) {
+                            if (overlappers[k].GetComponent<PlayerController>() != null | overlappers[k].GetComponent<AIActor>() != null) {
+                                containsPlayerOrEnemy = true;
+                                break;
+                            }
+                        }
+                        if (containsPlayerOrEnemy) { break; }
+                    }
+                    if (containsPlayerOrEnemy) { break; }
+                }
+                if (!containsPlayerOrEnemy) { break; }
+                yield return null;
+            }
+            yield return new WaitForSeconds(0.25f);
+            self.Close();
+            yield break;
+        }*/
 
         // Prevent Arrival Elevator from departing while room still has active enemies. (currently only relevent to custom Giant Elevator Room)
         // Used to prevent player from going down elevator shaft while there are still enemies to clear.

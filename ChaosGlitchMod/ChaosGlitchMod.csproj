@@ -672,6 +672,12 @@
     <EmbeddedResource Include="Textures\BootlegEnemies\Bullat\bullat_idle_005.png" />
     <EmbeddedResource Include="Textures\BootlegEnemies\Bullat\bullat_idle_006.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\ENV_Tileset_Canyon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\Stone_Cube_Collection_West.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
