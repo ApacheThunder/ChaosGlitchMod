@@ -390,6 +390,69 @@ namespace ChaosGlitchMod.ChaosUtilities {
             return collectionData;
         }
 
+        public static void MakeCompanion(AIActor targetActor, AIActor sourceCompanion = null) {
+
+            if (sourceCompanion == null) { sourceCompanion = EnemyDatabase.GetOrLoadByGuid("3a077fa5872d462196bb9a3cb1af02a3"); }
+
+            if (targetActor.EnemyGuid == "479556d05c7c44f3b6abb3b2067fc778") {
+                targetActor.CanTargetPlayers = false;
+                targetActor.CanTargetEnemies = true;
+                targetActor.IgnoreForRoomClear = true;
+                targetActor.HitByEnemyBullets = true;
+                targetActor.RegisterOverrideColor(new Color(0.5f, 0, 0.5f), "Chaos Charm Effect");
+                return;
+            }
+
+            targetActor.behaviorSpeculator.MovementBehaviors.Add(sourceCompanion.behaviorSpeculator.MovementBehaviors[0]);
+            
+            targetActor.CanTargetPlayers = false;
+            targetActor.CanTargetEnemies = true;
+            targetActor.IgnoreForRoomClear = true;
+            targetActor.HitByEnemyBullets = true;
+            targetActor.name = "CompanionPet";
+            targetActor.RegisterOverrideColor(new Color(0.5f, 0, 0.5f), "Chaos Charm Effect");
+
+            targetActor.gameObject.AddComponent<CompanionController>();
+            CompanionController companionController = targetActor.gameObject.GetComponent<CompanionController>();
+            companionController.CanInterceptBullets = true;
+            companionController.IsCop = false;
+            companionController.IsCopDead = false;
+            companionController.CopDeathStatModifier = new StatModifier() {
+                statToBoost = 0,
+                modifyType = StatModifier.ModifyMethod.ADDITIVE,
+                amount = 0
+            };
+            companionController.CurseOnCopDeath = 2;
+            if (targetActor.IsFlying) {
+                companionController.CanCrossPits = true;
+            } else {
+                companionController.CanCrossPits = false;
+            }
+            companionController.BlanksOnActiveItemUsed = false;
+            companionController.InternalBlankCooldown = 10;
+            companionController.HasStealthMode = false;
+            companionController.PredictsChests = false;
+            companionController.PredictsChestSynergy = 0;
+            companionController.CanBePet = false;
+            companionController.companionID = CompanionController.CompanionIdentifier.NONE;
+            companionController.TeaSynergyHeatRing = new HeatRingModule();
+            companionController.m_petOffset = new Vector2(0, 0);
+
+            companionController.Initialize(GameManager.Instance.PrimaryPlayer);
+
+            if (targetActor.EnemyGuid == "d4dd2b2bbda64cc9bcec534b4e920518" | 
+                targetActor.EnemyGuid == "98fdf153a4dd4d51bf0bafe43f3c77ff" | 
+                targetActor.EnemyGuid == "be0683affb0e41bbb699cb7125fdded6" |
+                targetActor.EnemyGuid == "c2f902b7cbe745efb3db4399927eab34" |
+                targetActor.EnemyGuid == "249db525a9464e5282d02162c88e0357") {
+                // targetActor.specRigidbody.RemoveCollisionLayerOverride(CollisionMask.LayerToMask(CollisionLayer.EnemyCollider));
+                // targetActor.gameObject.AddComponent<ChaosEnemyKnifer>();
+                targetActor.OverrideHitEnemies = true;
+                targetActor.CollisionDamage = 1f;
+                targetActor.CollisionDamageTypes = CoreDamageTypes.Electric;
+            }
+        }
+
         // Spawns objects via DungeonPlacable system. Setup to spawn chests by default if no arguments are supplied.
         public static DungeonPlaceable GenerateDungeonPlacable(GameObject ObjectPrefab = null, bool spawnsEnemy = false, bool useExternalPrefab = false, bool spawnsItem = false, string EnemyGUID = "479556d05c7c44f3b6abb3b2067fc778", int itemID = 307, Vector2? CustomOffset = null, bool itemHasDebrisObject = true) {
             AssetBundle m_assetBundle = ResourceManager.LoadAssetBundle("shared_auto_001");

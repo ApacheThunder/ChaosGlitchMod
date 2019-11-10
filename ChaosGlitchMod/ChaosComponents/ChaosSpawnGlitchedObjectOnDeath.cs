@@ -34,6 +34,8 @@ namespace ChaosGlitchMod.ChaosComponents {
                 ChaosPrefabs.MouseTrap2,
                 ChaosPrefabs.PlayerLostRatNote,
                 ChaosPrefabs.NPCBabyDragun,
+                objectDatabase.NPCTruthKnower,
+                objectDatabase.ChestTruth,
                 objectDatabase.ConvictPastDancers[UnityEngine.Random.Range(0, 15)],
                 objectDatabase.HangingPot,
                 objectDatabase.RatTrapDoorIcon,
@@ -143,9 +145,21 @@ namespace ChaosGlitchMod.ChaosComponents {
                 if (!usesExternalObjectArray) {
                     if (spawnRatCorpse) {
                         SpawnedObject = Instantiate(SelectedObject, (specRigidbody.GetUnitCenter(ColliderType.HitBox) - new Vector2(0.6f, 0.6f)).ToVector3ZUp(), Quaternion.identity);
+                    } else if (SelectedObject.GetComponent<Chest>() != null) {
+                        if (GameManager.Instance.Dungeon.GetRoomFromPosition(aiActor.transform.PositionVector2().ToIntVector2()) != null) {
+                            // RoomHandler currentRoom = aiActor.GetAbsoluteParentRoom();
+                            RoomHandler currentRoom = GameManager.Instance.Dungeon.GetRoomFromPosition(aiActor.transform.PositionVector2().ToIntVector2());
+                            Chest TruthChest = SelectedObject.GetComponent<Chest>();
+                            WeightedGameObject wChestObject = new WeightedGameObject();
+                            wChestObject.rawGameObject = SelectedObject;
+                            WeightedGameObjectCollection wChestObjectCollection = new WeightedGameObjectCollection();
+                            wChestObjectCollection.Add(wChestObject);
+                            Chest PlacedTruthChest = currentRoom.SpawnRoomRewardChest(wChestObjectCollection, aiActor.transform.PositionVector2().ToIntVector2());
+                            SpawnedObject = PlacedTruthChest.gameObject;
+                        }                        
                     } else {
                         SpawnedObject = Instantiate(SelectedObject, specRigidbody.UnitCenter.ToIntVector2(VectorConversions.Floor).ToVector3(), Quaternion.identity);
-                    }                    
+                    }
                     if (SpawnedObject == null) { return; }
                 }              
 
@@ -166,7 +180,7 @@ namespace ChaosGlitchMod.ChaosComponents {
                 if (!spawnRatCorpse) {
                     if (SpawnedObject.GetComponent<tk2dBaseSprite>() != null) {
                         ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponent<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
-                    } else if (SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null) {
+                    } else if (SpawnedObject.GetComponentInChildren<tk2dBaseSprite>() != null && SpawnedObject.GetComponent<Chest>() == null) {
                         ChaosShaders.Instance.ApplyGlitchShader(null, SpawnedObject.GetComponentInChildren<tk2dBaseSprite>(), true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorProbFloat);
                     }
                 }
@@ -226,6 +240,7 @@ namespace ChaosGlitchMod.ChaosComponents {
                         SpawnedObject.GetComponentInChildren<KickableObject>() == null &&
                         SpawnedObject.GetComponent<TrapController>() == null &&
                         SpawnedObject.GetComponent<FlippableCover>() == null &&
+                        SpawnedObject.GetComponent<Chest>() == null &&
                         SelectedObject.name != "NPC_ResourcefulRat_Beaten" &&
                         !usesExternalObjectArray)
                     {

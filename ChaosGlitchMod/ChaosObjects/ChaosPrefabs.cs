@@ -11,32 +11,34 @@ namespace ChaosGlitchMod.ChaosObjects {
 
     class ChaosPrefabs : MonoBehaviour {
 
-        private static AssetBundle sharedAssets = ResourceManager.LoadAssetBundle("shared_auto_001");
-        private static AssetBundle sharedAssets2 = ResourceManager.LoadAssetBundle("shared_auto_002");
-        private static AssetBundle braveResources = ResourceManager.LoadAssetBundle("brave_resources_001");
-        private static AssetBundle enemiesBase = ResourceManager.LoadAssetBundle("enemies_base_001");
+        private static AssetBundle sharedAssets;
+        private static AssetBundle sharedAssets2;
+        private static AssetBundle braveResources;
+        private static AssetBundle enemiesBase;
 
-        private static Dungeon TutorialDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Tutorial");
-        private static Dungeon SewerDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Sewer");
-        private static Dungeon MinesDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Mines");
-        private static Dungeon ratDungeon = DungeonDatabase.GetOrLoadByName("base_resourcefulrat");
-        private static Dungeon CathedralDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Cathedral");
-        private static Dungeon BulletHellDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_BulletHell");
-        private static Dungeon ForgeDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Forge");
-        private static Dungeon CatacombsDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Catacombs");
-        private static Dungeon NakatomiDungeonPrefab = DungeonDatabase.GetOrLoadByName("base_nakatomi");
+        private static Dungeon TutorialDungeonPrefab;
+        private static Dungeon SewerDungeonPrefab;
+        private static Dungeon MinesDungeonPrefab;
+        private static Dungeon ratDungeon;
+        private static Dungeon CathedralDungeonPrefab;
+        private static Dungeon BulletHellDungeonPrefab;
+        private static Dungeon ForgeDungeonPrefab;
+        private static Dungeon CatacombsDungeonPrefab;
+        private static Dungeon NakatomiDungeonPrefab;
 
         private static Dungeon FinalScenarioBulletPrefab;
         private static Dungeon FinalScenarioPilotPrefab;
 
+        public static Dungeon CurrentDungeonPrefab;
+
         // Custom/Modified Textures
-        public static Texture2D BulletManMonochromeTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_Monochrome.png"); 
-        public static Texture2D BulletManUpsideDownTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_UpsideDown.png");
-        public static Texture2D BulletManEyepatchTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletManEyepatch.png");
-        public static Texture2D StoneCubeWestTexture = ResourceExtractor.GetTextureFromResource("Textures\\Stone_Cube_Collection_West.png");
+        public static Texture2D BulletManMonochromeTexture; 
+        public static Texture2D BulletManUpsideDownTexture;
+        public static Texture2D BulletManEyepatchTexture;
+        public static Texture2D StoneCubeWestTexture;
         // public static Texture2D RedBulletShotgunManTexture = ResourceExtractor.GetTextureFromResource("Textures\\RedBulletShotgunMan.png");
         // public static Texture2D BlueBulletShotgunManTexture = ResourceExtractor.GetTextureFromResource("Textures\\BlueBulletShotgunMan.png");
-        public static Texture2D ENV_Tileset_Canyon_Texture = ResourceExtractor.GetTextureFromResource("Textures\\ENV_Tileset_Canyon.png");
+        public static Texture2D ENV_Tileset_Canyon_Texture;
         
         public static tk2dSpriteCollectionData BulletManMonochromeCollection;
         public static tk2dSpriteCollectionData BulletManUpsideDownCollection;
@@ -47,299 +49,465 @@ namespace ChaosGlitchMod.ChaosObjects {
 
 
         public static tk2dSpriteCollectionData ENV_Tileset_Canyon;
+        
+
+        public static Texture2D ENV_Tileset_Castle_Mono_Texture;
+        public static tk2dSpriteCollectionData ENV_Tileset_Castle_Mono;
+        public static tk2dSpriteCollectionData ENV_Tileset_Castle;
 
         // public static tk2dSpriteCollectionData BulletManCollection = sharedAssets.LoadAsset<GameObject>("BulletManSpriteCollection").GetComponent<tk2dSpriteCollectionData>();
 
         // Rat Trap Door
-        public static GameObject RatTrapdoor = MinesDungeonPrefab.RatTrapdoor;
-        public static ResourcefulRatMinesHiddenTrapdoor RRMinesHiddenTrapDoorController = RatTrapdoor.GetComponent<ResourcefulRatMinesHiddenTrapdoor>();
+        public static GameObject RatTrapdoor;        
+        public static ResourcefulRatMinesHiddenTrapdoor RRMinesHiddenTrapDoorController;
 
         // Room Prefabs
-        public static PrototypeDungeonRoom shop02 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("shop02");
-        public static PrototypeDungeonRoom fusebombroom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("fusebombroom01");
-        public static PrototypeDungeonRoom elevator_entrance = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("elevator entrance");
-        public static PrototypeDungeonRoom elevator_maintenance_room = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("ElevatorMaintenanceRoom");
-        public static PrototypeDungeonRoom test_entrance = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("test entrance");
-        public static PrototypeDungeonRoom exit_room_basic = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("exit_room_basic");
-        public static PrototypeDungeonRoom boss_foyer = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("boss foyer");        
-        public static PrototypeDungeonRoom gungeon_rewardroom_1 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_rewardroom_1");
-        public static PrototypeDungeonRoom paradox_04 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("paradox_04");
-        public static PrototypeDungeonRoom paradox_04_copy = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("paradox_04 copy");
+        public static PrototypeDungeonRoom shop02;
+        public static PrototypeDungeonRoom fusebombroom01;
+        public static PrototypeDungeonRoom elevator_entrance;
+        public static PrototypeDungeonRoom elevator_maintenance_room;
+        public static PrototypeDungeonRoom test_entrance;
+        public static PrototypeDungeonRoom exit_room_basic;
+        public static PrototypeDungeonRoom boss_foyer;
+        public static PrototypeDungeonRoom gungeon_rewardroom_1;
+        public static PrototypeDungeonRoom paradox_04;
+        public static PrototypeDungeonRoom paradox_04_copy;
+        public static PrototypeDungeonRoom doublebeholsterroom01;
+        public static PrototypeDungeonRoom bossstatuesroom01;
+        public static PrototypeDungeonRoom oldbulletking_room_01;
+        public static PrototypeDungeonRoom DragunBossFoyerRoom;
+        public static PrototypeDungeonRoom DraGunRoom01;
+        public static PrototypeDungeonRoom DraGunExitRoom;
+        public static PrototypeDungeonRoom DraGunEndTimesRoom;
+        public static PrototypeDungeonRoom BlacksmithShop;
+        public static PrototypeDungeonRoom GatlingGullRoom05;
+        public static PrototypeDungeonRoom letsgetsomeshrines_001;
+        public static PrototypeDungeonRoom shop_special_key_01;
+        public static PrototypeDungeonRoom square_hub;
+        public static PrototypeDungeonRoom subshop_muncher_01;
+        public static PrototypeDungeonRoom black_market;
+        public static PrototypeDungeonRoom gungeon_checkerboard;
+        public static PrototypeDungeonRoom gungeon_normal_fightinaroomwithtonsoftraps;
+        public static PrototypeDungeonRoom gungeon_gauntlet_001;
         // public static PrototypeDungeonRoom beholsterroom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("beholsterroom01");
-        public static PrototypeDungeonRoom doublebeholsterroom01 = ChaosDungeonFlows.LoadOfficialFlow("Secret_DoubleBeholster_Flow").AllNodes[2].overrideExactRoom;
-        public static PrototypeDungeonRoom bossstatuesroom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("bossstatuesroom01");
-        public static PrototypeDungeonRoom oldbulletking_room_01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("oldbulletking_room_01");
-        public static PrototypeDungeonRoom DragunBossFoyerRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[1].overrideExactRoom;
-        public static PrototypeDungeonRoom DraGunRoom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("dragunroom01");
-        public static PrototypeDungeonRoom DraGunExitRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[3].overrideExactRoom;
-        public static PrototypeDungeonRoom DraGunEndTimesRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[12].overrideExactRoom;
-        public static PrototypeDungeonRoom BlacksmithShop = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[10].overrideExactRoom;
-        public static PrototypeDungeonRoom GatlingGullRoom05 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("GatlingGullRoom05");
-        public static PrototypeDungeonRoom letsgetsomeshrines_001 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("letsgetsomeshrines_001");
-        public static PrototypeDungeonRoom shop_special_key_01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("shop_special_key_01");
-        public static PrototypeDungeonRoom square_hub = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("square hub");
-        public static PrototypeDungeonRoom subshop_muncher_01 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("subshop_muncher_01");
-        public static PrototypeDungeonRoom black_market = sharedAssets.LoadAsset<PrototypeDungeonRoom>("Black Market");
-        public static PrototypeDungeonRoom gungeon_checkerboard = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_checkerboard");
-        public static PrototypeDungeonRoom gungeon_normal_fightinaroomwithtonsoftraps = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_normal_fightinaroomwithtonsoftraps");
-        public static PrototypeDungeonRoom gungeon_gauntlet_001 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_gauntlet_001");
 
         // Secret rooms from Rat Trap door
-        public static PrototypeDungeonRoom ResourcefulRat_LongMinecartRoom_01 = RRMinesHiddenTrapDoorController.TargetMinecartRoom;
-        public static PrototypeDungeonRoom ResourcefulRat_FirstSecretRoom_01 = RRMinesHiddenTrapDoorController.FirstSecretRoom;
-        public static PrototypeDungeonRoom ResourcefulRat_SecondSecretRoom_01 = RRMinesHiddenTrapDoorController.SecondSecretRoom;
+        public static PrototypeDungeonRoom ResourcefulRat_LongMinecartRoom_01;
+        public static PrototypeDungeonRoom ResourcefulRat_FirstSecretRoom_01;
+        public static PrototypeDungeonRoom ResourcefulRat_SecondSecretRoom_01;
 
 
         // Modified Room Prefabs
-        public static PrototypeDungeonRoom tiny_entrance = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom);
-        public static PrototypeDungeonRoom tiny_exit = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom);
-        public static PrototypeDungeonRoom reward_room = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("reward room");
-        public static PrototypeDungeonRoom tutorial_minibossroom = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[8].overrideExactRoom);
-        public static PrototypeDungeonRoom bossrush_alternate_entrance = Instantiate(test_entrance);
-        public static PrototypeDungeonRoom tutorial_fakeboss = Instantiate(DraGunRoom01);
-        public static PrototypeDungeonRoom big_entrance = Instantiate(sharedAssets.LoadAsset<PrototypeDungeonRoom>("GatlingGullRoom05"));
+        public static PrototypeDungeonRoom tiny_entrance;
+        public static PrototypeDungeonRoom tiny_exit;
+        public static PrototypeDungeonRoom reward_room;
+        public static PrototypeDungeonRoom tutorial_minibossroom;
+        public static PrototypeDungeonRoom bossrush_alternate_entrance;
+        public static PrototypeDungeonRoom tutorial_fakeboss;
+        public static PrototypeDungeonRoom big_entrance;
 
 
         // Room tables
-        public static GenericRoomTable castle_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("castle_challengeshrine_roomtable");
-        public static GenericRoomTable catacombs_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("catacombs_challengeshrine_roomtable");
-        public static GenericRoomTable forge_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("forge_challengeshrine_roomtable");
-        public static GenericRoomTable gungeon_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("gungeon_challengeshrine_roomtable");
-        public static GenericRoomTable mines_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("mines_challengeshrine_roomtable");
-        public static GenericRoomTable shop_room_table = sharedAssets2.LoadAsset<GenericRoomTable>("Shop Room Table");
-        public static GenericRoomTable CastleRoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("Castle_RoomTable");
-        public static GenericRoomTable Gungeon_RoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("Gungeon_RoomTable");
-        public static GenericRoomTable SecretRoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("secret_room_table_01");
-        public static GenericRoomTable bosstable_02_beholster = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02_beholster");
-        public static GenericRoomTable bosstable_01_bulletbros = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_bulletbros");
-        public static GenericRoomTable bosstable_01_bulletking = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_bulletking");
-        public static GenericRoomTable bosstable_01_gatlinggull = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_gatlinggull");
-        public static GenericRoomTable bosstable_02_meduzi = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02_meduzi");
-        public static GenericRoomTable bosstable_02a_highpriest = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02a_highpriest");
-        public static GenericRoomTable bosstable_03_mineflayer = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_mineflayer");
-        public static GenericRoomTable bosstable_03_powderskull = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_powderskull");
-        public static GenericRoomTable bosstable_03_tank = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_tank");
-        public static GenericRoomTable bosstable_04_demonwall = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_04_demonwall");
-        public static GenericRoomTable bosstable_04_statues = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_04_statues");
-        public static GenericRoomTable blocknerminiboss_table_01 = sharedAssets.LoadAsset<GenericRoomTable>("BlocknerMiniboss_Table_01");
-        public static GenericRoomTable phantomagunim_table_01 = sharedAssets.LoadAsset<GenericRoomTable>("PhantomAgunim_Table_01");
-        public static GenericRoomTable basic_special_rooms = sharedAssets.LoadAsset<GenericRoomTable>("basic special rooms (shrines, etc)");
-        public static GenericRoomTable winchesterroomtable = sharedAssets.LoadAsset<GenericRoomTable>("winchesterroomtable");
+        public static GenericRoomTable castle_challengeshrine_roomtable;
+        public static GenericRoomTable catacombs_challengeshrine_roomtable;
+        public static GenericRoomTable forge_challengeshrine_roomtable;
+        public static GenericRoomTable gungeon_challengeshrine_roomtable;
+        public static GenericRoomTable mines_challengeshrine_roomtable;
+        public static GenericRoomTable shop_room_table;
+        public static GenericRoomTable CastleRoomTable;
+        public static GenericRoomTable Gungeon_RoomTable;
+        public static GenericRoomTable SecretRoomTable;
+        public static GenericRoomTable bosstable_02_beholster;
+        public static GenericRoomTable bosstable_01_bulletbros;
+        public static GenericRoomTable bosstable_01_bulletking;
+        public static GenericRoomTable bosstable_01_gatlinggull;
+        public static GenericRoomTable bosstable_02_meduzi;
+        public static GenericRoomTable bosstable_02a_highpriest;
+        public static GenericRoomTable bosstable_03_mineflayer;
+        public static GenericRoomTable bosstable_03_powderskull;
+        public static GenericRoomTable bosstable_03_tank;
+        public static GenericRoomTable bosstable_04_demonwall;
+        public static GenericRoomTable bosstable_04_statues;
+        public static GenericRoomTable blocknerminiboss_table_01;
+        public static GenericRoomTable phantomagunim_table_01;
+        public static GenericRoomTable basic_special_rooms;
+        public static GenericRoomTable winchesterroomtable;
 
         // Dungeon Specific Room Tables (from Dungeon AssetBundles)
-        public static GenericRoomTable CatacombsRoomTable = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable;
+        public static GenericRoomTable CatacombsRoomTable;
 
         // Custom Room Tables
-        public static GenericRoomTable CastleGungeonMergedTable = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable CustomRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable CustomRoomTableNoCastle = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable CustomRoomTableSecretGlitchFloor = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable MegaBossRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable MegaBossRoomTableNoGull = ScriptableObject.CreateInstance<GenericRoomTable>();        
-        public static GenericRoomTable MegaChallengeShrineTable = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable MegaMiniBossRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
-        public static GenericRoomTable basic_special_rooms_noBlackMarket = ScriptableObject.CreateInstance<GenericRoomTable>();
+        public static GenericRoomTable CastleGungeonMergedTable;
+        public static GenericRoomTable CustomRoomTable;
+        public static GenericRoomTable CustomRoomTableNoCastle;
+        public static GenericRoomTable CustomRoomTableSecretGlitchFloor;
+        public static GenericRoomTable MegaBossRoomTable;
+        public static GenericRoomTable MegaBossRoomTableNoGull;
+        public static GenericRoomTable MegaChallengeShrineTable;
+        public static GenericRoomTable MegaMiniBossRoomTable;
+        public static GenericRoomTable basic_special_rooms_noBlackMarket;
 
-        public static WeightedRoom[] OfficeAndUnusedWeightedRooms = new WeightedRoom[] {
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[2].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[3].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[5].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[6].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[7].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[8].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[9].overrideExactRoom,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = paradox_04_copy,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            },
-            new WeightedRoom() {
-                room = paradox_04,
-                weight = 1,
-                limitedCopies = true,
-                maxCopies = 1,
-                additionalPrerequisites = new DungeonPrerequisite[0]
-            }
-        };
+        public static WeightedRoom[] OfficeAndUnusedWeightedRooms;
 
         // Items
-        public static PickupObject RatKeyItem = PickupObjectDatabase.GetById(727);
+        public static PickupObject RatKeyItem;
 
         // Object Prefabs
-        private static GameObject MetalGearRatPrefab = enemiesBase.LoadAsset<GameObject>("MetalGearRat");
-        private static GameObject ResourcefulRatBossPrefab = enemiesBase.LoadAsset<GameObject>("ResourcefulRat_Boss");
-        private static AIActor MetalGearRatActorPrefab = MetalGearRatPrefab.GetComponent<AIActor>();
-        private static AIActor ResourcefulRatBossActorPrefab = ResourcefulRatBossPrefab.GetComponent<AIActor>();
-        private static MetalGearRatDeathController MetalGearRatDeathPrefab = MetalGearRatActorPrefab.GetComponent<MetalGearRatDeathController>();
-        private static PunchoutController PunchoutPrefab = MetalGearRatDeathPrefab.PunchoutMinigamePrefab.GetComponent<PunchoutController>();
-        private static ResourcefulRatController resourcefulRatControllerPrefab = ResourcefulRatBossActorPrefab.GetComponent<ResourcefulRatController>();
-        private static FoldingTableItem FoldingTablePrefab = ETGMod.Databases.Items[644].GetComponent<FoldingTableItem>();
+        private static GameObject MetalGearRatPrefab;
+        private static GameObject ResourcefulRatBossPrefab;
+        private static AIActor MetalGearRatActorPrefab;
+        private static AIActor ResourcefulRatBossActorPrefab;
+        private static MetalGearRatDeathController MetalGearRatDeathPrefab;
+        private static PunchoutController PunchoutPrefab;
+        private static ResourcefulRatController resourcefulRatControllerPrefab;
+        private static FoldingTableItem FoldingTablePrefab;
 
         // public static GameObject NPCLunk = sharedAssets.LoadAsset<GameObject>("NPC_LostAdventurer");
 
-        public static GameObject FoldingTable = ETGMod.Databases.Items[644].GetComponent<FoldingTableItem>().TableToSpawn.gameObject;
+        public static GameObject FoldingTable;
 
 
-        public static GameObject MimicNPC = ratDungeon.PatternSettings.flows[0].AllNodes[12].overrideExactRoom.additionalObjectLayers[0].placedObjects[13].nonenemyBehaviour.gameObject;
+        public static GameObject MimicNPC;
 
-        public static GameObject RatCorpseNPC = PunchoutPrefab.PlayerWonRatNPC.gameObject;
-        public static GameObject PlayerLostRatNote = PunchoutPrefab.PlayerLostNotePrefab.gameObject;
-        public static GameObject MouseTrap1 = resourcefulRatControllerPrefab.MouseTraps[0];
-        public static GameObject MouseTrap2 = resourcefulRatControllerPrefab.MouseTraps[1];
-        public static GameObject MouseTrap3 = resourcefulRatControllerPrefab.MouseTraps[2];
+        public static GameObject RatCorpseNPC;
+        public static GameObject PlayerLostRatNote;
+        public static GameObject MouseTrap1;
+        public static GameObject MouseTrap2;
+        public static GameObject MouseTrap3;
 
 
-        public static GameObject Teleporter_Gungeon_01 = braveResources.LoadAsset<GameObject>("Teleporter_Gungeon_01");
-        public static GameObject ElevatorMaintanenceRoomIcon = sharedAssets2.LoadAsset<GameObject>("Minimap_Maintenance_Icon");
-        public static GameObject Teleporter_Info_Sign = sharedAssets2.LoadAsset<GameObject>("teleporter_info_sign");
-        public static GameObject RewardPedestalPrefab = sharedAssets.LoadAsset<GameObject>("Boss_Reward_Pedestal");
-        public static GameObject Minimap_Maintenance_Icon = sharedAssets2.LoadAsset<GameObject>("minimap_maintenance_icon");
+        public static GameObject Teleporter_Gungeon_01;
+        public static GameObject ElevatorMaintanenceRoomIcon;
+        public static GameObject Teleporter_Info_Sign;
+        public static GameObject RewardPedestalPrefab;
+        public static GameObject Minimap_Maintenance_Icon;
 
         // Use for Arrival location for destination rooms setup by TargetPitFallRoom
-        private static GameObject SquareLightCookie = sharedAssets2.LoadAsset<GameObject>("SquareLightCookie");
-        public static Transform Arrival = SquareLightCookie.transform.Find("Arrival");
+        private static GameObject SquareLightCookie;
+                
+        public static Transform Arrival;
 
-        public static GameObject NPCBabyDragun = sharedAssets2.LoadAsset<GameObject>("BabyDragunJail");  
-        public static GameObject SellPit = sharedAssets2.LoadAsset<GameObject>("SellPit");
+        public static GameObject NPCBabyDragun;
+        public static GameObject SellPit;
 
         // DungeonPlacables        
-        public static DungeonPlaceable ElevatorDeparture = sharedAssets2.LoadAsset<DungeonPlaceable>("Elevator_Departure");
-        public static DungeonPlaceable ElevatorArrival = sharedAssets2.LoadAsset<DungeonPlaceable>("Elevator_Arrival");        
+        public static DungeonPlaceable ElevatorDeparture;
+        public static DungeonPlaceable ElevatorArrival;
 
         // Modified/Reference AIActors
-        public static AIActor MetalCubeGuy = EnemyDatabase.GetOrLoadByGuid("ba928393c8ed47819c2c5f593100a5bc");
-        public static AIActor LeadCube = EnemyDatabase.GetOrLoadByGuid("33b212b856b74ff09252bf4f2e8b8c57");
-        public static AIActor WallMimic = EnemyDatabase.GetOrLoadByGuid("479556d05c7c44f3b6abb3b2067fc778");
-        public static AIActor Cucco = EnemyDatabase.GetOrLoadByGuid("7bd9c670f35b4b8d84280f52a5cc47f6");
-        public static AIActor Raccoon = EnemyDatabase.GetOrLoadByGuid("e9fa6544000942a79ad05b6e4afb62db");
-        public static AIActor SerManuel = EnemyDatabase.GetOrLoadByGuid("fc809bd43a4d41738a62d7565456622c");
+        public static AIActor MetalCubeGuy;
+        public static AIActor LeadCube;
+        public static AIActor WallMimic;
+        public static AIActor Cucco;
+        // public static AIActor Raccoon;
+        public static AIActor SerManuel;
 
-        public static AIActor VeteranBulletKin = EnemyDatabase.GetOrLoadByGuid("70216cae6c1346309d86d4a0b4603045");
-        public static AIActor RedShotGunKin = EnemyDatabase.GetOrLoadByGuid("128db2f0781141bcb505d8f00f9e4d47");
-        public static AIActor BlueShotGunKin = EnemyDatabase.GetOrLoadByGuid("b54d89f9e802455cbb2b8a96a31e8259");
+        public static AIActor VeteranBulletKin;
+        public static AIActor RedShotGunKin;
+        public static AIActor BlueShotGunKin;
 
-        public static DungeonPlaceableBehaviour RatJailDoorPlacable = ratDungeon.PatternSettings.flows[0].AllNodes[13].overrideExactRoom.placedObjects[1].nonenemyBehaviour;
-        public static DungeonPlaceableBehaviour CurrsedMirrorPlacable = basic_special_rooms.includedRooms.elements[1].room.placedObjects[0].nonenemyBehaviour;
+        public static DungeonPlaceableBehaviour RatJailDoorPlacable;
+        public static DungeonPlaceableBehaviour CurrsedMirrorPlacable;
 
         // public static PickupObject DogItem = PickupObjectDatabase.GetById(300);
 
 
         // Used for forcing Arrival Elevator to spawn on phobos floor tileset ID.
-        private static DungeonPlaceableVariant ElevatorArrivalVarientForNakatomi = new DungeonPlaceableVariant() {
-            percentChance = 0.1f,
-            percentChanceMultiplier = 1,
-            unitOffset = Vector2.zero,
-            // nonDatabasePlaceable = ElevatorArrival.variantTiers[4].nonDatabasePlaceable,
-            nonDatabasePlaceable = ElevatorArrival.variantTiers[0].nonDatabasePlaceable,            
-            enemyPlaceableGuid = string.Empty,
-            pickupObjectPlaceableId = -1,
-            forceBlackPhantom = false,
-            addDebrisObject = false,
-            materialRequirements = new DungeonPlaceableRoomMaterialRequirement[0],
-            prerequisites = new DungeonPrerequisite[] {
-                new DungeonPrerequisite() {
-                    prerequisiteType = DungeonPrerequisite.PrerequisiteType.TILESET,
-                    prerequisiteOperation = DungeonPrerequisite.PrerequisiteOperation.LESS_THAN,
-                    statToCheck = TrackedStats.BULLETS_FIRED,
-                    maxToCheck = TrackedMaximums.MOST_KEYS_HELD,
-                    comparisonValue = 0,
-                    useSessionStatValue = false,
-                    encounteredObjectGuid = string.Empty,
-                    requiredNumberOfEncounters = 0,
-                    requireCharacter = false,
-                    requiredCharacter = PlayableCharacters.Pilot,
-                    requiredTileset = GlobalDungeonData.ValidTilesets.PHOBOSGEON,
-                    requireTileset = true,
-                    requireFlag = false,
-                    requireDemoMode = false
+        private static DungeonPlaceableVariant ElevatorArrivalVarientForNakatomi;
+        private static DungeonPlaceableVariant ElevatorDepartureVarientForRatNakatomi;
+
+
+        public static void InitPrefabResources() {
+            sharedAssets = ResourceManager.LoadAssetBundle("shared_auto_001");
+            sharedAssets2 = ResourceManager.LoadAssetBundle("shared_auto_002");
+            braveResources = ResourceManager.LoadAssetBundle("brave_resources_001");
+            enemiesBase = ResourceManager.LoadAssetBundle("enemies_base_001");
+            TutorialDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Tutorial");
+            SewerDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Sewer");
+            MinesDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Mines");
+            ratDungeon = DungeonDatabase.GetOrLoadByName("base_resourcefulrat");
+            CathedralDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Cathedral");
+            BulletHellDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_BulletHell");
+            ForgeDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Forge");
+            CatacombsDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Catacombs");
+            NakatomiDungeonPrefab = DungeonDatabase.GetOrLoadByName("base_nakatomi");
+
+            BulletManMonochromeTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_Monochrome.png");
+            BulletManUpsideDownTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletMan_UpsideDown.png");
+            BulletManEyepatchTexture = ResourceExtractor.GetTextureFromResource("Textures\\BulletManEyepatch.png");
+            StoneCubeWestTexture = ResourceExtractor.GetTextureFromResource("Textures\\Stone_Cube_Collection_West.png");
+
+            ENV_Tileset_Canyon_Texture = ResourceExtractor.GetTextureFromResource("Textures\\ENV_Tileset_Canyon.png");
+
+            RatTrapdoor = MinesDungeonPrefab.RatTrapdoor;
+            RRMinesHiddenTrapDoorController = RatTrapdoor.GetComponent<ResourcefulRatMinesHiddenTrapdoor>();
+
+            shop02 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("shop02");
+            fusebombroom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("fusebombroom01");
+            elevator_entrance = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("elevator entrance");
+            elevator_maintenance_room = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("ElevatorMaintenanceRoom");
+            test_entrance = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("test entrance");
+            exit_room_basic = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("exit_room_basic");
+            boss_foyer = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("boss foyer");
+            gungeon_rewardroom_1 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_rewardroom_1");
+            paradox_04 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("paradox_04");
+            paradox_04_copy = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("paradox_04 copy");
+            doublebeholsterroom01 = ChaosDungeonFlows.LoadOfficialFlow("Secret_DoubleBeholster_Flow").AllNodes[2].overrideExactRoom;
+            bossstatuesroom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("bossstatuesroom01");
+            oldbulletking_room_01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("oldbulletking_room_01");
+            DragunBossFoyerRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[1].overrideExactRoom;
+            DraGunRoom01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("dragunroom01");
+            DraGunExitRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[3].overrideExactRoom;
+            DraGunEndTimesRoom = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[12].overrideExactRoom;
+            BlacksmithShop = ForgeDungeonPrefab.PatternSettings.flows[0].AllNodes[10].overrideExactRoom;
+            GatlingGullRoom05 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("GatlingGullRoom05");
+            letsgetsomeshrines_001 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("letsgetsomeshrines_001");
+            shop_special_key_01 = sharedAssets.LoadAsset<PrototypeDungeonRoom>("shop_special_key_01");
+            square_hub = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("square hub");
+            subshop_muncher_01 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("subshop_muncher_01");
+            black_market = sharedAssets.LoadAsset<PrototypeDungeonRoom>("Black Market");
+            gungeon_checkerboard = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_checkerboard");
+            gungeon_normal_fightinaroomwithtonsoftraps = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_normal_fightinaroomwithtonsoftraps");
+            gungeon_gauntlet_001 = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("gungeon_gauntlet_001");
+
+            ResourcefulRat_LongMinecartRoom_01 = RRMinesHiddenTrapDoorController.TargetMinecartRoom;
+            ResourcefulRat_FirstSecretRoom_01 = RRMinesHiddenTrapDoorController.FirstSecretRoom;
+            ResourcefulRat_SecondSecretRoom_01 = RRMinesHiddenTrapDoorController.SecondSecretRoom;
+
+            tiny_entrance = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom);
+            tiny_exit = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom);
+            reward_room = sharedAssets2.LoadAsset<PrototypeDungeonRoom>("reward room");
+            tutorial_minibossroom = Instantiate(TutorialDungeonPrefab.PatternSettings.flows[0].AllNodes[8].overrideExactRoom);
+            bossrush_alternate_entrance = Instantiate(test_entrance);
+            tutorial_fakeboss = Instantiate(DraGunRoom01);
+            big_entrance = Instantiate(sharedAssets.LoadAsset<PrototypeDungeonRoom>("GatlingGullRoom05"));
+
+            castle_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("castle_challengeshrine_roomtable");
+            catacombs_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("catacombs_challengeshrine_roomtable");
+            forge_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("forge_challengeshrine_roomtable");
+            gungeon_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("gungeon_challengeshrine_roomtable");
+            mines_challengeshrine_roomtable = sharedAssets.LoadAsset<GenericRoomTable>("mines_challengeshrine_roomtable");
+            shop_room_table = sharedAssets2.LoadAsset<GenericRoomTable>("Shop Room Table");
+            CastleRoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("Castle_RoomTable");
+            Gungeon_RoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("Gungeon_RoomTable");
+            SecretRoomTable = sharedAssets2.LoadAsset<GenericRoomTable>("secret_room_table_01");
+            bosstable_02_beholster = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02_beholster");
+            bosstable_01_bulletbros = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_bulletbros");
+            bosstable_01_bulletking = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_bulletking");
+            bosstable_01_gatlinggull = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_01_gatlinggull");
+            bosstable_02_meduzi = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02_meduzi");
+            bosstable_02a_highpriest = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_02a_highpriest");
+            bosstable_03_mineflayer = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_mineflayer");
+            bosstable_03_powderskull = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_powderskull");
+            bosstable_03_tank = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_03_tank");
+            bosstable_04_demonwall = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_04_demonwall");
+            bosstable_04_statues = sharedAssets.LoadAsset<GenericRoomTable>("bosstable_04_statues");
+            blocknerminiboss_table_01 = sharedAssets.LoadAsset<GenericRoomTable>("BlocknerMiniboss_Table_01");
+            phantomagunim_table_01 = sharedAssets.LoadAsset<GenericRoomTable>("PhantomAgunim_Table_01");
+            basic_special_rooms = sharedAssets.LoadAsset<GenericRoomTable>("basic special rooms (shrines, etc)");
+            winchesterroomtable = sharedAssets.LoadAsset<GenericRoomTable>("winchesterroomtable");
+            CatacombsRoomTable = CatacombsDungeonPrefab.PatternSettings.flows[0].fallbackRoomTable;
+
+            OfficeAndUnusedWeightedRooms = new WeightedRoom[] {
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[2].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[3].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[4].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[5].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[6].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[7].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[8].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = NakatomiDungeonPrefab.PatternSettings.flows[0].AllNodes[9].overrideExactRoom,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = paradox_04_copy,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
+                },
+                new WeightedRoom() {
+                    room = paradox_04,
+                    weight = 1,
+                    limitedCopies = true,
+                    maxCopies = 1,
+                    additionalPrerequisites = new DungeonPrerequisite[0]
                 }
-            }                                     
-        };
+            };
 
+            CastleGungeonMergedTable = ScriptableObject.CreateInstance<GenericRoomTable>();
+            CustomRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
+            CustomRoomTableNoCastle = ScriptableObject.CreateInstance<GenericRoomTable>();
+            CustomRoomTableSecretGlitchFloor = ScriptableObject.CreateInstance<GenericRoomTable>();
+            MegaBossRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
+            MegaBossRoomTableNoGull = ScriptableObject.CreateInstance<GenericRoomTable>();
+            MegaChallengeShrineTable = ScriptableObject.CreateInstance<GenericRoomTable>();
+            MegaMiniBossRoomTable = ScriptableObject.CreateInstance<GenericRoomTable>();
+            basic_special_rooms_noBlackMarket = ScriptableObject.CreateInstance<GenericRoomTable>();
 
-        private static DungeonPlaceableVariant ElevatorDepartureVarientForRatNakatomi = new DungeonPlaceableVariant() {
-            percentChance = 0.1f,
-            percentChanceMultiplier = 1,
-            unitOffset = Vector2.zero,
-            nonDatabasePlaceable = ElevatorDeparture.variantTiers[8].nonDatabasePlaceable,
-            enemyPlaceableGuid = string.Empty,
-            pickupObjectPlaceableId = -1,
-            forceBlackPhantom = false,
-            addDebrisObject = false,
-            materialRequirements = new DungeonPlaceableRoomMaterialRequirement[0],
-            prerequisites = new DungeonPrerequisite[] {
-                new DungeonPrerequisite() {
-                    prerequisiteType = DungeonPrerequisite.PrerequisiteType.TILESET,
-                    prerequisiteOperation = DungeonPrerequisite.PrerequisiteOperation.LESS_THAN,
-                    statToCheck = TrackedStats.BULLETS_FIRED,
-                    maxToCheck = TrackedMaximums.MOST_KEYS_HELD,
-                    comparisonValue = 0,
-                    useSessionStatValue = false,
-                    encounteredObjectGuid = string.Empty,
-                    requiredNumberOfEncounters = 0,
-                    requireCharacter = false,
-                    requiredCharacter = PlayableCharacters.Pilot,
-                    requiredTileset = GlobalDungeonData.ValidTilesets.PHOBOSGEON,
-                    requireTileset = true,
-                    requireFlag = false,
-                    requireDemoMode = false
+            RatKeyItem = PickupObjectDatabase.GetById(727);
+
+            MetalGearRatPrefab = enemiesBase.LoadAsset<GameObject>("MetalGearRat");
+            ResourcefulRatBossPrefab = enemiesBase.LoadAsset<GameObject>("ResourcefulRat_Boss");
+            MetalGearRatActorPrefab = MetalGearRatPrefab.GetComponent<AIActor>();
+            ResourcefulRatBossActorPrefab = ResourcefulRatBossPrefab.GetComponent<AIActor>();
+            MetalGearRatDeathPrefab = MetalGearRatActorPrefab.GetComponent<MetalGearRatDeathController>();
+            PunchoutPrefab = MetalGearRatDeathPrefab.PunchoutMinigamePrefab.GetComponent<PunchoutController>();
+            resourcefulRatControllerPrefab = ResourcefulRatBossActorPrefab.GetComponent<ResourcefulRatController>();
+            // FoldingTablePrefab = ETGMod.Databases.Items[644].GetComponent<FoldingTableItem>();
+            FoldingTablePrefab = PickupObjectDatabase.GetById(644).GetComponent<FoldingTableItem>();
+
+            // FoldingTable = ETGMod.Databases.Items[644].GetComponent<FoldingTableItem>().TableToSpawn.gameObject;
+            FoldingTable = FoldingTablePrefab.TableToSpawn.gameObject;
+
+            MimicNPC = ratDungeon.PatternSettings.flows[0].AllNodes[12].overrideExactRoom.additionalObjectLayers[0].placedObjects[13].nonenemyBehaviour.gameObject;
+
+            RatCorpseNPC = PunchoutPrefab.PlayerWonRatNPC.gameObject;
+            PlayerLostRatNote = PunchoutPrefab.PlayerLostNotePrefab.gameObject;
+            MouseTrap1 = resourcefulRatControllerPrefab.MouseTraps[0];
+            MouseTrap2 = resourcefulRatControllerPrefab.MouseTraps[1];
+            MouseTrap3 = resourcefulRatControllerPrefab.MouseTraps[2];
+
+            Teleporter_Gungeon_01 = braveResources.LoadAsset<GameObject>("Teleporter_Gungeon_01");
+            ElevatorMaintanenceRoomIcon = sharedAssets2.LoadAsset<GameObject>("Minimap_Maintenance_Icon");
+            Teleporter_Info_Sign = sharedAssets2.LoadAsset<GameObject>("teleporter_info_sign");
+            RewardPedestalPrefab = sharedAssets.LoadAsset<GameObject>("Boss_Reward_Pedestal");
+            Minimap_Maintenance_Icon = sharedAssets2.LoadAsset<GameObject>("minimap_maintenance_icon");
+
+            SquareLightCookie = sharedAssets2.LoadAsset<GameObject>("SquareLightCookie");
+            Arrival = SquareLightCookie.transform.Find("Arrival");
+
+            NPCBabyDragun = sharedAssets2.LoadAsset<GameObject>("BabyDragunJail");
+            SellPit = sharedAssets2.LoadAsset<GameObject>("SellPit");
+
+            ElevatorDeparture = sharedAssets2.LoadAsset<DungeonPlaceable>("Elevator_Departure");
+            ElevatorArrival = sharedAssets2.LoadAsset<DungeonPlaceable>("Elevator_Arrival");
+
+            MetalCubeGuy = EnemyDatabase.GetOrLoadByGuid("ba928393c8ed47819c2c5f593100a5bc");
+            LeadCube = EnemyDatabase.GetOrLoadByGuid("33b212b856b74ff09252bf4f2e8b8c57");
+            WallMimic = EnemyDatabase.GetOrLoadByGuid("479556d05c7c44f3b6abb3b2067fc778");
+            Cucco = EnemyDatabase.GetOrLoadByGuid("7bd9c670f35b4b8d84280f52a5cc47f6");
+            // Raccoon = EnemyDatabase.GetOrLoadByGuid("e9fa6544000942a79ad05b6e4afb62db");
+            SerManuel = EnemyDatabase.GetOrLoadByGuid("fc809bd43a4d41738a62d7565456622c");
+
+            VeteranBulletKin = EnemyDatabase.GetOrLoadByGuid("70216cae6c1346309d86d4a0b4603045");
+            RedShotGunKin = EnemyDatabase.GetOrLoadByGuid("128db2f0781141bcb505d8f00f9e4d47");
+            BlueShotGunKin = EnemyDatabase.GetOrLoadByGuid("b54d89f9e802455cbb2b8a96a31e8259");
+
+            RatJailDoorPlacable = ratDungeon.PatternSettings.flows[0].AllNodes[13].overrideExactRoom.placedObjects[1].nonenemyBehaviour;
+            CurrsedMirrorPlacable = basic_special_rooms.includedRooms.elements[1].room.placedObjects[0].nonenemyBehaviour;
+
+            ElevatorArrivalVarientForNakatomi = new DungeonPlaceableVariant() {
+                percentChance = 0.1f,
+                percentChanceMultiplier = 1,
+                unitOffset = Vector2.zero,
+                // nonDatabasePlaceable = ElevatorArrival.variantTiers[4].nonDatabasePlaceable,
+                nonDatabasePlaceable = ElevatorArrival.variantTiers[0].nonDatabasePlaceable,
+                enemyPlaceableGuid = string.Empty,
+                pickupObjectPlaceableId = -1,
+                forceBlackPhantom = false,
+                addDebrisObject = false,
+                materialRequirements = new DungeonPlaceableRoomMaterialRequirement[0],
+                prerequisites = new DungeonPrerequisite[] {
+                    new DungeonPrerequisite() {
+                        prerequisiteType = DungeonPrerequisite.PrerequisiteType.TILESET,
+                        prerequisiteOperation = DungeonPrerequisite.PrerequisiteOperation.LESS_THAN,
+                        statToCheck = TrackedStats.BULLETS_FIRED,
+                        maxToCheck = TrackedMaximums.MOST_KEYS_HELD,
+                        comparisonValue = 0,
+                        useSessionStatValue = false,
+                        encounteredObjectGuid = string.Empty,
+                        requiredNumberOfEncounters = 0,
+                        requireCharacter = false,
+                        requiredCharacter = PlayableCharacters.Pilot,
+                        requiredTileset = GlobalDungeonData.ValidTilesets.PHOBOSGEON,
+                        requireTileset = true,
+                        requireFlag = false,
+                        requireDemoMode = false
+                    }
                 }
-            }                                     
-        };
+            };
 
+            ElevatorDepartureVarientForRatNakatomi = new DungeonPlaceableVariant() {
+                percentChance = 0.1f,
+                percentChanceMultiplier = 1,
+                unitOffset = Vector2.zero,
+                nonDatabasePlaceable = ElevatorDeparture.variantTiers[8].nonDatabasePlaceable,
+                enemyPlaceableGuid = string.Empty,
+                pickupObjectPlaceableId = -1,
+                forceBlackPhantom = false,
+                addDebrisObject = false,
+                materialRequirements = new DungeonPlaceableRoomMaterialRequirement[0],
+                prerequisites = new DungeonPrerequisite[] {
+                    new DungeonPrerequisite() {
+                        prerequisiteType = DungeonPrerequisite.PrerequisiteType.TILESET,
+                        prerequisiteOperation = DungeonPrerequisite.PrerequisiteOperation.LESS_THAN,
+                        statToCheck = TrackedStats.BULLETS_FIRED,
+                        maxToCheck = TrackedMaximums.MOST_KEYS_HELD,
+                        comparisonValue = 0,
+                        useSessionStatValue = false,
+                        encounteredObjectGuid = string.Empty,
+                        requiredNumberOfEncounters = 0,
+                        requireCharacter = false,
+                        requiredCharacter = PlayableCharacters.Pilot,
+                        requiredTileset = GlobalDungeonData.ValidTilesets.PHOBOSGEON,
+                        requireTileset = true,
+                        requireFlag = false,
+                        requireDemoMode = false
+                    }
+                }
+            };
+        }
 
         public static void InitCustomPrefabs() {
+
+            InitPrefabResources();
 
             // Build Room table with Castle and Gungeon room tables merged
             CastleGungeonMergedTable.name = "CastleGungeonMergedTable";
@@ -806,11 +974,8 @@ namespace ChaosGlitchMod.ChaosObjects {
             BlueShotGunMan.Init();
             RatGrenade.Init();
             Bullat.Init();
-
-
-
+            
             // RedShotGunMan.Init();
-
             MetalGearRatPrefab = null;
             MetalGearRatActorPrefab = null;
             ResourcefulRatBossPrefab = null;
@@ -957,7 +1122,7 @@ namespace ChaosGlitchMod.ChaosObjects {
         };*/
 
 
-        public static void InitCustomTileSet(Dungeon dungeon, GlobalDungeonData.ValidTilesets tilesetID) {
+        public static void InitCanyonTileSet(Dungeon dungeon, GlobalDungeonData.ValidTilesets tilesetID) {
             /*braveResources = ResourceManager.LoadAssetBundle("brave_resources_001");            
             tk2dTiledSprite grassStripTileSprite = braveResources.LoadAsset<GameObject>("TallGrassStrip").GetComponent<tk2dTiledSprite>();
             tk2dSpriteCollectionData jungleTileSet = grassStripTileSprite.Collection;*/
@@ -967,13 +1132,47 @@ namespace ChaosGlitchMod.ChaosObjects {
 
             if (ENV_Tileset_Canyon == null) {
                 ENV_Tileset_Canyon = ChaosUtility.BuildSpriteCollection(FinalScenarioPilotPrefab.tileIndices.dungeonCollection, ENV_Tileset_Canyon_Texture, null, null, true);
-            }            
+            }
 
             // SewerDungeonPrefab = DungeonDatabase.GetOrLoadByName("Base_Sewer");
-            dungeon.decoSettings = FinalScenarioBulletPrefab.decoSettings;
+            // dungeon.decoSettings = FinalScenarioBulletPrefab.decoSettings;
+            dungeon.decoSettings = new TilemapDecoSettings {
+                standardRoomVisualSubtypes = new WeightedIntCollection {
+                    elements = new WeightedInt[] {
+                        MinesDungeonPrefab.decoSettings.standardRoomVisualSubtypes.elements[0],
+                        MinesDungeonPrefab.decoSettings.standardRoomVisualSubtypes.elements[1],
+                        MinesDungeonPrefab.decoSettings.standardRoomVisualSubtypes.elements[2],
+                        MinesDungeonPrefab.decoSettings.standardRoomVisualSubtypes.elements[3],
+                        MinesDungeonPrefab.decoSettings.standardRoomVisualSubtypes.elements[4],
+                    }
+                },
+                decalLayerStyle = MinesDungeonPrefab.decoSettings.decalLayerStyle,
+                decalSize = MinesDungeonPrefab.decoSettings.decalSize,
+                decalSpacing = MinesDungeonPrefab.decoSettings.decalSpacing,
+                decalExpansion = MinesDungeonPrefab.decoSettings.decalExpansion,
+                patternLayerStyle = MinesDungeonPrefab.decoSettings.patternLayerStyle,
+                patternSize = MinesDungeonPrefab.decoSettings.patternSize,
+                patternSpacing = MinesDungeonPrefab.decoSettings.patternSpacing,
+                patternExpansion = MinesDungeonPrefab.decoSettings.patternExpansion,
+                decoPatchFrequency = MinesDungeonPrefab.decoSettings.decoPatchFrequency,
+                ambientLightColor = MinesDungeonPrefab.decoSettings.ambientLightColor,
+                ambientLightColorTwo = MinesDungeonPrefab.decoSettings.ambientLightColorTwo,
+                lowQualityAmbientLightColor = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColor,
+                lowQualityAmbientLightColorTwo = MinesDungeonPrefab.decoSettings.lowQualityAmbientLightColorTwo,
+                lowQualityCheapLightVector = MinesDungeonPrefab.decoSettings.lowQualityCheapLightVector,
+                UsesAlienFXFloorColor = MinesDungeonPrefab.decoSettings.UsesAlienFXFloorColor,
+                AlienFXFloorColor = MinesDungeonPrefab.decoSettings.AlienFXFloorColor,
+                generateLights = MinesDungeonPrefab.decoSettings.generateLights,
+                lightCullingPercentage = MinesDungeonPrefab.decoSettings.lightCullingPercentage,
+                lightOverlapRadius = MinesDungeonPrefab.decoSettings.lightOverlapRadius,
+                nearestAllowedLight = MinesDungeonPrefab.decoSettings.nearestAllowedLight,
+                minLightExpanseWidth = MinesDungeonPrefab.decoSettings.minLightExpanseWidth,
+                lightHeight = MinesDungeonPrefab.decoSettings.lightHeight,
+                lightCookies = MinesDungeonPrefab.decoSettings.lightCookies,
+                debug_view = false
+            };
             dungeon.tileIndices = FinalScenarioBulletPrefab.tileIndices;
             dungeon.tileIndices.dungeonCollection = ENV_Tileset_Canyon;
-            // dungeon.roomMaterialDefinitions = MinesDungeonPrefab.roomMaterialDefinitions;
             dungeon.roomMaterialDefinitions = new DungeonMaterial[] {
                 MinesDungeonPrefab.roomMaterialDefinitions[0],
                 MinesDungeonPrefab.roomMaterialDefinitions[1],
@@ -992,7 +1191,6 @@ namespace ChaosGlitchMod.ChaosObjects {
             dungeon.PlayerLightIntensity = MinesDungeonPrefab.PlayerLightIntensity;
             dungeon.PlayerLightRadius = MinesDungeonPrefab.PlayerLightRadius;
             dungeon.tileIndices.tilesetId = tilesetID;
-            // dungeon.stampData = FinalScenarioPilotPrefab.stampData;
             dungeon.stampData.stamps = new TileStampData[] {
                 MinesDungeonPrefab.stampData.stamps[0],
                 MinesDungeonPrefab.stampData.stamps[1],
@@ -1018,7 +1216,6 @@ namespace ChaosGlitchMod.ChaosObjects {
             dungeon.decoSettings.minLightExpanseWidth = MinesDungeonPrefab.decoSettings.minLightExpanseWidth;
             dungeon.decoSettings.lightHeight = MinesDungeonPrefab.decoSettings.lightHeight;
             dungeon.decoSettings.lightCookies = MinesDungeonPrefab.decoSettings.lightCookies;*/
-            dungeon.decoSettings.debug_view = false;
             dungeon.doorObjects = MinesDungeonPrefab.doorObjects;
             dungeon.oneWayDoorObjects = MinesDungeonPrefab.oneWayDoorObjects;
             dungeon.oneWayDoorPressurePlate = MinesDungeonPrefab.oneWayDoorPressurePlate;
@@ -1045,7 +1242,7 @@ namespace ChaosGlitchMod.ChaosObjects {
             FinalScenarioPilotPrefab = null;
             MinesDungeonPrefab = null;
             // SewerDungeonPrefab = null;
-        }
+        }        
     }
 }
 

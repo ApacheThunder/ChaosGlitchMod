@@ -54,6 +54,7 @@ namespace ChaosGlitchMod.ChaosComponents {
                     "8bb5578fba374e8aae8e10b754e61d62", // cardinal
                     "f905765488874846b7ff257ff81d6d0c", // fungun
                     "37340393f97f41b2822bc02d14654172", // creech
+                    "c182a5cb704d460d9d099a47af49c913", // pot_fairy
                     "5f3abc2d561b4b9c9e72b879c6f10c7e", // fallen_bullet_kin
                     "1bd8e49f93614e76b140077ff2e33f2b", // ashen_shotgun_kin
                     "1a78cfb776f54641b832e92c44021cf2", // ashen_bullet_kin
@@ -90,7 +91,7 @@ namespace ChaosGlitchMod.ChaosComponents {
             m_failedWallConfigure = false;
             m_GlitchOdds = 0.45f;
             m_ItemDropOdds = 0.3f;
-            m_FriendlyMimicOdds = 0.18f;
+            m_FriendlyMimicOdds = 0.2f;
             m_spawnGitchEnemyOdds = 0.3f;
         }
 
@@ -316,11 +317,20 @@ namespace ChaosGlitchMod.ChaosComponents {
                                 aiActor.ParentRoom.SealRoom();
                             }
                         }*/
-                        ChaosShaders.Instance.ApplyGlitchShader(glitchActor, glitchActor.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat);
                         PickupObject.ItemQuality targetGlitchEnemyItemQuality = (UnityEngine.Random.value >= 0.2f) ? ((!BraveUtility.RandomBool()) ? PickupObject.ItemQuality.C : PickupObject.ItemQuality.D) : PickupObject.ItemQuality.B;
                         GenericLootTable glitchEnemyLootTable = (!BraveUtility.RandomBool()) ? GameManager.Instance.RewardManager.GunsLootTable : GameManager.Instance.RewardManager.ItemsLootTable;
                         PickupObject glitchEnemyItem = LootEngine.GetItemOfTypeAndQuality<PickupObject>(targetGlitchEnemyItemQuality, glitchEnemyLootTable, false);
+
+                        /*if (BraveUtility.RandomBool()) {
+                            ChaosUtility.MakeCompanion(glitchActor);
+                        } else {
+                            ChaosShaders.Instance.ApplyGlitchShader(glitchActor, glitchActor.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat);
+                        }*/
+
+                        ChaosShaders.Instance.ApplyGlitchShader(glitchActor, glitchActor.sprite, true, RandomIntervalFloat, RandomDispFloat, RandomDispIntensityFloat, RandomColorProbFloat, RandomColorIntensityFloat);
+
                         if (glitchEnemyItem) { glitchActor.AdditionalSafeItemDrops.Add(glitchEnemyItem); }
+
                     } else {
                         Exploder.Explode(VFXExplosionLocation, wallMimicExplosionData, VFXExplosionSource, ignoreQueues: true, damageTypes: CoreDamageTypes.None);
                         GameObject SpawnVFXObject = Instantiate((GameObject)ResourceCache.Acquire("Global VFX/VFX_Item_Spawn_Poof"));
@@ -352,13 +362,18 @@ namespace ChaosGlitchMod.ChaosComponents {
                         if (BraveUtility.RandomBool()) { aiActor.AdditionalSafeItemDrops.Add(PickupObjectDatabase.GetById(70)); }
                         if (m_GlitchModeActive) { aiActor.AdditionalSafeItemDrops.Add(PickupObjectDatabase.GetById(70)); }
                     }
+                    if (UnityEngine.Random.value <= m_FriendlyMimicOdds) { m_isFriendlyMimic = true; }
                 } else {
                     aiActor.AdditionalSafeItemDrops.Add(item);
                 }                
+            } else {
+                if (m_ChaosModeActive && UnityEngine.Random.value <= m_FriendlyMimicOdds) { m_isFriendlyMimic = true; }
             }
-            aiActor.enabled = true;
-            behaviorSpeculator.enabled = true;
+            aiActor.enabled = true;            
+            behaviorSpeculator.enabled = true;            
             if (aiActor.ParentRoom != null && aiActor.ParentRoom.IsSealed && !m_isFriendlyMimic) { aiActor.IgnoreForRoomClear = false; }
+            // if (m_isFriendlyMimic) { ChaosUtility.MakeCompanion(aiActor); }
+            if (m_isFriendlyMimic) { aiActor.ApplyEffect(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultPermanentCharmEffect, 1f, null); }
             if (!m_failedWallConfigure) {
                 int count = this.specRigidbody.PixelColliders.Count;
                 for (int j = 0; j < count - 2; j++) { this.specRigidbody.PixelColliders[j].Enabled = true; }
@@ -392,15 +407,8 @@ namespace ChaosGlitchMod.ChaosComponents {
             }
             aiAnimator.LockFacingDirection = false;
             knockbackDoer.SetImmobile(false, "ChaosWallMimicController");
-            if (m_isFriendlyMimic) {
-                aiActor.CanTargetEnemies = true;
-                aiActor.CanTargetPlayers = false;
-                aiActor.CollisionDamage = 0;
-                aiActor.CollisionKnockbackStrength = 0;
-            } else {
-                aiActor.CollisionDamage = 0.5f;
-                aiActor.CollisionKnockbackStrength = m_collisionKnockbackStrength;
-            }            
+            aiActor.CollisionDamage = 0.5f;
+            aiActor.CollisionKnockbackStrength = m_collisionKnockbackStrength;            
             yield break;
         }        
 

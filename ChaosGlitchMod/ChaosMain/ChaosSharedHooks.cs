@@ -454,6 +454,7 @@ namespace ChaosGlitchMod.ChaosMain {
 
         private IEnumerator DelayedPotEnemySpawn(AIActor actorPrefab, Vector2 spawnLocation, RoomHandler spawnRoom, bool ignoredForRoomClear = true, bool preventBlackPhantom = true, float delay = 1f) {
             yield return new WaitForSeconds(delay);
+            yield return null;
             if (!spawnRoom.HasActiveEnemies(RoomHandler.ActiveEnemyType.RoomClear)) { yield break; }
             yield return null;
             AIActor spawnedActor = AIActor.Spawn(actorPrefab, spawnLocation, spawnRoom, correctForWalls: true);

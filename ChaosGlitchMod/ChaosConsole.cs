@@ -124,6 +124,23 @@ namespace ChaosGlitchMod {
                 tk2dSpriteCollectionData testTileSet = sharedAssets2.LoadAsset<GameObject>("ENV_FInalScenario_Pilot").GetComponent<tk2dSpriteCollectionData>();
                 CastlePrefabtest = DungeonDatabase.GetOrLoadByName("Base_Castle");
                 CastlePrefabtest.tileIndices.dungeonCollection = testTileSet;
+
+
+                RoomHandler currentRoom = GameManager.Instance.PrimaryPlayer.CurrentRoom;
+                IntVector2? Position1 = ChaosUtility.Instance.GetRandomAvailableCellSmart(currentRoom, new IntVector2(4, 4), false);
+
+                if (Position1.HasValue) {
+
+                    AIActor SpawnedEnemy = AIActor.Spawn(EnemyDatabase.GetOrLoadByGuid("d4dd2b2bbda64cc9bcec534b4e920518"), Position1.Value, currentRoom, true, AIActor.AwakenAnimationType.Default, true);
+
+                    ChaosUtility.MakeCompanion(SpawnedEnemy);
+
+                    // roomHandler.ApplyActionToNearbyEnemies(tableCenter.XY(), Radius, AuraAction);
+
+                    SpawnedEnemy.HandleReinforcementFallIntoRoom(0);
+                }                
+
+                AkSoundEngine.PostEvent("Play_AGUNIM_VO_FIGHT_LAUGH_01", GameManager.Instance.PrimaryPlayer.gameObject);
             });*/
 
             ETGModConsole.Commands.GetGroup("chaos").AddUnit("bonus", delegate (string[] e) {

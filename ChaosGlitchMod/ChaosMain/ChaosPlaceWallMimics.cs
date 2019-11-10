@@ -35,7 +35,7 @@ namespace ChaosGlitchMod.ChaosMain {
                 ChaosUtility.RatDungeon.decoSettings.lowQualityAmbientLightColorTwo += colorBoost;*/
                 dungeon.DungeonFloorName = "A Corrupted Place...";
                 dungeon.DungeonShortName = "A Corrupted Place...";
-                dungeon.DungeonFloorLevelTextOverride = "Beneath the Permafrost...";
+                dungeon.DungeonFloorLevelTextOverride = "Beneath the Melting Permafrost.";
             }
 
             if (currentFloor == -1) {

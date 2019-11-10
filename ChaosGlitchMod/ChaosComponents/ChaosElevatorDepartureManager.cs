@@ -223,7 +223,7 @@ namespace ChaosGlitchMod.ChaosComponents {
                             ChaosUtility.RatDungeon.LevelOverrideType = GameManager.LevelOverrideState.NONE;
                             // ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.PHOBOSGEON;
                             // ChaosUtility.RatDungeon.tileIndices.tilesetId = GlobalDungeonData.ValidTilesets.JUNGLEGEON;
-                            ChaosPrefabs.InitCustomTileSet(ChaosUtility.RatDungeon, GlobalDungeonData.ValidTilesets.PHOBOSGEON);
+                            ChaosPrefabs.InitCanyonTileSet(ChaosUtility.RatDungeon, GlobalDungeonData.ValidTilesets.PHOBOSGEON);
                             GameManager.Instance.StartCoroutine(ChaosUtility.DelayedGlitchLevelLoad(delay, "SecretGlitchFloor_Flow", true));
                         } else {
                             GameManager.Instance.DelayedLoadNextLevel(delay);
